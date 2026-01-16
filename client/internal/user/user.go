@@ -79,6 +79,4 @@ func (u *UserCLI) NewUser(userName, email, phone, password string) {
 		SystemUserId:   systemId,
 	}
 	u.User = tmp
-
-	fmt.Printf("%+v\n\r", tmp)
 }

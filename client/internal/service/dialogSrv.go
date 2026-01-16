@@ -28,7 +28,22 @@ func (d *DialogService) Welcome() {
 }
 
 func (d *DialogService) Authorization() {
-	fmt.Println("authorization")
+	// email
+	d.Client.SendMess(
+		"You need log in...",
+		"Enter email...")
+	email, err := d.User.ReceiveMess()
+	d.Logger.CheckWithFatal(err, "bad email")
+
+	// password
+	d.Client.SendMess("Enter password...")
+	password, err := d.User.ReceiveMess()
+	d.Logger.CheckWithFatal(err, "bad password")
+
+	// TODO
+	// Нужна проверка введенного пароля
+
+	fmt.Println(email, password)
 }
 
 func (d *DialogService) Registration() {

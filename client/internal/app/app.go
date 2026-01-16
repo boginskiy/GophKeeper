@@ -53,16 +53,16 @@ func (a *App) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Utils
+	// Utils.
 	fileHandler := utils.NewWorkingFile()
 
-	// System identification for user.
+	// Identification.
 	identity := user.NewIdentity(a.Logger, fileHandler)
 
 	client := client.NewClientCLI(ctx, mess1Ch, mess2Ch)
 	user := user.NewUserCLI(ctx, a.Logger, mess1Ch, mess2Ch, identity)
 
-	// Services
+	// Services.
 	dialogSrv := service.NewDialogService(a.Logger, client, user)
 
 	dialogSrv.Run()

@@ -1,24 +1,14 @@
 package main
 
-import (
-	"log"
-	"os"
-	"path/filepath"
-)
-
-var NAMEFILE = "config.json"
-var NAMEAPPL = "gophclient"
-
-func CreateFolderConfig
-
-func ReadOrCreateFileConfig(nameFile string) {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-	configPath := filepath.Join(dir, NAMEAPPL, NAMEFILE)
-}
-
 func main() {
+
+	var path = "/home/xulio/.config/gophclient/config.json"
+
+	// file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0755)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+
+	// fmt.Println(file)
 
 }

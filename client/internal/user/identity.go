@@ -19,9 +19,11 @@ type Identity struct {
 func NewIdentity(logger logg.Logger, fileHndl utils.FileHandler) *Identity {
 	// Path to config file.
 	path, err := fileHndl.CreatePathToConfig(config.APPNAME, config.CONFIG)
-	if err != nil {
-		logger.RaiseFatal(err, "error in creating path to config file", nil)
-	}
+	logger.CheckWithFatal(err, "error in creating path to config file")
+
+	// Create folder for config file.
+	err = fileHndl.CreateFolder(path, 0755)
+	logger.CheckWithFatal(err, "error in creating path to config file")
 
 	tmp := &Identity{
 		Logger:       logger,
@@ -50,7 +52,12 @@ func (i *Identity) TakePreviosUser() (*model.User, error) {
 		return nil, err
 	}
 
-	// Deserialization
+	// If config file is empty.
+	if len(dataByte) == 0 {
+		return nil, ErrEmptyConfigFile
+	}
+
+	// Deserialization.
 	previosUser := &model.User{}
 	err = i.FileHendler.Deserialization(dataByte, previosUser)
 	if err != nil {
