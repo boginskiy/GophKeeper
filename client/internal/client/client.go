@@ -7,15 +7,17 @@ import (
 	"time"
 )
 
+const NAME = "CLIENT"
+
 type ClientCLI struct {
 	Name    string
 	InMess  chan string
 	OutMess chan string
 }
 
-func NewClientCLI(ctx context.Context, name string, in, out chan string) *ClientCLI {
+func NewClientCLI(ctx context.Context, in, out chan string) *ClientCLI {
 	tmp := &ClientCLI{
-		Name:    name,
+		Name:    NAME,
 		InMess:  in,
 		OutMess: out,
 	}
@@ -50,9 +52,15 @@ func (c *ClientCLI) Sender(text string) {
 	// c.OutMess <- text
 }
 
-// Нужно построить на функции Hello форматированный диалог
+func (c *ClientCLI) Pprint(text string) {
+	for _, ch := range text {
+		fmt.Fprintf(os.Stdout, "%c", ch)
+		time.Sleep(30 * time.Millisecond)
+	}
+}
 
-func (c *ClientCLI) SendMess(text string) {
-	time.Sleep(500 * time.Millisecond)
-	fmt.Fprintf(os.Stdout, "%s: %s\n\r", c.Name, text)
+func (c *ClientCLI) SendMess(text ...string) {
+	for _, t := range text {
+		c.Pprint(fmt.Sprintf("%s: %s\n\r", c.Name, t))
+	}
 }

@@ -6,13 +6,15 @@ import (
 	"os"
 
 	"github.com/boginskiy/GophKeeper/client/internal/client"
+	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/pretty"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
+	"github.com/boginskiy/GophKeeper/client/internal/utils"
 )
 
 const (
-	NAME = "GophClient"
+	NAME = "gophclient"
 	DESC = "HI man! It is special CLI application for your computer"
 	VERS = "1.1.01"
 )
@@ -23,18 +25,18 @@ type App struct {
 	Version     string
 	Scanner     *bufio.Scanner
 	Looker      pretty.Looker
+	Logger      logg.Logger
 }
 
-func NewApp() *App {
+func NewApp(logger logg.Logger) *App {
 	tmpApp := &App{
 		Name:        NAME,
 		Description: DESC,
 		Version:     VERS,
 		Scanner:     bufio.NewScanner(os.Stdin),
 		Looker:      pretty.NewLook(),
+		Logger:      logger,
 	}
-
-	// tmpApp.Looker.Hello(pretty.ClientCLI, pretty.UserCLI)
 
 	return tmpApp
 
@@ -51,21 +53,22 @@ func (a *App) Run() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	client := client.NewClientCLI(ctx, "CLIENT", mess1Ch, mess2Ch)
-	user := user.NewUserCLI(ctx, "USER", mess1Ch, mess2Ch)
+	// Utils
+	fileHandler := utils.NewWorkingFile()
+
+	// System identification for user.
+	identity := user.NewIdentity(a.Logger, fileHandler)
+
+	client := client.NewClientCLI(ctx, mess1Ch, mess2Ch)
+	user := user.NewUserCLI(ctx, a.Logger, mess1Ch, mess2Ch, identity)
 
 	// Services
-	dialogSrv := service.NewDialogService(client, user)
+	dialogSrv := service.NewDialogService(a.Logger, client, user)
 
 	dialogSrv.Run()
 
-	// Приветствие
-	// a.Looker.Hello(pretty.ClientCLI, pretty.UserCLI)
+	defer user.SaveConfig()
 
-	// for {
-	// 	a.Looker.PrintInfo(pretty.ClientCLI, `Enter the command or 'help'...`)
-	// 	a.Scanner.Scan()
-	// }
 }
 
 // TODO...

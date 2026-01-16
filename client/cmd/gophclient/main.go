@@ -1,9 +1,13 @@
 package main
 
-import "github.com/boginskiy/GophKeeper/client/internal/app"
+import (
+	"github.com/boginskiy/GophKeeper/client/internal/app"
+	"github.com/boginskiy/GophKeeper/client/internal/logg"
+)
 
 func main() {
-	app.NewApp().Run()
+	logg := logg.NewLogg("main.log", "FATAL")
+	app.NewApp(logg).Run()
 }
 
 // TODO...
