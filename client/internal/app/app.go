@@ -5,18 +5,14 @@ import (
 	"context"
 	"os"
 
+	"github.com/boginskiy/GophKeeper/client/internal/auth"
 	"github.com/boginskiy/GophKeeper/client/internal/client"
+	"github.com/boginskiy/GophKeeper/client/internal/config"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/pretty"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 	"github.com/boginskiy/GophKeeper/client/internal/utils"
-)
-
-const (
-	NAME = "gophclient"
-	DESC = "HI man! It is special CLI application for your computer"
-	VERS = "1.1.01"
 )
 
 type App struct {
@@ -30,9 +26,9 @@ type App struct {
 
 func NewApp(logger logg.Logger) *App {
 	tmpApp := &App{
-		Name:        NAME,
-		Description: DESC,
-		Version:     VERS,
+		Name:        config.APPNAME,
+		Description: config.DESC,
+		Version:     config.VERS,
 		Scanner:     bufio.NewScanner(os.Stdin),
 		Looker:      pretty.NewLook(),
 		Logger:      logger,
@@ -58,21 +54,16 @@ func (a *App) Run() {
 
 	// Identification.
 	identity := user.NewIdentity(a.Logger, fileHandler)
+	auth := auth.NewAuth(a.Logger)
 
 	client := client.NewClientCLI(ctx, mess1Ch, mess2Ch)
 	user := user.NewUserCLI(ctx, a.Logger, mess1Ch, mess2Ch, identity)
 
 	// Services.
-	dialogSrv := service.NewDialogService(a.Logger, client, user)
-
-	dialogSrv.Run()
+	dialogSrv := service.NewDialogService(a.Logger, client, user, auth)
+	dialogSrv.Run(client, user)
 
 	defer user.SaveConfig()
+	defer a.Logger.Close()
 
 }
-
-// TODO...
-// Используйте bufio.Scanner для простого ввода одной строки.
-// Применяйте bufio.Reader для чтения нескольких строк подряд.
-// Воспользуйтесь fmt.Scanf для ввода конкретных типов данных (число, строка и т.д.).
-// Используйте пакет term для безопасной передачи конфиденциальных данных (паролей).

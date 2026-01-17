@@ -11,6 +11,7 @@ import (
 
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
+	"github.com/boginskiy/GophKeeper/client/pkg"
 )
 
 const NAMECLI = "USER"
@@ -70,11 +71,15 @@ func (u *UserCLI) ReceiveMess() (string, error) {
 func (u *UserCLI) NewUser(userName, email, phone, password string) {
 	// Save system info about new user
 	systemName, systemId := u.TakeSystemInfoCurrentUser()
+	// Hash password
+	hash, err := pkg.GenerateHash(password)
+	u.Logger.CheckWithFatal(err, "error in hashing password")
+
 	tmp := &model.User{
 		UserName:       userName,
 		Email:          email,
 		PhoneNumber:    phone,
-		Password:       password,
+		Password:       hash,
 		SystemUserName: systemName,
 		SystemUserId:   systemId,
 	}
