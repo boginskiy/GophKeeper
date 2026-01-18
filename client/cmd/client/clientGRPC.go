@@ -1,0 +1,34 @@
+package client
+
+import (
+	"github.com/boginskiy/GophKeeper/client/internal/logg"
+	"github.com/boginskiy/GophKeeper/client/internal/rpc"
+	"github.com/boginskiy/GophKeeper/server/cmd/config"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+)
+
+type ClientGRPC struct {
+	Cfg     config.Config
+	Logg    logg.Logger
+	Service rpc.KeeperServiceClient
+	Conn    *grpc.ClientConn
+}
+
+func NewClientGRPC(config config.Config, logger logg.Logger) *ClientGRPC {
+	// Conn
+	conn, err := grpc.NewClient(
+		config.GetPortServerGRPC(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	logger.CheckWithFatal(err, "error created client gRPC")
+
+	return &ClientGRPC{
+		Cfg:     config,
+		Logg:    logger,
+		Service: rpc.NewKeeperServiceClient(conn),
+		Conn:    conn,
+	}
+}
+
+func (c *ClientGRPC) Close() error {
+	return c.Conn.Close()
+}

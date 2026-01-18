@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"github.com/boginskiy/GophKeeper/client/internal/client"
+	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 

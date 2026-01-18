@@ -4,7 +4,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/boginskiy/GophKeeper/client/internal/config"
+	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/utils"

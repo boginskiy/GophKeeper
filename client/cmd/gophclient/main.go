@@ -1,24 +1,20 @@
 package main
 
 import (
+	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/app"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 )
 
 func main() {
-	logg := logg.NewLogg("main.log", "FATAL")
-	app.NewApp(logg).Run()
+	logg := logg.NewLogg("main.log", "INFO")
+	cfg := config.NewConf(logg)
+	app.NewApp(cfg, logg).Run()
 }
 
 // TODO...
-// Ты должен стать маньяком, чтобы хорошо сделать этот проект. Стань им сука!
-// Сделать приемку данных с CLI
-// Сделать prity interface для CLI
-// Сделать приветствие, сделать команду help и вывод всех доступных команд
-// Какие конфиги будем делать ?
-// Logger давай
-// ...
 
+// Сделать приветствие, сделать команду help и вывод всех доступных команд
 // Пользователь проходит процедуру первичной регистрации.
 // Пользователь добавляет в клиент новые данные.
 // Клиент синхронизирует данные с сервером.

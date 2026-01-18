@@ -3,7 +3,7 @@ package auth
 import (
 	"fmt"
 
-	"github.com/boginskiy/GophKeeper/client/internal/client"
+	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 	"github.com/boginskiy/GophKeeper/client/pkg"
