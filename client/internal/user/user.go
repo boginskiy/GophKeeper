@@ -17,35 +17,21 @@ import (
 const NAMECLI = "USER"
 
 type UserCLI struct {
-	Name     string
-	InMess   chan string
-	OutMess  chan string
-	Scanner  *bufio.Scanner
-	Logger   logg.Logger
-	User     *model.User
-	Identity *Identity
+	Name    string
+	InMess  chan string
+	OutMess chan string
+	Scanner *bufio.Scanner
+	Logger  logg.Logger
+	User    *model.User
 }
 
-func NewUserCLI(ctx context.Context, logger logg.Logger, out, in chan string, identity *Identity) *UserCLI {
-	tmp := &UserCLI{
-		Name:     NAMECLI,
-		OutMess:  out,
-		InMess:   in,
-		Logger:   logger,
-		Scanner:  bufio.NewScanner(os.Stdin),
-		Identity: identity,
-	}
-
-	// Identification user
-	identity.SystemIdentification(tmp)
-
-	return tmp
-}
-
-func (u *UserCLI) SaveConfig() {
-	err := u.Identity.SaveCurrentUser(u.User)
-	if err != nil {
-		u.Logger.RaiseError(err, "error saving new user i config file", nil)
+func NewUserCLI(ctx context.Context, logger logg.Logger, out, in chan string) *UserCLI {
+	return &UserCLI{
+		Name:    NAMECLI,
+		OutMess: out,
+		InMess:  in,
+		Logger:  logger,
+		Scanner: bufio.NewScanner(os.Stdin),
 	}
 }
 

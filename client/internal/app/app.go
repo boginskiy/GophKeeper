@@ -38,9 +38,6 @@ func NewApp(conf config.Config, logg logg.Logger) *App {
 }
 
 func (a *App) Run() {
-	// Config
-	// Logger
-	//
 
 	mess1Ch := make(chan string, 1)
 	mess2Ch := make(chan string, 1)
@@ -49,23 +46,23 @@ func (a *App) Run() {
 	defer cancel()
 
 	// gRPC
-	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg).Run()
+	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
 
 	// Utils.
 	fileHandler := utils.NewWorkingFile()
 
 	// Identification.
-	identity := user.NewIdentity(a.Logg, fileHandler)
-	auth := auth.NewAuth(a.Logg)
+	identity := auth.NewIdentity(a.Logg, fileHandler)
+	auth := auth.NewAuth(a.Cfg, a.Logg, fileHandler, identity)
 
 	clientCLI := client.NewClientCLI(ctx, mess1Ch, mess2Ch)
-	userCLI := user.NewUserCLI(ctx, a.Logg, mess1Ch, mess2Ch, identity)
+	userCLI := user.NewUserCLI(ctx, a.Logg, mess1Ch, mess2Ch)
 
 	// Services.
 	dialogSrv := service.NewDialogService(a.Logg, clientCLI, userCLI, auth)
 	dialogSrv.Run(clientCLI, userCLI)
 
-	defer userCLI.SaveConfig()
+	defer clientGRPC.Close()
 	defer a.Logg.Close()
 
 }

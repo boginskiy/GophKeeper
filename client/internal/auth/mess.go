@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
+	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
@@ -9,6 +10,8 @@ import (
 // 	Client *client.ClientCLI
 // 	User *user.UserCLI
 // }
+
+const ATTEMPTS = 3
 
 func GetPassword(client *client.ClientCLI, user *user.UserCLI) (string, error) {
 	client.SendMess("Enter password...")
@@ -34,6 +37,6 @@ func TryToGetSeveralTimes(get GetterFn, check CheckerFn) GetterFn {
 			}
 			client.SendMess("Uncorrected credentials. Try again...")
 		}
-		return "", ErrUncorrectCredentials
+		return "", errs.ErrUncorrectCredentials
 	}
 }

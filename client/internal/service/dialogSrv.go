@@ -26,9 +26,12 @@ func NewDialogService(logger logg.Logger, clt *client.ClientCLI, usr *user.UserC
 }
 
 func (d *DialogService) Run(client *client.ClientCLI, user *user.UserCLI) {
-	// Регистрация/Авторизация пользователя.
-	d.Auth.Authorization(client, user)
-	// Активные действия.
+	// Identification, Authorization, Registration user.
+	d.Auth.Identification(client, user)
 
-	fmt.Println(">> end <<") // Конец CLI сессии.
+	// Active action.
+	fmt.Println(">> End CLI Session <<")
+
+	// Save data current user in config.file for feature.
+	defer d.Auth.Identity.SaveCurrentUser(user)
 }

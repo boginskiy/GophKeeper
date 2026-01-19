@@ -1,9 +1,9 @@
 package client
 
 import (
+	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
-	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

@@ -1,34 +1,41 @@
 package auth
 
 import (
-	"fmt"
-
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
+	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
+	"github.com/boginskiy/GophKeeper/client/internal/utils"
 	"github.com/boginskiy/GophKeeper/client/pkg"
 )
 
-const ATTEMPTS = 3
-
 type Auth struct {
-	Logger logg.Logger
+	Cfg         config.Config
+	Logger      logg.Logger
+	FileHendler utils.FileHandler
+	Identity    *Identity
 }
 
-func NewAuth(logger logg.Logger) *Auth {
-	return &Auth{Logger: logger}
+func NewAuth(config config.Config, logger logg.Logger, fileHdlr utils.FileHandler, identity *Identity) *Auth {
+	return &Auth{Cfg: config, Logger: logger, FileHendler: fileHdlr, Identity: identity}
 }
 
-func (a *Auth) Authorization(client *client.ClientCLI, user *user.UserCLI) {
-	a.Welcome(client, user)
+func (a *Auth) Identification(client *client.ClientCLI, user *user.UserCLI) {
+	// Identification user. load data from config.file if exist.
+	ok := a.Identity.Identification(user)
+	if ok {
+		// TODO!
+		// После успешной идентификации пользователя, подгружаются данные из
+		// config.file и после можно обращаться к нему по имени.
+	}
+
+	a.welcome(client, user)
 
 	// Check of registration.
 	IsRegistration := user.User != nil
 
 	// Check of authentication.
 	IsAuthentication := IsRegistration && a.Authentication(client, user)
-
-	fmt.Println(IsAuthentication)
 
 	// New registration.
 	_ = !IsAuthentication && a.Registration(client, user)
@@ -90,7 +97,7 @@ func (a *Auth) checkPassword(user *user.UserCLI, password string) bool {
 	return pkg.CompareHashAndPassword(user.User.Password, password)
 }
 
-func (a *Auth) Welcome(client *client.ClientCLI, user *user.UserCLI) {
+func (a *Auth) welcome(client *client.ClientCLI, user *user.UserCLI) {
 	client.SendMess("Hello! Press the 'Enter'...")
 	user.ReceiveMess()
 }

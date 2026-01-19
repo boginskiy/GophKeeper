@@ -10,10 +10,6 @@ const (
 	CONFIG  = "config.json"
 )
 
-type Config interface {
-	GetPortServerGRPC() string
-}
-
 type Conf struct {
 	Logg           logg.Logger
 	PortServerGRPC string
@@ -25,4 +21,8 @@ func NewConf(logger logg.Logger) *Conf {
 
 func (c *Conf) GetPortServerGRPC() string {
 	return ":8080"
+}
+
+func (c *Conf) GetAttempts() int {
+	return 3
 }
