@@ -29,7 +29,6 @@ func NewIntercept(config config.Config, logger logg.Logger, auther auth.Auther) 
 	}
 }
 
-// return nil, status.Error(codes.Unauthenticated, "token is bad")
 func (i *Intercept) WithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	infoToken, ok := i.Auth.Identification(ctx, req)
 
@@ -45,20 +44,8 @@ func (i *Intercept) WithAuth(ctx context.Context, req interface{}, info *grpc.Un
 
 	// Good identification.
 
-	// TODO! ...
-	// Положить в хедер токен
-	// Добавить данные в контекст
-	// return handler(context.WithValue(ctx, auth.CtxUserID, UserID), req)
+	ctx = context.WithValue(ctx, auth.PhoneCtx, infoToken.PhoneNumber)
+	ctx = context.WithValue(ctx, auth.EmailCtx, infoToken.Email)
 
 	return handler(ctx, req)
 }
-
-// Нужно предусмотреть, что чел идет как раз таки за регистрацией или аутентификацией
-
-// Передаем токен и он валидный все ок. Разрешаем делать что дозволено
-// Передаем токен и он невалидный или его нет. Значит пользователь проходит аутентификацию. Вводит пароль и почту.
-
-// Если есть токен, то сначала передаем его на сервер.
-// Если токен невалидный, то передаем данные для аутентификации (почту и пароль)
-// Если пароль забыл, предусматриваем восстановление через почту или номер телефона
-// Далее обновляем данные пароля.

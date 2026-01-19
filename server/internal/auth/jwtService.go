@@ -5,13 +5,18 @@ import (
 	"fmt"
 	"time"
 
-	conf "github.com/boginskiy/Clicki/cmd/config"
+	"github.com/boginskiy/GophKeeper/server/cmd/config"
+	"github.com/boginskiy/GophKeeper/server/internal/errs"
 	"github.com/golang-jwt/jwt/v4"
 )
 
 type ExtraInfoToken struct {
 	Email       string
 	PhoneNumber string
+}
+
+func NewExtraInfoToken(email, phone string) *ExtraInfoToken {
+	return &ExtraInfoToken{Email: email, PhoneNumber: phone}
 }
 
 // Claims - own statement.
@@ -22,11 +27,11 @@ type Claims struct {
 
 // JWTService - is JWT authentication.
 type JWTService struct {
-	Cfg conf.Config
+	Cfg config.Config
 }
 
-func NewJWTService(config conf.Config) *JWTService {
-	return &JWTService{Cfg: config}
+func NewJWTService(conf config.Config) *JWTService {
+	return &JWTService{Cfg: conf}
 }
 
 // CreateToken .
@@ -47,7 +52,7 @@ func (j *JWTService) CreateJWT(infoToken *ExtraInfoToken) (string, error) {
 	return token, nil
 }
 
-// GetInfoAndValidJWT .
+// .
 func (j *JWTService) GetInfoAndValidJWT(checkingToken string) (*ExtraInfoToken, error) {
 	claims := &Claims{}
 
@@ -61,14 +66,14 @@ func (j *JWTService) GetInfoAndValidJWT(checkingToken string) (*ExtraInfoToken, 
 	if err != nil {
 		// Analize of expired token.
 		if j.checkTokenIsExpired(err) {
-			return claims.InfoToken, ErrTokenIsExpired
+			return claims.InfoToken, errs.ErrTokenIsExpired
 		}
 		return claims.InfoToken, err
 	}
 
 	// Analize of invalid token.
 	if !token.Valid {
-		return claims.InfoToken, ErrTokenNotValid
+		return claims.InfoToken, errs.ErrTokenNotValid
 	}
 	return claims.InfoToken, nil
 }
