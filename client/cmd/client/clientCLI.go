@@ -16,32 +16,12 @@ type ClientCLI struct {
 }
 
 func NewClientCLI(ctx context.Context, in, out chan string) *ClientCLI {
-	tmp := &ClientCLI{
+	return &ClientCLI{
 		Name:    NAME,
 		InMess:  in,
 		OutMess: out,
 	}
-
-	// go tmp.Reciver(ctx)
-
-	return tmp
 }
-
-func (c *ClientCLI) procInMess(text string) {
-
-}
-
-// func (c *ClientCLI) Reciver(ctx context.Context) {
-// 	for {
-// 		select {
-// 		case text := <-c.InMess:
-// 			c.procInMess(text)
-
-// 		case <-ctx.Done():
-// 			return
-// 		}
-// 	}
-// }
 
 func (c *ClientCLI) Reciver() (string, error) {
 	return "", nil

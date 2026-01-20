@@ -12,7 +12,7 @@ type Auhter interface {
 	Authentication(client *client.ClientCLI, user *user.UserCLI) bool
 }
 
-type Identification interface {
+type Identifier interface {
 	Identification(*user.UserCLI) bool
 	SaveCurrentUser(*model.User)
 }

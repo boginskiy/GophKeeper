@@ -26,12 +26,31 @@ func NewDialogService(logger logg.Logger, clt *client.ClientCLI, usr *user.UserC
 }
 
 func (d *DialogService) Run(client *client.ClientCLI, user *user.UserCLI) {
+	// Hello
+	d.Hello(client, user)
+
 	// Identification, Authorization, Registration user.
 	d.Auth.Identification(client, user)
+
+	// Бесконечный диалог
+	for {
+		mess, err := user.ReceiveMess()
+		d.Logger.CheckWithFatal(err, "reading error of cli")
+
+		if mess == "exit" {
+			break
+		}
+
+	}
 
 	// Active action.
 	fmt.Println(">> End CLI Session <<")
 
 	// Save data current user in config.file for feature.
-	defer d.Auth.Identity.SaveCurrentUser(user)
+	// defer d.Auth.Identity.SaveCurrentUser(user)
+}
+
+func (d *DialogService) Hello(client *client.ClientCLI, user *user.UserCLI) {
+	client.SendMess("Hello! Press the 'Enter'...")
+	user.ReceiveMess()
 }

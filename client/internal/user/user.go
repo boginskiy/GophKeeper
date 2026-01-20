@@ -54,20 +54,16 @@ func (u *UserCLI) ReceiveMess() (string, error) {
 	return u.Scanner.Text(), nil
 }
 
-func (u *UserCLI) NewUser(userName, email, phone, password string) {
+func (u *UserCLI) PreparUser(user *model.User) {
 	// Save system info about new user
 	systemName, systemId := u.TakeSystemInfoCurrentUser()
 	// Hash password
-	hash, err := pkg.GenerateHash(password)
+	hash, err := pkg.GenerateHash(user.Password)
 	u.Logger.CheckWithFatal(err, "error in hashing password")
 
-	tmp := &model.User{
-		UserName:       userName,
-		Email:          email,
-		PhoneNumber:    phone,
-		Password:       hash,
-		SystemUserName: systemName,
-		SystemUserId:   systemId,
-	}
-	u.User = tmp
+	user.SystemUserName = systemName
+	user.SystemUserId = systemId
+	user.Password = hash
+
+	u.User = user
 }

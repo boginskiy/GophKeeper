@@ -9,8 +9,6 @@ import (
 )
 
 type ClientGRPC struct {
-	Cfg     config.Config
-	Logg    logg.Logger
 	Service rpc.KeeperServiceClient
 	Conn    *grpc.ClientConn
 }
@@ -19,11 +17,10 @@ func NewClientGRPC(config config.Config, logger logg.Logger) *ClientGRPC {
 	// Conn
 	conn, err := grpc.NewClient(
 		config.GetPortServerGRPC(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+
 	logger.CheckWithFatal(err, "error created client gRPC")
 
 	return &ClientGRPC{
-		Cfg:     config,
-		Logg:    logger,
 		Service: rpc.NewKeeperServiceClient(conn),
 		Conn:    conn,
 	}

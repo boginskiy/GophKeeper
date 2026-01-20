@@ -1,6 +1,10 @@
 package config
 
-import "github.com/boginskiy/GophKeeper/client/internal/logg"
+import (
+	"time"
+
+	"github.com/boginskiy/GophKeeper/client/internal/logg"
+)
 
 // Data default.
 const (
@@ -24,5 +28,13 @@ func (c *Conf) GetPortServerGRPC() string {
 }
 
 func (c *Conf) GetAttempts() int {
+	return 3
+}
+
+func (c *Conf) GetWaitingTimeResponse() int {
+	return 250 * int(time.Millisecond)
+}
+
+func (c *Conf) GetCountRetryRequest() int {
 	return 3
 }
