@@ -8,6 +8,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
+	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/clients"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
@@ -42,8 +43,6 @@ func NewApp(conf config.Config, logg logg.Logger) *App {
 func (a *App) Run() {
 	// Contexts and channels.
 	ctx, cancel := context.WithCancel(context.Background())
-	mess1Ch := make(chan string, 1)
-	mess2Ch := make(chan string, 1)
 	UserChan := make(chan *model.User, 1)
 
 	// Logger.
@@ -53,20 +52,22 @@ func (a *App) Run() {
 	fileHandler := utils.NewWorkingFile()
 
 	// Clients && user
-	userCLI := user.NewUserCLI(ctx, a.Logg, mess1Ch, mess2Ch)
-	clientCLI := client.NewClientCLI(ctx, mess1Ch, mess2Ch)
+	userCLI := user.NewUserCLI(ctx, a.Logg)
+	clientCLI := client.NewClientCLI(ctx)
 
 	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
 	clientAPI := clients.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
 
+	// Services.
+	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
+
 	// Auth.
 	identity := auth.NewIdentity(a.Logg, fileHandler)
-	auther := auth.NewAuth(a.Cfg, a.Logg, UserChan, fileHandler, identity)
-	_ = auth.NewAuthServer(ctx, a.Cfg, remoteLogg, UserChan, clientAPI)
+	auther := auth.NewAuth(a.Cfg, a.Logg, UserChan, fileHandler, identity, dialogSrv)
+	auth.NewAuthRemote(ctx, a.Cfg, remoteLogg, UserChan, clientAPI)
 
-	// Services.
-	dialogSrv := service.NewDialogService(a.Logg, clientCLI, userCLI, auther)
-	dialogSrv.Run(clientCLI, userCLI)
+	service.NewKeeperService(
+		a.Cfg, a.Logg, identity, dialogSrv, auther).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()
 	defer a.Logg.Close()

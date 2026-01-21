@@ -10,16 +10,12 @@ import (
 const NAME = "CLIENT"
 
 type ClientCLI struct {
-	Name    string
-	InMess  chan string
-	OutMess chan string
+	Name string
 }
 
-func NewClientCLI(ctx context.Context, in, out chan string) *ClientCLI {
+func NewClientCLI(ctx context.Context) *ClientCLI {
 	return &ClientCLI{
-		Name:    NAME,
-		InMess:  in,
-		OutMess: out,
+		Name: NAME,
 	}
 }
 

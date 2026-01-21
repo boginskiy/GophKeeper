@@ -11,21 +11,21 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-type AuthServer struct {
+type AuthRemote struct {
 	Cfg       config.Config
 	Logg      logg.Logger
 	UserChan  chan *model.User
 	ClientAPI *clients.ClientAPI
 }
 
-func NewAuthServer(
+func NewAuthRemote(
 	ctx context.Context,
 	config config.Config,
 	logger logg.Logger,
 	userch chan *model.User,
-	clientapi *clients.ClientAPI) *AuthServer {
+	clientapi *clients.ClientAPI) *AuthRemote {
 
-	tmp := &AuthServer{
+	tmp := &AuthRemote{
 		Cfg:       config,
 		Logg:      logger,
 		UserChan:  userch,
@@ -37,7 +37,7 @@ func NewAuthServer(
 	return tmp
 }
 
-func (a *AuthServer) RemoteRegistration(ctx context.Context) {
+func (a *AuthRemote) RemoteRegistration(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -48,7 +48,7 @@ func (a *AuthServer) RemoteRegistration(ctx context.Context) {
 	}
 }
 
-func (a *AuthServer) remoteRegistration(user *model.User) *model.User {
+func (a *AuthRemote) remoteRegistration(user *model.User) *model.User {
 	// Request.
 	req := &rpc.RegistUserRequest{
 		Username:    user.UserName,

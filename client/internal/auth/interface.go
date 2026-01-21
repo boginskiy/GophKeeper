@@ -2,7 +2,6 @@ package auth
 
 import (
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
-	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
@@ -14,5 +13,5 @@ type Auhter interface {
 
 type Identifier interface {
 	Identification(*user.UserCLI) bool
-	SaveCurrentUser(*model.User)
+	SaveCurrentUser(*user.UserCLI)
 }
