@@ -42,6 +42,7 @@ func NewApp(conf config.Config, logg logg.Logger) *App {
 func (a *App) Run() {
 	// Contexts and channels.
 	ctx, cancel := context.WithCancel(context.Background())
+	messChan := make(chan string, 1)
 
 	// Logger.
 	remoteLogg := logg.NewLogg("remote.log", "INFO")
@@ -57,15 +58,16 @@ func (a *App) Run() {
 	clientAPI := api.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
 
 	// Services.
-	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
 	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientAPI)
+	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
+	service.NewCommandService(ctx, a.Cfg, a.Logg, messChan)
 
 	// Auth.
 	identity := auth.NewIdentity(a.Logg, fileHandler)
 	auther := auth.NewAuth(a.Cfg, a.Logg, fileHandler, identity, dialogSrv, remoteSrv)
 
 	service.NewKeeperService(
-		a.Cfg, a.Logg, identity, dialogSrv, auther).Run(clientCLI, userCLI)
+		a.Cfg, a.Logg, messChan, identity, dialogSrv, auther).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()
 	defer a.Logg.Close()
