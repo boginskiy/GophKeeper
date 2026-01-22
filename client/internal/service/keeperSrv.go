@@ -36,32 +36,32 @@ func NewKeeperService(
 }
 
 func (d *KeeperService) Run(client *client.ClientCLI, user *user.UserCLI) {
-	d.ExecuteHello(client, user) // Hello
-	d.ExecuteAuth(client, user)  // Auth
+	d.ExecuteHello(client, user)      // Hello
+	ok := d.ExecuteAuth(client, user) // Auth
 
 	// Бесконечный диалог
-	for {
-		mess, err := user.ReceiveMess()
+	for ok {
+		comm, err := d.Dialoger.GetCommand(client, user)
 		d.Logg.CheckWithFatal(err, "reading error of cli")
 
-		if mess == "exit" {
+		fmt.Println(comm)
+
+		if comm == "exit" {
 			break
 		}
-
 	}
 
-	// Active action.
-	fmt.Println(">> End CLI Session <<")
+	d.Dialoger.ShowSomeInfo(client, "Session is over")
 
 	// Save data current user in config.file for feature.
-	// defer d.Auth.Identity.SaveCurrentUser(user)
+	defer d.Identifier.SaveCurrentUser(user)
 }
 
 func (d *KeeperService) ExecuteHello(client *client.ClientCLI, user *user.UserCLI) {
 	d.Dialoger.ShowHello(client, user)
 }
 
-func (d *KeeperService) ExecuteAuth(client *client.ClientCLI, user *user.UserCLI) {
+func (d *KeeperService) ExecuteAuth(client *client.ClientCLI, user *user.UserCLI) bool {
 	// Identification user. load data from config.file if exist.
 	IsThereRegistr := d.Identifier.Identification(user)
 
@@ -69,6 +69,7 @@ func (d *KeeperService) ExecuteAuth(client *client.ClientCLI, user *user.UserCLI
 	IsThereAuthent := d.Auth.Authentication(IsThereRegistr, client, user)
 
 	// Registration user.
-	d.Auth.Registration(IsThereAuthent, client, user)
+	IsThereRegistr = d.Auth.Registration(IsThereAuthent, client, user)
 
+	return IsThereRegistr || IsThereAuthent
 }

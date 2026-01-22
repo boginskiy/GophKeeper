@@ -7,9 +7,9 @@ import (
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
-	"github.com/boginskiy/GophKeeper/client/internal/clients"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
@@ -56,15 +56,16 @@ func (a *App) Run() {
 	clientCLI := client.NewClientCLI(ctx)
 
 	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
-	clientAPI := clients.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
+	clientAPI := api.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
 
 	// Services.
 	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
+	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, UserChan, clientAPI)
 
 	// Auth.
 	identity := auth.NewIdentity(a.Logg, fileHandler)
-	auther := auth.NewAuth(a.Cfg, a.Logg, UserChan, fileHandler, identity, dialogSrv)
-	auth.NewAuthRemote(ctx, a.Cfg, remoteLogg, UserChan, clientAPI)
+	auther := auth.NewAuth(a.Cfg, a.Logg, UserChan, fileHandler, identity, dialogSrv, remoteSrv)
+	// api.NewRemoteService(ctx, a.Cfg, remoteLogg, UserChan, clientAPI)
 
 	service.NewKeeperService(
 		a.Cfg, a.Logg, identity, dialogSrv, auther).Run(clientCLI, userCLI)

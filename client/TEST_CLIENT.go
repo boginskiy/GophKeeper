@@ -6,7 +6,7 @@ import (
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
-	"github.com/boginskiy/GophKeeper/client/internal/auth"
+	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/clients"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
@@ -30,7 +30,7 @@ func main() {
 	clientGRPC := client.NewClientGRPC(cfg, logger)
 	clientAPI := clients.NewClientAPI(cfg, logger, clientGRPC)
 
-	client := auth.NewAuthRemote(ctx, config, logger, userChan, clientAPI)
+	client := api.NewRemoteService(ctx, config, logger, userChan, clientAPI)
 
 	user := &model.User{
 		UserName:    "Dima",

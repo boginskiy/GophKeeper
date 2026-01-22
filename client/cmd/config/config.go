@@ -32,7 +32,7 @@ func (c *Conf) GetAttempts() int {
 }
 
 func (c *Conf) GetWaitingTimeResponse() int {
-	return 250 * int(time.Millisecond)
+	return 500 * int(time.Millisecond)
 }
 
 func (c *Conf) GetCountRetryRequest() int {

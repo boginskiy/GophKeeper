@@ -13,15 +13,20 @@ type GetterFn func(*client.ClientCLI, *user.UserCLI) (string, error)
 type CheckerFn func(string, string) bool
 
 type DialogService struct {
-	Cfg    config.Config
-	Logger logg.Logger
+	Cfg  config.Config
+	Logg logg.Logger
 }
 
 func NewDialogService(cfg config.Config, logger logg.Logger) *DialogService {
 	return &DialogService{
-		Cfg:    cfg,
-		Logger: logger,
+		Cfg:  cfg,
+		Logg: logger,
 	}
+}
+
+// ShowSomeInfo
+func (d *DialogService) ShowSomeInfo(client *client.ClientCLI, info string) {
+	client.SendMess(info)
 }
 
 // ShowHello
@@ -45,12 +50,31 @@ func (d *DialogService) ShowStatusAuth(client *client.ClientCLI, user *user.User
 	client.SendMess("Authentication is successful")
 }
 
-// GetEmail
-func (d *DialogService) GetEmail(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-	client.SendMess("Enter email...")
+// GetUserName
+func (d *DialogService) GetUserName(client *client.ClientCLI, user *user.UserCLI) (string, error) {
+	client.SendMess("Enter the user name...")
 	return user.ReceiveMess()
 }
 
+// GetPhone
+func (d *DialogService) GetPhone(client *client.ClientCLI, user *user.UserCLI) (string, error) {
+	client.SendMess("Enter the phone...")
+	return user.ReceiveMess()
+}
+
+// ShowHello
+func (d *DialogService) GetCommand(client *client.ClientCLI, user *user.UserCLI) (string, error) {
+	client.SendMess("Enter the command...")
+	return user.ReceiveMess()
+}
+
+// GetEmail
+func (d *DialogService) GetEmail(client *client.ClientCLI, user *user.UserCLI) (string, error) {
+	client.SendMess("Enter the email...")
+	return user.ReceiveMess()
+}
+
+// GetEmailWithCheck decorator GetEmail.
 func (d *DialogService) GetEmailWithCheck(dialogGet GetterFn, funcCheck CheckerFn) GetterFn {
 	return func(client *client.ClientCLI, user *user.UserCLI) (string, error) {
 
@@ -72,6 +96,7 @@ func (d *DialogService) GetPassword(client *client.ClientCLI, user *user.UserCLI
 	return user.ReceiveMess()
 }
 
+// GetPasswordWithCheck decorator for GetPassword.
 func (d *DialogService) GetPasswordWithCheck(dialogGet GetterFn, funcCheck CheckerFn) GetterFn {
 	return func(client *client.ClientCLI, user *user.UserCLI) (string, error) {
 
@@ -87,18 +112,6 @@ func (d *DialogService) GetPasswordWithCheck(dialogGet GetterFn, funcCheck Check
 	}
 }
 
-// GetUserName
-func (d *DialogService) GetUserName(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-	client.SendMess("Enter user name...")
-	return user.ReceiveMess()
-}
-
-// GetPhone
-func (d *DialogService) GetPhone(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-	client.SendMess("Enter phone...")
-	return user.ReceiveMess()
-}
-
 // Checker
 func (d *DialogService) CheckEmail(userEmail, email string) bool {
 	return userEmail == email
@@ -106,4 +119,22 @@ func (d *DialogService) CheckEmail(userEmail, email string) bool {
 
 func (d *DialogService) CheckPassword(userPassword, password string) bool {
 	return pkg.CompareHashAndPassword(userPassword, password)
+}
+
+func (d *DialogService) DialogsAbRegister(client *client.ClientCLI, user *user.UserCLI) (userName, email, phone, password string) {
+	d.ShowRegister(client, user)
+
+	userName, err := d.GetUserName(client, user)
+	d.Logg.CheckWithFatal(err, "bad user name")
+
+	email, err = d.GetEmail(client, user)
+	d.Logg.CheckWithFatal(err, "bad email")
+
+	phone, err = d.GetPhone(client, user)
+	d.Logg.CheckWithFatal(err, "bad phone")
+
+	password, err = d.GetPassword(client, user)
+	d.Logg.CheckWithFatal(err, "bad password")
+
+	return userName, email, phone, password
 }

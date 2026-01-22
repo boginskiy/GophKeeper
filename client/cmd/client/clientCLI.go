@@ -31,7 +31,7 @@ func (c *ClientCLI) Sender(text string) {
 func (c *ClientCLI) Pprint(text string) {
 	for _, ch := range text {
 		fmt.Fprintf(os.Stdout, "%c", ch)
-		time.Sleep(30 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 	}
 }
 

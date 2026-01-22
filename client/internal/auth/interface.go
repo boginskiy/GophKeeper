@@ -6,7 +6,6 @@ import (
 )
 
 type Auhter interface {
-	Identification(client *client.ClientCLI, user *user.UserCLI)
 	Registration(client *client.ClientCLI, user *user.UserCLI) bool
 	Authentication(client *client.ClientCLI, user *user.UserCLI) bool
 }

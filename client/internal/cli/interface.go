@@ -25,6 +25,10 @@ type GetterUserName interface {
 	GetUserName(*client.ClientCLI, *user.UserCLI) (string, error)
 }
 
+type GetterCommand interface {
+	GetCommand(*client.ClientCLI, *user.UserCLI) (string, error)
+}
+
 type GetterPhone interface {
 	GetPhone(*client.ClientCLI, *user.UserCLI) (string, error)
 }
@@ -32,6 +36,7 @@ type GetterPhone interface {
 type Dialoger interface {
 	GetterUserName
 	GetterPassword
+	GetterCommand
 	GetterPhone
 	GetterEmail
 	Checker
@@ -40,4 +45,7 @@ type Dialoger interface {
 	ShowRegister(*client.ClientCLI, *user.UserCLI)
 	ShowHello(*client.ClientCLI, *user.UserCLI)
 	ShowLogIn(*client.ClientCLI, *user.UserCLI)
+	ShowSomeInfo(*client.ClientCLI, string)
+
+	DialogsAbRegister(*client.ClientCLI, *user.UserCLI) (userName, email, phone, password string)
 }

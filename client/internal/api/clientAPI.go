@@ -1,4 +1,4 @@
-package clients
+package api
 
 import (
 	"context"
@@ -49,6 +49,7 @@ func (c *ClientAPI) RegisterUser(req *rpc.RegistUserRequest, header *metadata.MD
 			return res, err
 		}
 	}
+
 	return nil, errs.ErrResponseServer
 }
 

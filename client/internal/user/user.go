@@ -41,7 +41,7 @@ func (u *UserCLI) TakeSystemInfoCurrentUser() (username, uid string) {
 }
 
 func (u *UserCLI) ReceiveMess() (string, error) {
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 	fmt.Fprintf(os.Stdout, "%s: ", u.Name)
 
 	if !u.Scanner.Scan() {
@@ -50,7 +50,7 @@ func (u *UserCLI) ReceiveMess() (string, error) {
 	return u.Scanner.Text(), nil
 }
 
-func (u *UserCLI) PreparUser(user *model.User) {
+func (u *UserCLI) SaveLocalUser(user *model.User) {
 	// Save system info about new user
 	systemName, systemId := u.TakeSystemInfoCurrentUser()
 	// Hash password

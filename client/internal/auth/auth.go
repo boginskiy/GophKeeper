@@ -1,10 +1,9 @@
 package auth
 
 import (
-	"fmt"
-
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
@@ -22,6 +21,7 @@ type Auth struct {
 	FileHendler utils.FileHandler
 	Identity    *Identity
 	Dialoger    cli.Dialoger
+	ServiceAPI  api.ServiceAPI
 }
 
 func NewAuth(
@@ -31,6 +31,7 @@ func NewAuth(
 	fileHdlr utils.FileHandler,
 	identity *Identity,
 	dialoger cli.Dialoger,
+	serviceAPI api.ServiceAPI,
 ) *Auth {
 
 	return &Auth{
@@ -40,6 +41,7 @@ func NewAuth(
 		FileHendler: fileHdlr,
 		Identity:    identity,
 		Dialoger:    dialoger,
+		ServiceAPI:  serviceAPI,
 	}
 }
 
@@ -48,62 +50,23 @@ func (a *Auth) Registration(isThereAuthent bool, client *client.ClientCLI, user 
 		return false
 	}
 
-	a.Dialoger.ShowRegister(client, user)
+	// Передача данных на сервис ServiceAPI для регистрации на удаленном сервере.
+	userName, email, phone, password := a.Dialoger.DialogsAbRegister(client, user)
+	newUser := model.NewUser(userName, email, phone, password)
+	token, err := a.ServiceAPI.Registration(*newUser)
 
-	userName, err := a.Dialoger.GetUserName(client, user)
-	a.Logg.CheckWithFatal(err, "bad user name")
-
-	email, err := a.Dialoger.GetEmail(client, user)
-	a.Logg.CheckWithFatal(err, "bad email")
-
-	phone, err := a.Dialoger.GetPhone(client, user)
-	a.Logg.CheckWithFatal(err, "bad phone")
-
-	password, err := a.Dialoger.GetPassword(client, user)
-	a.Logg.CheckWithFatal(err, "bad password")
-
-	// Вот как это разрулить ?
-	// Доделать и написать тесты
-	//
-
-	// Передача данных на сервис AuthRemote для регистрации на удаленном сервере.
-	a.UserChan <- model.NewUser(userName, email, phone, password)
-	newUser := <-a.UserChan
-
-	fmt.Printf("%+v\n", newUser)
-
-	// ERROR ...
-	if newUser.StatusError != nil {
-
-		// Ошибка локальная. Сервер не отвечает.
-		if newUser.StatusError == errs.ErrResponseServer {
-			client.SendMess("Server is unavailable, please try again later")
-			return false
-		}
-
-		// Ошибки с сервера.
-		codeErr := a.CodeErrFromServerGRPC(newUser.StatusError)
-
-		// Ошибка создания пользователя.
-		if codeErr == codes.InvalidArgument {
-			// TODO...
-		}
-
-		// Ошибка уникального email.
-		if codeErr == codes.AlreadyExists {
-			// TODO...
-		}
-
-		// Ошибка создания токена.
-		// Ошибка когда кладем токен в заголовок.
-		if codeErr == codes.Internal {
-			// TODO...
-		}
-
+	// Обработка ошибок
+	ok, info := a.ErrorHandler(err)
+	if ok {
+		a.Dialoger.ShowSomeInfo(client, info)
+		return false
 	}
 
-	user.PreparUser(newUser)
-	client.SendMess("Registration is successful")
+	newUser.Token = token
+	newUser.StatusError = err
+
+	user.SaveLocalUser(newUser)
+	a.Dialoger.ShowSomeInfo(client, "Registration is successful")
 	return true
 }
 
@@ -133,10 +96,40 @@ func (a *Auth) Authentication(isThereRegistr bool, client *client.ClientCLI, use
 		return false
 	}
 
+	a.Dialoger.ShowSomeInfo(client, "Authentication is successful")
 	return true
 }
 
-func (a *Auth) CodeErrFromServerGRPC(err error) codes.Code {
+func (a *Auth) ErrorHandler(err error) (bool, string) {
+	if err == nil {
+		return false, ""
+	}
+
+	// Ошибка локальная. Сервер не отвечает.
+	if err == errs.ErrResponseServer {
+		return true, "Server is unavailable, please try again later"
+	}
+
+	switch a.modifyErrServerOnCode(err) {
+	// Ошибка создания пользователя.
+	case codes.InvalidArgument:
+		return true, "User creation error"
+
+	// Ошибка уникального email.
+	case codes.AlreadyExists:
+		return true, "Unique email error"
+
+	// Ошибка создания токена или когда кладем токен в заголовок.
+	case codes.Internal:
+		return true, "An error in creating or transferring a token"
+
+	// Неизвестная ошибка.
+	default:
+		return true, "Unknown error"
+	}
+}
+
+func (a *Auth) modifyErrServerOnCode(err error) codes.Code {
 	statusErr, ok := status.FromError(err)
 	if !ok {
 		return codes.OK
