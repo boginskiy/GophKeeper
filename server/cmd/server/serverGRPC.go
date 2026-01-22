@@ -1,7 +1,9 @@
 package server
 
 import (
+	"fmt"
 	"net"
+	"os"
 
 	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"github.com/boginskiy/GophKeeper/server/internal/intercept"
@@ -34,5 +36,6 @@ func (s *ServerGRPC) Run(handler rpc.KeeperServiceServer, interceptor intercept.
 	// Registration handler.
 	rpc.RegisterKeeperServiceServer(server, handler)
 	// Run.
+	fmt.Fprintf(os.Stdout, "Protocol:      %s\n", "gRPC")
 	s.Logg.CheckWithFatal(server.Serve(s.listen), "gRPC server has not started")
 }

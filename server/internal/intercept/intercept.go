@@ -39,7 +39,7 @@ func (i *Intercept) WithAuth(ctx context.Context, req interface{}, info *grpc.Un
 
 	// Request to Authentication or Registration.
 	if ok && infoToken == nil {
-		handler(ctx, req)
+		return handler(ctx, req)
 	}
 
 	// Good identification.

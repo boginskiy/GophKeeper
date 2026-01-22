@@ -19,6 +19,7 @@ func (u *RepoUser) CreateRecord(user *model.User) (*model.User, error) {
 	}
 	user.ID = len(u.Store) + 1
 	u.Store[user.Email] = user
+
 	return user, nil
 }
 
