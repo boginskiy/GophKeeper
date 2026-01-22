@@ -40,12 +40,19 @@ func (a *RemoteService) Registration(user model.User) (token string, err error) 
 		Email:       user.Email,
 		Password:    user.Password,
 		Phonenumber: user.PhoneNumber}
-
 	// Header.
 	var header metadata.MD
 
 	_, err = a.ClientAPI.RegisterUser(req, &header)
 	token = a.ClientAPI.TakeValueFromHeader(header, "authorization", 0)
+	return token, err
+}
 
+func (a *RemoteService) Authentication(user model.User) (token string, err error) {
+	req := &rpc.AuthUserRequest{Email: user.Email, Password: user.Password}
+	var header metadata.MD
+
+	_, err = a.ClientAPI.AutherUser(req, &header)
+	token = a.ClientAPI.TakeValueFromHeader(header, "authorization", 0)
 	return token, err
 }

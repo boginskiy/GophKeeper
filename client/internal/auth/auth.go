@@ -5,13 +5,10 @@ import (
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
-	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 	"github.com/boginskiy/GophKeeper/client/internal/utils"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type Auth struct {
@@ -56,7 +53,7 @@ func (a *Auth) Registration(isThereAuthent bool, client *client.ClientCLI, user 
 	token, err := a.ServiceAPI.Registration(*newUser)
 
 	// Обработка ошибок
-	ok, info := a.ErrorHandler(err)
+	ok, info := ErrorHandler(err)
 	if ok {
 		a.Dialoger.ShowSomeInfo(client, info)
 		return false
@@ -82,57 +79,34 @@ func (a *Auth) Authentication(isThereRegistr bool, client *client.ClientCLI, use
 	// если нет совпадения, то есть 3 попытки ввести верный email,
 	// иначе аутентификация признается невалидной.
 
+	// TODO! Это можно реализовать в интерфейсе Dialoger. Убрать отсюда.
 	DecorGetEmail := a.Dialoger.GetEmailWithCheck(a.Dialoger.GetEmail, a.Dialoger.CheckEmail)
-	_, err := DecorGetEmail(client, user)
+	email, err := DecorGetEmail(client, user)
 	if err != nil {
 		a.Logg.RaiseError(err, "bad email in authentication", nil)
 		return false
 	}
 
+	// TODO! Это можно реализовать в интерфейсе Dialoger. Убрать отсюда.
 	DecorGetPassword := a.Dialoger.GetPasswordWithCheck(a.Dialoger.GetPassword, a.Dialoger.CheckPassword)
-	_, err = DecorGetPassword(client, user)
+	password, err := DecorGetPassword(client, user)
 	if err != nil {
 		a.Logg.RaiseError(err, "bad password in authentication", nil)
 		return false
 	}
 
+	token, err := a.ServiceAPI.Authentication(model.User{Email: email, Password: password})
+
+	// Обработка ошибок
+	ok, info := ErrorHandler(err)
+	if ok {
+		a.Dialoger.ShowSomeInfo(client, info)
+		return false
+	}
+
+	user.User.Token = token
+	user.User.StatusError = err
+
 	a.Dialoger.ShowSomeInfo(client, "Authentication is successful")
 	return true
-}
-
-func (a *Auth) ErrorHandler(err error) (bool, string) {
-	if err == nil {
-		return false, ""
-	}
-
-	// Ошибка локальная. Сервер не отвечает.
-	if err == errs.ErrResponseServer {
-		return true, "Server is unavailable, please try again later"
-	}
-
-	switch a.modifyErrServerOnCode(err) {
-	// Ошибка создания пользователя.
-	case codes.InvalidArgument:
-		return true, "User creation error"
-
-	// Ошибка уникального email.
-	case codes.AlreadyExists:
-		return true, "Unique email error"
-
-	// Ошибка создания токена или когда кладем токен в заголовок.
-	case codes.Internal:
-		return true, "An error in creating or transferring a token"
-
-	// Неизвестная ошибка.
-	default:
-		return true, "Unknown error"
-	}
-}
-
-func (a *Auth) modifyErrServerOnCode(err error) codes.Code {
-	statusErr, ok := status.FromError(err)
-	if !ok {
-		return codes.OK
-	}
-	return statusErr.Code()
 }

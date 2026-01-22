@@ -35,13 +35,13 @@ func NewClientAPI(
 
 func (c *ClientAPI) RegisterUser(req *rpc.RegistUserRequest, header *metadata.MD) (*rpc.RegistUserResponse, error) {
 	// Ctx.
-	ctxGRPC, cancel := context.WithTimeout(context.Background(), time.Duration(c.Cfg.GetWaitingTimeResponse()))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(c.Cfg.GetWaitingTimeResponse()))
 	defer cancel()
 
 	// Retry.
 	for retry := c.Cfg.GetCountRetryRequest(); retry >= 0; retry-- {
 		// Call server GRPC.
-		res, err := c.ClientGRPC.Service.RegistUser(ctxGRPC, req, grpc.Header(header))
+		res, err := c.ClientGRPC.Service.RegistUser(ctx, req, grpc.Header(header))
 
 		if statusErr, ok := status.FromError(err); ok && statusErr.Code() == codes.DeadlineExceeded {
 			retry--
@@ -50,6 +50,22 @@ func (c *ClientAPI) RegisterUser(req *rpc.RegistUserRequest, header *metadata.MD
 		}
 	}
 
+	return nil, errs.ErrResponseServer
+}
+
+func (c *ClientAPI) AutherUser(req *rpc.AuthUserRequest, header *metadata.MD) (*rpc.AuthUserResponse, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(c.Cfg.GetWaitingTimeResponse()))
+	defer cancel()
+
+	for retry := c.Cfg.GetCountRetryRequest(); retry >= 0; retry-- {
+		res, err := c.ClientGRPC.Service.AuthUser(ctx, req, grpc.Header(header))
+
+		if statusErr, ok := status.FromError(err); ok && statusErr.Code() == codes.DeadlineExceeded {
+			retry--
+		} else {
+			return res, err
+		}
+	}
 	return nil, errs.ErrResponseServer
 }
 
