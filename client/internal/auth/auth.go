@@ -1,96 +1,109 @@
 package auth
 
 import (
-	"fmt"
-
-	"github.com/boginskiy/GophKeeper/client/internal/client"
+	"github.com/boginskiy/GophKeeper/client/cmd/client"
+	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/api"
+	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
+	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
-	"github.com/boginskiy/GophKeeper/client/pkg"
+	"github.com/boginskiy/GophKeeper/client/internal/utils"
 )
 
-const ATTEMPTS = 3
-
 type Auth struct {
-	Logger logg.Logger
+	Cfg         config.Config
+	Logg        logg.Logger
+	FileHendler utils.FileHandler
+	Identity    *Identity
+	Dialoger    cli.Dialoger
+	ServiceAPI  api.ServiceAPI
 }
 
-func NewAuth(logger logg.Logger) *Auth {
-	return &Auth{Logger: logger}
+func NewAuth(
+	config config.Config,
+	logger logg.Logger,
+	fileHdlr utils.FileHandler,
+	identity *Identity,
+	dialoger cli.Dialoger,
+	serviceAPI api.ServiceAPI,
+) *Auth {
+
+	return &Auth{
+		Cfg:         config,
+		Logg:        logger,
+		FileHendler: fileHdlr,
+		Identity:    identity,
+		Dialoger:    dialoger,
+		ServiceAPI:  serviceAPI,
+	}
 }
 
-func (a *Auth) Authorization(client *client.ClientCLI, user *user.UserCLI) {
-	a.Welcome(client, user)
-
-	// Check of registration.
-	IsRegistration := user.User != nil
-
-	// Check of authentication.
-	IsAuthentication := IsRegistration && a.Authentication(client, user)
-
-	fmt.Println(IsAuthentication)
-
-	// New registration.
-	_ = !IsAuthentication && a.Registration(client, user)
-
-}
-
-func (a *Auth) Registration(client *client.ClientCLI, user *user.UserCLI) bool {
-	// user name
-	client.SendMess(
-		"You need to register...",
-		"Enter user name...")
-	userName, err := user.ReceiveMess() // TODO нужна проверка
-	a.Logger.CheckWithFatal(err, "bad user name")
-
-	// email
-	email, err := GetEmail(client, user) // TODO нужна проверка c запросом на сервер
-	a.Logger.CheckWithFatal(err, "bad email")
-
-	// phone
-	client.SendMess("Enter phone...")
-	phone, err := user.ReceiveMess() // TODO нужна проверка
-	a.Logger.CheckWithFatal(err, "bad phone")
-
-	// password
-	password, err := GetPassword(client, user) // TODO нужна проверка
-	a.Logger.CheckWithFatal(err, "bad password")
-
-	user.NewUser(userName, email, phone, password)
-	client.SendMess("Registration is successful")
-	return true
-}
-
-func (a *Auth) Authentication(client *client.ClientCLI, user *user.UserCLI) bool {
-	client.SendMess("You need log in...")
-
-	DecorGetEmail := TryToGetSeveralTimes(GetEmail, a.checkEmail)
-	_, err := DecorGetEmail(client, user)
-	if err != nil {
-		a.Logger.RaiseError(err, "bad email in authentication", nil)
+func (a *Auth) Registration(isThereAuthent bool, client *client.ClientCLI, user *user.UserCLI) bool {
+	if isThereAuthent {
 		return false
 	}
 
-	DecorGetPassword := TryToGetSeveralTimes(GetPassword, a.checkPassword)
-	_, err = DecorGetPassword(client, user)
-	if err != nil {
-		a.Logger.RaiseError(err, "bad password in authentication", nil)
+	// Передача данных на сервис ServiceAPI для регистрации на удаленном сервере.
+	userName, email, phone, password := a.Dialoger.DialogsAbRegister(client, user)
+	newUser := model.NewUser(userName, email, phone, password)
+	token, err := a.ServiceAPI.Registration(*newUser)
+
+	// Обработка ошибок
+	ok, info := ErrorHandler(err)
+	if ok {
+		a.Dialoger.ShowSomeInfo(client, info)
 		return false
 	}
 
-	client.SendMess("Authentication is successful")
+	newUser.Token = token
+	newUser.StatusError = err
+
+	user.SaveLocalUser(newUser)
+	a.Dialoger.ShowSomeInfo(client, "Registration is successful")
 	return true
 }
 
-func (a *Auth) checkEmail(user *user.UserCLI, email string) bool {
-	return user.User.Email == email
-}
+func (a *Auth) Authentication(isThereRegistr bool, client *client.ClientCLI, user *user.UserCLI) bool {
+	if !isThereRegistr {
+		return false
+	}
 
-func (a *Auth) checkPassword(user *user.UserCLI, password string) bool {
-	return pkg.CompareHashAndPassword(user.User.Password, password)
-}
+	a.Dialoger.ShowLogIn(client, user)
 
-func (a *Auth) Welcome(client *client.ClientCLI, user *user.UserCLI) {
-	client.SendMess("Hello! Press the 'Enter'...")
-	user.ReceiveMess()
+	// Работает так: вводишь с CLI данные email
+	// функция осуществляет сверку введенного email  с email из config
+	// если нет совпадения, то есть 3 попытки ввести верный email,
+	// иначе аутентификация признается невалидной.
+
+	// TODO! Это можно реализовать в интерфейсе Dialoger. Убрать отсюда.
+	DecorGetEmail := a.Dialoger.GetEmailWithCheck(a.Dialoger.GetEmail, a.Dialoger.CheckEmail)
+	email, err := DecorGetEmail(client, user)
+	if err != nil {
+		a.Logg.RaiseError(err, "bad email in authentication", nil)
+		return false
+	}
+
+	// TODO! Это можно реализовать в интерфейсе Dialoger. Убрать отсюда.
+	DecorGetPassword := a.Dialoger.GetPasswordWithCheck(a.Dialoger.GetPassword, a.Dialoger.CheckPassword)
+	password, err := DecorGetPassword(client, user)
+	if err != nil {
+		a.Logg.RaiseError(err, "bad password in authentication", nil)
+		return false
+	}
+
+	token, err := a.ServiceAPI.Authentication(model.User{Email: email, Password: password})
+
+	// Обработка ошибок
+	ok, info := ErrorHandler(err)
+	if ok {
+		a.Dialoger.ShowSomeInfo(client, info)
+		return false
+	}
+
+	user.User.Token = token
+	user.User.StatusError = err
+
+	a.Dialoger.ShowSomeInfo(client, "Authentication is successful")
+	return true
 }

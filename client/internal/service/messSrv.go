@@ -1,18 +1,23 @@
-package auth
+package service
 
-// type Mess struct {
-// 	Client *client.ClientCLI
-// 	User *user.UserCLI
-// }
+// import (
+// 	"github.com/boginskiy/GophKeeper/client/cmd/client"
+// 	"github.com/boginskiy/GophKeeper/client/internal/user"
+// )
 
 // const ATTEMPTS = 3
 
-// func GetPassword(client *client.ClientCLI, user *user.UserCLI) (string, error) {
+// type MessService struct {
+// 	Client *client.ClientCLI
+// 	User   *user.UserCLI
+// }
+
+// func (m *MessService) GetPassword(client *client.ClientCLI, user *user.UserCLI) (string, error) {
 // 	client.SendMess("Enter password...")
 // 	return user.ReceiveMess()
 // }
 
-// func GetEmail(client *client.ClientCLI, user *user.UserCLI) (string, error) {
+// func (m *MessService) GetEmail(client *client.ClientCLI, user *user.UserCLI) (string, error) {
 // 	client.SendMess("Enter email...")
 // 	return user.ReceiveMess()
 // }
@@ -20,7 +25,7 @@ package auth
 // type GetterFn func(*client.ClientCLI, *user.UserCLI) (string, error)
 // type CheckerFn func(*user.UserCLI, string) bool
 
-// func TryToGetSeveralTimes(get GetterFn, check CheckerFn) GetterFn {
+// func (m *MessService) TryToGetSeveralTimes(get GetterFn, check CheckerFn) GetterFn {
 // 	return func(client *client.ClientCLI, user *user.UserCLI) (string, error) {
 
 // 		for repeat := 0; repeat < ATTEMPTS; repeat++ {

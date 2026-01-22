@@ -5,11 +5,12 @@ import (
 	"context"
 	"os"
 
+	"github.com/boginskiy/GophKeeper/client/cmd/client"
+	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
-	"github.com/boginskiy/GophKeeper/client/internal/client"
-	"github.com/boginskiy/GophKeeper/client/internal/config"
+	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
-	"github.com/boginskiy/GophKeeper/client/internal/pretty"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 	"github.com/boginskiy/GophKeeper/client/internal/utils"
@@ -20,18 +21,18 @@ type App struct {
 	Description string
 	Version     string
 	Scanner     *bufio.Scanner
-	Looker      pretty.Looker
-	Logger      logg.Logger
+	Cfg         config.Config
+	Logg        logg.Logger
 }
 
-func NewApp(logger logg.Logger) *App {
+func NewApp(conf config.Config, logg logg.Logger) *App {
 	tmpApp := &App{
+		Cfg:         conf,
+		Logg:        logg,
 		Name:        config.APPNAME,
 		Description: config.DESC,
 		Version:     config.VERS,
 		Scanner:     bufio.NewScanner(os.Stdin),
-		Looker:      pretty.NewLook(),
-		Logger:      logger,
 	}
 
 	return tmpApp
@@ -39,31 +40,34 @@ func NewApp(logger logg.Logger) *App {
 }
 
 func (a *App) Run() {
-	// Config
-	// Logger
-	//
-
-	mess1Ch := make(chan string, 1)
-	mess2Ch := make(chan string, 1)
-
+	// Contexts and channels.
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+
+	// Logger.
+	remoteLogg := logg.NewLogg("remote.log", "INFO")
 
 	// Utils.
 	fileHandler := utils.NewWorkingFile()
 
-	// Identification.
-	identity := user.NewIdentity(a.Logger, fileHandler)
-	auth := auth.NewAuth(a.Logger)
+	// Clients && user
+	userCLI := user.NewUserCLI(ctx, a.Logg)
+	clientCLI := client.NewClientCLI(ctx)
 
-	client := client.NewClientCLI(ctx, mess1Ch, mess2Ch)
-	user := user.NewUserCLI(ctx, a.Logger, mess1Ch, mess2Ch, identity)
+	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
+	clientAPI := api.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
 
 	// Services.
-	dialogSrv := service.NewDialogService(a.Logger, client, user, auth)
-	dialogSrv.Run(client, user)
+	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
+	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientAPI)
 
-	defer user.SaveConfig()
-	defer a.Logger.Close()
+	// Auth.
+	identity := auth.NewIdentity(a.Logg, fileHandler)
+	auther := auth.NewAuth(a.Cfg, a.Logg, fileHandler, identity, dialogSrv, remoteSrv)
 
+	service.NewKeeperService(
+		a.Cfg, a.Logg, identity, dialogSrv, auther).Run(clientCLI, userCLI)
+
+	defer clientGRPC.Close()
+	defer a.Logg.Close()
+	defer cancel()
 }

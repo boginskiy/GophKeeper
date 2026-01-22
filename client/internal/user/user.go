@@ -17,35 +17,17 @@ import (
 const NAMECLI = "USER"
 
 type UserCLI struct {
-	Name     string
-	InMess   chan string
-	OutMess  chan string
-	Scanner  *bufio.Scanner
-	Logger   logg.Logger
-	User     *model.User
-	Identity *Identity
+	Name    string
+	Scanner *bufio.Scanner
+	Logger  logg.Logger
+	User    *model.User
 }
 
-func NewUserCLI(ctx context.Context, logger logg.Logger, out, in chan string, identity *Identity) *UserCLI {
-	tmp := &UserCLI{
-		Name:     NAMECLI,
-		OutMess:  out,
-		InMess:   in,
-		Logger:   logger,
-		Scanner:  bufio.NewScanner(os.Stdin),
-		Identity: identity,
-	}
-
-	// Identification user
-	identity.SystemIdentification(tmp)
-
-	return tmp
-}
-
-func (u *UserCLI) SaveConfig() {
-	err := u.Identity.SaveCurrentUser(u.User)
-	if err != nil {
-		u.Logger.RaiseError(err, "error saving new user i config file", nil)
+func NewUserCLI(ctx context.Context, logger logg.Logger) *UserCLI {
+	return &UserCLI{
+		Name:    NAMECLI,
+		Logger:  logger,
+		Scanner: bufio.NewScanner(os.Stdin),
 	}
 }
 
@@ -59,7 +41,7 @@ func (u *UserCLI) TakeSystemInfoCurrentUser() (username, uid string) {
 }
 
 func (u *UserCLI) ReceiveMess() (string, error) {
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 	fmt.Fprintf(os.Stdout, "%s: ", u.Name)
 
 	if !u.Scanner.Scan() {
@@ -68,20 +50,16 @@ func (u *UserCLI) ReceiveMess() (string, error) {
 	return u.Scanner.Text(), nil
 }
 
-func (u *UserCLI) NewUser(userName, email, phone, password string) {
+func (u *UserCLI) SaveLocalUser(user *model.User) {
 	// Save system info about new user
 	systemName, systemId := u.TakeSystemInfoCurrentUser()
 	// Hash password
-	hash, err := pkg.GenerateHash(password)
+	hash, err := pkg.GenerateHash(user.Password)
 	u.Logger.CheckWithFatal(err, "error in hashing password")
 
-	tmp := &model.User{
-		UserName:       userName,
-		Email:          email,
-		PhoneNumber:    phone,
-		Password:       hash,
-		SystemUserName: systemName,
-		SystemUserId:   systemId,
-	}
-	u.User = tmp
+	user.SystemUserName = systemName
+	user.SystemUserId = systemId
+	user.Password = hash
+
+	u.User = user
 }

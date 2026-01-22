@@ -10,38 +10,14 @@ import (
 const NAME = "CLIENT"
 
 type ClientCLI struct {
-	Name    string
-	InMess  chan string
-	OutMess chan string
+	Name string
 }
 
-func NewClientCLI(ctx context.Context, in, out chan string) *ClientCLI {
-	tmp := &ClientCLI{
-		Name:    NAME,
-		InMess:  in,
-		OutMess: out,
+func NewClientCLI(ctx context.Context) *ClientCLI {
+	return &ClientCLI{
+		Name: NAME,
 	}
-
-	// go tmp.Reciver(ctx)
-
-	return tmp
 }
-
-func (c *ClientCLI) procInMess(text string) {
-
-}
-
-// func (c *ClientCLI) Reciver(ctx context.Context) {
-// 	for {
-// 		select {
-// 		case text := <-c.InMess:
-// 			c.procInMess(text)
-
-// 		case <-ctx.Done():
-// 			return
-// 		}
-// 	}
-// }
 
 func (c *ClientCLI) Reciver() (string, error) {
 	return "", nil
@@ -55,7 +31,7 @@ func (c *ClientCLI) Sender(text string) {
 func (c *ClientCLI) Pprint(text string) {
 	for _, ch := range text {
 		fmt.Fprintf(os.Stdout, "%c", ch)
-		time.Sleep(30 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 	}
 }
 
