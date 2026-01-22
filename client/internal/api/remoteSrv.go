@@ -13,7 +13,6 @@ import (
 type RemoteService struct {
 	Cfg       config.Config
 	Logg      logg.Logger
-	UserChan  chan *model.User
 	ClientAPI *ClientAPI
 }
 
@@ -21,13 +20,11 @@ func NewRemoteService(
 	ctx context.Context,
 	config config.Config,
 	logger logg.Logger,
-	userch chan *model.User,
 	clientapi *ClientAPI) *RemoteService {
 
 	tmp := &RemoteService{
 		Cfg:       config,
 		Logg:      logger,
-		UserChan:  userch,
 		ClientAPI: clientapi}
 
 	return tmp

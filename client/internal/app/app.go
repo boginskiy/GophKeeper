@@ -11,7 +11,6 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
-	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 	"github.com/boginskiy/GophKeeper/client/internal/utils"
@@ -43,7 +42,6 @@ func NewApp(conf config.Config, logg logg.Logger) *App {
 func (a *App) Run() {
 	// Contexts and channels.
 	ctx, cancel := context.WithCancel(context.Background())
-	UserChan := make(chan *model.User, 1)
 
 	// Logger.
 	remoteLogg := logg.NewLogg("remote.log", "INFO")
@@ -60,12 +58,11 @@ func (a *App) Run() {
 
 	// Services.
 	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
-	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, UserChan, clientAPI)
+	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientAPI)
 
 	// Auth.
 	identity := auth.NewIdentity(a.Logg, fileHandler)
-	auther := auth.NewAuth(a.Cfg, a.Logg, UserChan, fileHandler, identity, dialogSrv, remoteSrv)
-	// api.NewRemoteService(ctx, a.Cfg, remoteLogg, UserChan, clientAPI)
+	auther := auth.NewAuth(a.Cfg, a.Logg, fileHandler, identity, dialogSrv, remoteSrv)
 
 	service.NewKeeperService(
 		a.Cfg, a.Logg, identity, dialogSrv, auther).Run(clientCLI, userCLI)

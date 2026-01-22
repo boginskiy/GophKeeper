@@ -14,7 +14,6 @@ import (
 type Auth struct {
 	Cfg         config.Config
 	Logg        logg.Logger
-	UserChan    chan *model.User
 	FileHendler utils.FileHandler
 	Identity    *Identity
 	Dialoger    cli.Dialoger
@@ -24,7 +23,6 @@ type Auth struct {
 func NewAuth(
 	config config.Config,
 	logger logg.Logger,
-	userch chan *model.User,
 	fileHdlr utils.FileHandler,
 	identity *Identity,
 	dialoger cli.Dialoger,
@@ -34,7 +32,6 @@ func NewAuth(
 	return &Auth{
 		Cfg:         config,
 		Logg:        logger,
-		UserChan:    userch,
 		FileHendler: fileHdlr,
 		Identity:    identity,
 		Dialoger:    dialoger,

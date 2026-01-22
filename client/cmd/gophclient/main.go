@@ -11,8 +11,3 @@ func main() {
 	cfg := config.NewConf(logg)
 	app.NewApp(cfg, logg).Run()
 }
-
-// TODO...
-// Регать локально можно после получения токена и валидации на сервере
-// Add WorkingWithShutdown for server
-// Повторить паттерны многопоток
