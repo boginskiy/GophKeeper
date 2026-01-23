@@ -56,6 +56,12 @@ func (d *DialogService) GetUserName(client *client.ClientCLI, user *user.UserCLI
 	return user.ReceiveMess()
 }
 
+// GetUserName
+func (d *DialogService) GetSomeThing(client *client.ClientCLI, user *user.UserCLI, mess string) (string, error) {
+	client.SendMess(mess)
+	return user.ReceiveMess()
+}
+
 // GetPhone
 func (d *DialogService) GetPhone(client *client.ClientCLI, user *user.UserCLI) (string, error) {
 	client.SendMess("Enter the phone...")

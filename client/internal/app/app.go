@@ -1,15 +1,14 @@
 package app
 
 import (
-	"bufio"
 	"context"
-	"os"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
+	"github.com/boginskiy/GophKeeper/client/internal/comm"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
@@ -20,7 +19,6 @@ type App struct {
 	Name        string
 	Description string
 	Version     string
-	Scanner     *bufio.Scanner
 	Cfg         config.Config
 	Logg        logg.Logger
 }
@@ -32,17 +30,13 @@ func NewApp(conf config.Config, logg logg.Logger) *App {
 		Name:        config.APPNAME,
 		Description: config.DESC,
 		Version:     config.VERS,
-		Scanner:     bufio.NewScanner(os.Stdin),
 	}
-
 	return tmpApp
-
 }
 
-func (a *App) Run() {
+func (a *App) Init() {
 	// Contexts and channels.
 	ctx, cancel := context.WithCancel(context.Background())
-	messChan := make(chan string, 1)
 
 	// Logger.
 	remoteLogg := logg.NewLogg("remote.log", "INFO")
@@ -51,8 +45,8 @@ func (a *App) Run() {
 	fileHandler := utils.NewWorkingFile()
 
 	// Clients && user
-	userCLI := user.NewUserCLI(ctx, a.Logg)
-	clientCLI := client.NewClientCLI(ctx)
+	clientCLI := client.NewClientCLI(a.Logg)
+	userCLI := user.NewUserCLI(a.Logg)
 
 	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
 	clientAPI := api.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
@@ -60,16 +54,27 @@ func (a *App) Run() {
 	// Services.
 	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientAPI)
 	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
-	service.NewCommandService(ctx, a.Cfg, a.Logg, messChan)
+
+	// Commonds.
+	commImage := comm.NewCommImage(dialogSrv)
+	commSound := comm.NewCommSound(dialogSrv)
+	commBytes := comm.NewCommBytes(dialogSrv)
+	commText := comm.NewCommText(dialogSrv)
+	root := comm.NewRoot(dialogSrv, commText, commBytes, commImage, commSound)
 
 	// Auth.
 	identity := auth.NewIdentity(a.Logg, fileHandler)
 	auther := auth.NewAuth(a.Cfg, a.Logg, fileHandler, identity, dialogSrv, remoteSrv)
 
-	service.NewKeeperService(
-		a.Cfg, a.Logg, messChan, identity, dialogSrv, auther).Run(clientCLI, userCLI)
+	// Start.
+	service.NewRun(
+		a.Cfg, a.Logg, identity, dialogSrv, auther, root).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()
 	defer a.Logg.Close()
 	defer cancel()
+}
+
+func (a *App) Run() {
+	// Перенести сюда логику.
 }

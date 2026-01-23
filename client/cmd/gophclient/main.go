@@ -9,5 +9,5 @@ import (
 func main() {
 	logg := logg.NewLogg("main_client.log", "INFO")
 	cfg := config.NewConf(logg)
-	app.NewApp(cfg, logg).Run()
+	app.NewApp(cfg, logg).Init()
 }
