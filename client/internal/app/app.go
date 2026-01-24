@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 
+	"github.com/boginskiy/GophKeeper/client/cmd"
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
@@ -51,15 +52,18 @@ func (a *App) Init() {
 	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
 	clientAPI := api.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
 
-	// Services.
+	// Infra Services.
 	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientAPI)
 	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
+
+	// Business Services.
+	texter := service.NewTexterService(a.Cfg, a.Logg, dialogSrv, remoteSrv)
 
 	// Commonds.
 	commImage := comm.NewCommImage(dialogSrv)
 	commSound := comm.NewCommSound(dialogSrv)
 	commBytes := comm.NewCommBytes(dialogSrv)
-	commText := comm.NewCommText(dialogSrv)
+	commText := comm.NewCommText(dialogSrv, texter)
 	root := comm.NewRoot(dialogSrv, commText, commBytes, commImage, commSound)
 
 	// Auth.
@@ -67,14 +71,10 @@ func (a *App) Init() {
 	auther := auth.NewAuth(a.Cfg, a.Logg, fileHandler, identity, dialogSrv, remoteSrv)
 
 	// Start.
-	service.NewRun(
+	cmd.NewRunner(
 		a.Cfg, a.Logg, identity, dialogSrv, auther, root).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()
 	defer a.Logg.Close()
 	defer cancel()
-}
-
-func (a *App) Run() {
-	// Перенести сюда логику.
 }

@@ -21,32 +21,22 @@ type GetterPassword interface {
 	GetPassword(*client.ClientCLI, *user.UserCLI) (string, error)
 }
 
-type GetterUserName interface {
-	GetUserName(*client.ClientCLI, *user.UserCLI) (string, error)
-}
-
 type Getter interface {
-	// GetCommand(*client.ClientCLI, *user.UserCLI) (string, error)
+	GetIt(*client.ClientCLI, *user.UserCLI, string) (string, error)
 	GetSomeThing(*client.ClientCLI, *user.UserCLI, string) (string, error)
 }
 
-type GetterPhone interface {
-	GetPhone(*client.ClientCLI, *user.UserCLI) (string, error)
+type Shower interface {
+	ShowHello(*client.ClientCLI, *user.UserCLI)
+	ShowIt(*client.ClientCLI, string)
 }
 
 type Dialoger interface {
-	GetterUserName
 	GetterPassword
-	Getter
-	GetterPhone
 	GetterEmail
 	Checker
-
-	ShowStatusAuth(*client.ClientCLI, *user.UserCLI)
-	ShowRegister(*client.ClientCLI, *user.UserCLI)
-	ShowHello(*client.ClientCLI, *user.UserCLI)
-	ShowLogIn(*client.ClientCLI, *user.UserCLI)
-	ShowSomeInfo(*client.ClientCLI, string)
+	Getter
+	Shower
 
 	DialogsAbRegister(*client.ClientCLI, *user.UserCLI) (userName, email, phone, password string)
 }

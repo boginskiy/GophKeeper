@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
@@ -24,53 +26,30 @@ func NewDialogService(cfg config.Config, logger logg.Logger) *DialogService {
 	}
 }
 
-// ShowSomeInfo
-func (d *DialogService) ShowSomeInfo(client *client.ClientCLI, info string) {
-	client.SendMess(info)
-}
-
 // ShowHello
 func (d *DialogService) ShowHello(client *client.ClientCLI, user *user.UserCLI) {
-	client.SendMess("Hello! Press the 'Enter'...")
-	user.ReceiveMess()
+	var tx string
+	if user.User != nil {
+		tx = fmt.Sprintf("Hello, %s!", user.User.UserName)
+	} else {
+		tx = "Hello, Man!"
+	}
+	client.SendMess(tx)
 }
 
-// ShowLogIn
-func (d *DialogService) ShowLogIn(client *client.ClientCLI, user *user.UserCLI) {
-	client.SendMess("You need log in...")
+func (d *DialogService) ShowIt(client *client.ClientCLI, it string) {
+	client.SendMess(it)
 }
 
-// ShowRegister
-func (d *DialogService) ShowRegister(client *client.ClientCLI, user *user.UserCLI) {
-	client.SendMess("You need to register...")
-}
-
-// ShowStatusAuth
-func (d *DialogService) ShowStatusAuth(client *client.ClientCLI, user *user.UserCLI) {
-	client.SendMess("Authentication is successful")
-}
-
-// GetUserName
-func (d *DialogService) GetUserName(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-	client.SendMess("Enter the user name...")
-	return user.ReceiveMess()
-}
-
-// GetUserName
+// GetSomeThing
 func (d *DialogService) GetSomeThing(client *client.ClientCLI, user *user.UserCLI, mess string) (string, error) {
 	client.SendMess(mess)
 	return user.ReceiveMess()
 }
 
-// GetPhone
-func (d *DialogService) GetPhone(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-	client.SendMess("Enter the phone...")
-	return user.ReceiveMess()
-}
-
-// ShowHello
-func (d *DialogService) GetCommand(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-	client.SendMess("Enter the command...")
+// GetIt gives us everything we ask for.
+func (d *DialogService) GetIt(client *client.ClientCLI, user *user.UserCLI, it string) (string, error) {
+	client.SendMess(fmt.Sprintf("Enter the %s...", it))
 	return user.ReceiveMess()
 }
 
@@ -118,6 +97,25 @@ func (d *DialogService) GetPasswordWithCheck(dialogGet GetterFn, funcCheck Check
 	}
 }
 
+// DialogsAbRegister return many args.
+func (d *DialogService) DialogsAbRegister(client *client.ClientCLI, user *user.UserCLI) (userName, email, phone, password string) {
+	d.ShowIt(client, "You need to register...")
+
+	userName, err := d.GetIt(client, user, "user name")
+	d.Logg.CheckWithFatal(err, "bad user name")
+
+	email, err = d.GetEmail(client, user)
+	d.Logg.CheckWithFatal(err, "bad email")
+
+	phone, err = d.GetIt(client, user, "phone")
+	d.Logg.CheckWithFatal(err, "bad phone")
+
+	password, err = d.GetPassword(client, user)
+	d.Logg.CheckWithFatal(err, "bad password")
+
+	return userName, email, phone, password
+}
+
 // Checker
 func (d *DialogService) CheckEmail(userEmail, email string) bool {
 	return userEmail == email
@@ -125,22 +123,4 @@ func (d *DialogService) CheckEmail(userEmail, email string) bool {
 
 func (d *DialogService) CheckPassword(userPassword, password string) bool {
 	return pkg.CompareHashAndPassword(userPassword, password)
-}
-
-func (d *DialogService) DialogsAbRegister(client *client.ClientCLI, user *user.UserCLI) (userName, email, phone, password string) {
-	d.ShowRegister(client, user)
-
-	userName, err := d.GetUserName(client, user)
-	d.Logg.CheckWithFatal(err, "bad user name")
-
-	email, err = d.GetEmail(client, user)
-	d.Logg.CheckWithFatal(err, "bad email")
-
-	phone, err = d.GetPhone(client, user)
-	d.Logg.CheckWithFatal(err, "bad phone")
-
-	password, err = d.GetPassword(client, user)
-	d.Logg.CheckWithFatal(err, "bad password")
-
-	return userName, email, phone, password
 }

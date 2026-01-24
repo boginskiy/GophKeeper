@@ -23,7 +23,7 @@ authLoop:
 		comm, _ := c.Dialoger.GetSomeThing(client, user,
 			fmt.Sprintf("%s\n\r%s",
 				"What do you want to do with the image: \n\r\t create \n\r\t read \n\r\t update \n\r\t delete",
-				"go to previous step: .., need help: help"))
+				"come back: back, need help: help"))
 
 		switch comm {
 		case "back", "help":
@@ -42,7 +42,7 @@ authLoop:
 			// r.RoutText.Execute(client, user)
 
 		default:
-			c.Dialoger.ShowSomeInfo(client, "Invalid command. Try again...")
+			c.Dialoger.ShowIt(client, "Invalid command. Try again...")
 		}
 	}
 }

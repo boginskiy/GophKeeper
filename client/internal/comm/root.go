@@ -56,7 +56,7 @@ authLoop:
 			r.CommSound.Registration(client, user)
 
 		default:
-			r.Dialoger.ShowSomeInfo(client, "Invalid command. Try again...")
+			r.Dialoger.ShowIt(client, "Invalid command. Try again...")
 		}
 	}
 }

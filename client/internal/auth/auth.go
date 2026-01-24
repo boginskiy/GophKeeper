@@ -52,7 +52,7 @@ func (a *Auth) Registration(isThereAuthent bool, client *client.ClientCLI, user 
 	// Обработка ошибок
 	ok, info := ErrorHandler(err)
 	if ok {
-		a.Dialoger.ShowSomeInfo(client, info)
+		a.Dialoger.ShowIt(client, info)
 		return false
 	}
 
@@ -60,7 +60,7 @@ func (a *Auth) Registration(isThereAuthent bool, client *client.ClientCLI, user 
 	newUser.StatusError = err
 
 	user.SaveLocalUser(newUser)
-	a.Dialoger.ShowSomeInfo(client, "Registration is successful")
+	a.Dialoger.ShowIt(client, "Registration is successful")
 	return true
 }
 
@@ -69,7 +69,7 @@ func (a *Auth) Authentication(isThereRegistr bool, client *client.ClientCLI, use
 		return false
 	}
 
-	a.Dialoger.ShowLogIn(client, user)
+	a.Dialoger.ShowIt(client, "You need log in")
 
 	// Работает так: вводишь с CLI данные email
 	// функция осуществляет сверку введенного email  с email из config
@@ -97,13 +97,13 @@ func (a *Auth) Authentication(isThereRegistr bool, client *client.ClientCLI, use
 	// Обработка ошибок
 	ok, info := ErrorHandler(err)
 	if ok {
-		a.Dialoger.ShowSomeInfo(client, info)
+		a.Dialoger.ShowIt(client, info)
 		return false
 	}
 
 	user.User.Token = token
 	user.User.StatusError = err
 
-	a.Dialoger.ShowSomeInfo(client, "Authentication is successful")
+	a.Dialoger.ShowIt(client, "Authentication is successful")
 	return true
 }

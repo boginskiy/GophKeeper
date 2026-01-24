@@ -76,3 +76,7 @@ func (c *ClientAPI) TakeValueFromHeader(header metadata.MD, field string, idx in
 	}
 	return ""
 }
+
+func (c *ClientAPI) CreateHeaderWithValue(key, value string) metadata.MD {
+	return metadata.Pairs(key, value)
+}

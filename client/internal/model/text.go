@@ -6,12 +6,23 @@ type Meta struct {
 	Owner        string
 	ListActivate []int
 	CreatedAt    time.Time
-	LastActivity time.Time
+	UpdatedAt    time.Time
 }
 
 type Text struct {
-	Type string
 	Name string
 	Tx   string
-	Mt   Meta
+	Mt   *Meta
+}
+
+func NewText(name, tx, owner string) *Text {
+	return &Text{
+		Name: name,
+		Tx:   tx,
+		Mt: &Meta{
+			Owner:     owner,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		},
+	}
 }

@@ -1,4 +1,4 @@
-package service
+package cmd
 
 import (
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
@@ -10,7 +10,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
-type Run struct {
+type Runner struct {
 	Cfg        config.Config
 	Logg       logg.Logger
 	Identifier auth.Identifier
@@ -19,15 +19,15 @@ type Run struct {
 	Root       comm.Rooter
 }
 
-func NewRun(
+func NewRunner(
 	cfg config.Config,
 	logger logg.Logger,
 	identity auth.Identifier,
 	dialoger cli.Dialoger,
 	auth *auth.Auth,
-	root comm.Rooter) *Run {
+	root comm.Rooter) *Runner {
 
-	return &Run{
+	return &Runner{
 		Cfg:        cfg,
 		Logg:       logger,
 		Identifier: identity,
@@ -37,18 +37,17 @@ func NewRun(
 	}
 }
 
-func (d *Run) Run(client *client.ClientCLI, user *user.UserCLI) {
+func (d *Runner) Run(client *client.ClientCLI, user *user.UserCLI) {
 	d.Dialoger.ShowHello(client, user) // Hello
 	ok := d.ExecuteAuth(client, user)  // Auth
 	d.Root.Execute(ok, client, user)   // Root
 
-	d.Dialoger.ShowSomeInfo(client,
-		"Session is over. Goodbye")
+	d.Dialoger.ShowIt(client, "Session is over. Goodbye")
 	// Save data current user in config.file for feature.
 	defer d.Identifier.SaveCurrentUser(user)
 }
 
-func (d *Run) ExecuteAuth(client *client.ClientCLI, user *user.UserCLI) bool {
+func (d *Runner) ExecuteAuth(client *client.ClientCLI, user *user.UserCLI) bool {
 	// Identification user. load data from config.file if exist.
 	IsThereRegistr := d.Identifier.Identification(user)
 	// Authentication user.
