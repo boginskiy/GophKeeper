@@ -17,15 +17,15 @@ type Auth struct {
 	Cfg        config.Config
 	Logg       logg.Logger
 	JWTService JWTer
-	RepoUser   repo.RepositoryUser
+	Repo       repo.CreateReader[*model.User]
 }
 
 func NewAuth(
 	config config.Config,
 	logger logg.Logger,
 	jwtSrv JWTer,
-	repoUser repo.RepositoryUser) *Auth {
-	return &Auth{Cfg: config, Logg: logger, JWTService: jwtSrv, RepoUser: repoUser}
+	repo repo.CreateReader[*model.User]) *Auth {
+	return &Auth{Cfg: config, Logg: logger, JWTService: jwtSrv, Repo: repo}
 }
 
 func NewUser(name, email, password, phone string) (*model.User, error) {
@@ -44,7 +44,7 @@ func NewUser(name, email, password, phone string) (*model.User, error) {
 
 func (a *Auth) Authentication(ctx context.Context, req *rpc.AuthUserRequest) (token string, err error) {
 	// Check user in DB.
-	user, err := a.RepoUser.ReadRecord(req.Email)
+	user, err := a.Repo.ReadRecord(&model.User{Email: req.Email})
 	if err != nil {
 		// TODO!
 		// Пользователь по введенному email не найден в БД.
@@ -79,7 +79,7 @@ func (a *Auth) Registration(ctx context.Context, req *rpc.RegistUserRequest) (to
 	}
 
 	// Create new record with user.
-	_, err = a.RepoUser.CreateRecord(newUser)
+	_, err = a.Repo.CreateRecord(newUser)
 	if err != nil {
 		return "", err
 	}

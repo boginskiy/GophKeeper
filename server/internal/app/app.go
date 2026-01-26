@@ -8,6 +8,7 @@ import (
 	"github.com/boginskiy/GophKeeper/server/internal/intercept"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
 	"github.com/boginskiy/GophKeeper/server/internal/repository"
+	"github.com/boginskiy/GophKeeper/server/internal/service"
 )
 
 type App struct {
@@ -25,17 +26,24 @@ func NewApp(config config.Config, logger logg.Logger) *App {
 func (a *App) Run() {
 	// Repository
 	repoUser := repository.NewRepoUser()
+	repoText := repository.NewRepoText()
 
 	// Auth
 	jwtSrv := auth.NewJWTService(a.Cfg)
-	auther := auth.NewAuth(a.Cfg, a.Logg, jwtSrv, repoUser)
+	authSrv := auth.NewAuth(a.Cfg, a.Logg, jwtSrv, repoUser)
+
+	// Services
+	texterSrv := service.NewTexterService(a.Cfg, a.Logg, repoText)
 
 	// Interceptor
-	interceptor := intercept.NewIntercept(a.Cfg, a.Logg, auther)
+	interceptor := intercept.NewIntercept(a.Cfg, a.Logg, authSrv)
 
 	// Handler
-	keeperHandler := handler.NewKeeperHandler(auther)
+	authHdlr := handler.NewAuthHandler(authSrv)
+	texterHdlr := handler.NewTexterHandler(texterSrv)
 
 	// Start server
-	server.NewServerGRPC(a.Cfg, a.Logg).Run(keeperHandler, interceptor)
+	server := server.NewServerGRPC(a.Cfg, a.Logg, interceptor)
+	server.Registration(authHdlr, texterHdlr)
+	server.Run()
 }

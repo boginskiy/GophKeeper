@@ -11,11 +11,15 @@ var (
 	ErrDataNotValid   = errors.New(`{"error":"data is not valid"}`)
 	ErrTokenIsExpired = errors.New(`{"error":"token is expired"}`)
 
-	ErrUserPassword = errors.New("invalid password")
+	ErrUserPassword   = errors.New("invalid password")
+	ErrTypeConversion = errors.New("object type conversion error")
 
 	// RepoUser
 	ErrEmailNotUnique = errors.New("email is not unique")
 	ErrUserNotFound   = errors.New("user not found")
+
+	// RepoText
+	ErrDataNotFound = errors.New("data not found")
 
 	// Errors with wrap.
 	ErrCreateUser  = NewErrWrapper("user creation error")

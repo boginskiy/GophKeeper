@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package GophKeeper.server.proto;
 
-option go_package = "github.com/boginskiy/GophKeeper/server/internal/grpc";
+option go_package = "github.com/boginskiy/GophKeeper/server/internal/rpc";
 
-service KeeperService {
+service AuthService {
   rpc RegistUser (RegistUserRequest) returns (RegistUserResponse);
   rpc AuthUser (AuthUserRequest) returns (AuthUserResponse);
 }

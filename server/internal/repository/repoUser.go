@@ -23,8 +23,8 @@ func (u *RepoUser) CreateRecord(user *model.User) (*model.User, error) {
 	return user, nil
 }
 
-func (u *RepoUser) ReadRecord(email string) (*model.User, error) {
-	user, ok := u.Store[email]
+func (u *RepoUser) ReadRecord(user *model.User) (*model.User, error) {
+	user, ok := u.Store[user.Email]
 	if !ok {
 		return nil, errs.ErrUserNotFound
 	}
