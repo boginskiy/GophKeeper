@@ -29,6 +29,7 @@ type Getter interface {
 type Shower interface {
 	ShowHello(*client.ClientCLI, *user.UserCLI)
 	ShowIt(*client.ClientCLI, string)
+	ShowErr(*client.ClientCLI, error)
 }
 
 type Dialoger interface {

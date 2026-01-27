@@ -7,6 +7,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
+	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
@@ -40,25 +41,24 @@ func NewTexterService(
 func (t *TexterService) Create(client *client.ClientCLI, user *user.UserCLI) {
 	// Get info about name text.
 	name := t.Dialoger.DialogsAbAction(client, user, "create")
-
 	// Enter text for saving.
 	text, _ := t.Dialoger.GetSomeThing(client, user, "Enter the text...")
 
 	// Call ServiceAPI.
 	obj, err := t.ServiceAPI.Create(user, *model.NewText(name, t.Type, text, user.User.Email))
 
+	// Errors.
 	if err != nil {
-		t.Dialoger.ShowIt(client, err.Error())
+		t.Dialoger.ShowErr(client, err)
 	}
 
 	res, ok := obj.(*rpc.CreateResponse)
 	if !ok {
-		t.Dialoger.ShowIt(client, "Type not valid")
+		t.Dialoger.ShowErr(client, errs.ErrTypeConversion)
 	}
 
+	// Response.
 	t.Dialoger.ShowIt(client, fmt.Sprintf("%s: %s\n\r", res.Status, res.UpdatedAt))
-	return
-
 }
 
 // func (t *TexterService) Read(client *client.ClientCLI, user *user.UserCLI) {

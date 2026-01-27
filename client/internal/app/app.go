@@ -50,10 +50,10 @@ func (a *App) Init() {
 	userCLI := user.NewUserCLI(a.Logg)
 
 	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
-	clientAPI := api.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
+	// clientAPI := api.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
 
 	// Infra Services.
-	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientAPI)
+	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientGRPC)
 	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
 
 	// Business Services.

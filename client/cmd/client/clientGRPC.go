@@ -6,11 +6,13 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 type ClientGRPC struct {
-	Service rpc.KeeperServiceClient
-	Conn    *grpc.ClientConn
+	AuthService   rpc.AuthServiceClient
+	TexterService rpc.TexterServiceClient
+	Conn          *grpc.ClientConn
 }
 
 func NewClientGRPC(config config.Config, logger logg.Logger) *ClientGRPC {
@@ -21,11 +23,24 @@ func NewClientGRPC(config config.Config, logger logg.Logger) *ClientGRPC {
 	logger.CheckWithFatal(err, "error created client gRPC")
 
 	return &ClientGRPC{
-		Service: rpc.NewKeeperServiceClient(conn),
-		Conn:    conn,
+		AuthService:   rpc.NewAuthServiceClient(conn),
+		TexterService: rpc.NewTexterServiceClient(conn),
+		Conn:          conn,
 	}
 }
 
 func (c *ClientGRPC) Close() error {
 	return c.Conn.Close()
+}
+
+func (c *ClientGRPC) TakeValueFromHeader(header metadata.MD, field string, idx int) string {
+	values := header.Get(field)
+	if len(values) > 0 {
+		return values[idx]
+	}
+	return ""
+}
+
+func (c *ClientGRPC) CreateHeaderWithValue(key, value string) metadata.MD {
+	return metadata.Pairs(key, value)
 }

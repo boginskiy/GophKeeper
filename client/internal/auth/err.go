@@ -27,7 +27,7 @@ func ErrorHandler(err error) (bool, string) {
 
 	// Ошибка создания токена или когда кладем токен в заголовок.
 	case codes.Internal:
-		return true, "An error in creating or transferring a token"
+		return true, "Server error"
 
 	// Ошибка запроса. Пользователь с таким email не найден.
 	case codes.NotFound:

@@ -35,7 +35,7 @@ func (k *AuthHandler) RegistUser(ctx context.Context, req *rpc.RegistUserRequest
 	}
 
 	// Ошибки сервера.
-	if err == nil || err == errs.ErrCreateToken {
+	if err == errs.ErrCreateToken || err != nil {
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
 

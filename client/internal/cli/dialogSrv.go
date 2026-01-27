@@ -41,6 +41,10 @@ func (d *DialogService) ShowIt(client *client.ClientCLI, it string) {
 	client.SendMess(it)
 }
 
+func (d *DialogService) ShowErr(client *client.ClientCLI, err error) {
+	client.SendMess(err.Error())
+}
+
 // GetSomeThing
 func (d *DialogService) GetSomeThing(client *client.ClientCLI, user *user.UserCLI, mess string) (string, error) {
 	client.SendMess(mess)
@@ -119,7 +123,7 @@ func (d *DialogService) DialogsAbRegister(client *client.ClientCLI, user *user.U
 func (d *DialogService) DialogsAbAction(client *client.ClientCLI, user *user.UserCLI, action string) string {
 	question := fmt.Sprintf(
 		"%s to %s: %s",
-		"What type of data do you want", action, "\n\r\t credentials \n\r\t text \n\r\t card")
+		"What type of data do you want", action, "\n\r\t cred \n\r\t phone \n\r\t card \n\r\t info")
 
 	hint := "come back: back, need help: help, pass: enter"
 
