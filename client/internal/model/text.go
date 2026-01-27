@@ -1,28 +1,25 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
-type Meta struct {
+type Text struct {
+	Name         string
+	Type         string
+	Tx           string
 	Owner        string
-	ListActivate []int
+	ListActivate []int64
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }
 
-type Text struct {
-	Name string
-	Tx   string
-	Mt   *Meta
-}
-
-func NewText(name, tx, owner string) *Text {
+func NewText(name, tp, tx, owner string) *Text {
 	return &Text{
-		Name: name,
-		Tx:   tx,
-		Mt: &Meta{
-			Owner:     owner,
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
+		Name:         name,
+		Type:         tp,
+		Tx:           tx,
+		Owner:        owner,
+		ListActivate: make([]int64, 10),
 	}
 }

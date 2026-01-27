@@ -69,6 +69,14 @@ func (c *ClientAPI) AutherUser(req *rpc.AuthUserRequest, header *metadata.MD) (*
 	return nil, errs.ErrResponseServer
 }
 
+func (c *ClientAPI) Create(req *rpc.CreateRequest, header *metadata.MD) (*rpc.CreateResponse, error) {
+	res, err := c.ClientGRPC.Service.Create(context.TODO(), req, grpc.Header(header))
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func (c *ClientAPI) TakeValueFromHeader(header metadata.MD, field string, idx int) string {
 	values := header.Get(field)
 	if len(values) > 0 {
@@ -80,3 +88,9 @@ func (c *ClientAPI) TakeValueFromHeader(header metadata.MD, field string, idx in
 func (c *ClientAPI) CreateHeaderWithValue(key, value string) metadata.MD {
 	return metadata.Pairs(key, value)
 }
+
+//  rpc Create (CreateRequest) returns (CreateResponse);
+//   rpc Read (ReadRequest) returns (ReadResponse);
+//   rpc ReadAll (ReadAllRequest) returns (ReadAllResponse);
+//   rpc Update (CreateRequest) returns (CreateResponse);
+//   rpc Delete (DeleteRequest) returns (DeleteResponse);

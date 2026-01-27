@@ -2,17 +2,16 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v3.21.12
-// source: server/proto/keeper_service.proto
+// source: server/proto/auth_service.proto
 
 package rpc
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -34,7 +33,7 @@ type RegistUserRequest struct {
 
 func (x *RegistUserRequest) Reset() {
 	*x = RegistUserRequest{}
-	mi := &file_server_proto_keeper_service_proto_msgTypes[0]
+	mi := &file_server_proto_auth_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +45,7 @@ func (x *RegistUserRequest) String() string {
 func (*RegistUserRequest) ProtoMessage() {}
 
 func (x *RegistUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_proto_keeper_service_proto_msgTypes[0]
+	mi := &file_server_proto_auth_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +58,7 @@ func (x *RegistUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegistUserRequest.ProtoReflect.Descriptor instead.
 func (*RegistUserRequest) Descriptor() ([]byte, []int) {
-	return file_server_proto_keeper_service_proto_rawDescGZIP(), []int{0}
+	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *RegistUserRequest) GetUsername() string {
@@ -99,7 +98,7 @@ type RegistUserResponse struct {
 
 func (x *RegistUserResponse) Reset() {
 	*x = RegistUserResponse{}
-	mi := &file_server_proto_keeper_service_proto_msgTypes[1]
+	mi := &file_server_proto_auth_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -111,7 +110,7 @@ func (x *RegistUserResponse) String() string {
 func (*RegistUserResponse) ProtoMessage() {}
 
 func (x *RegistUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_proto_keeper_service_proto_msgTypes[1]
+	mi := &file_server_proto_auth_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -124,7 +123,7 @@ func (x *RegistUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegistUserResponse.ProtoReflect.Descriptor instead.
 func (*RegistUserResponse) Descriptor() ([]byte, []int) {
-	return file_server_proto_keeper_service_proto_rawDescGZIP(), []int{1}
+	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *RegistUserResponse) GetStatus() string {
@@ -144,7 +143,7 @@ type AuthUserRequest struct {
 
 func (x *AuthUserRequest) Reset() {
 	*x = AuthUserRequest{}
-	mi := &file_server_proto_keeper_service_proto_msgTypes[2]
+	mi := &file_server_proto_auth_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -156,7 +155,7 @@ func (x *AuthUserRequest) String() string {
 func (*AuthUserRequest) ProtoMessage() {}
 
 func (x *AuthUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_server_proto_keeper_service_proto_msgTypes[2]
+	mi := &file_server_proto_auth_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -169,7 +168,7 @@ func (x *AuthUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthUserRequest.ProtoReflect.Descriptor instead.
 func (*AuthUserRequest) Descriptor() ([]byte, []int) {
-	return file_server_proto_keeper_service_proto_rawDescGZIP(), []int{2}
+	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *AuthUserRequest) GetEmail() string {
@@ -195,7 +194,7 @@ type AuthUserResponse struct {
 
 func (x *AuthUserResponse) Reset() {
 	*x = AuthUserResponse{}
-	mi := &file_server_proto_keeper_service_proto_msgTypes[3]
+	mi := &file_server_proto_auth_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -207,7 +206,7 @@ func (x *AuthUserResponse) String() string {
 func (*AuthUserResponse) ProtoMessage() {}
 
 func (x *AuthUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_server_proto_keeper_service_proto_msgTypes[3]
+	mi := &file_server_proto_auth_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -220,7 +219,7 @@ func (x *AuthUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AuthUserResponse.ProtoReflect.Descriptor instead.
 func (*AuthUserResponse) Descriptor() ([]byte, []int) {
-	return file_server_proto_keeper_service_proto_rawDescGZIP(), []int{3}
+	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *AuthUserResponse) GetStatus() string {
@@ -230,11 +229,11 @@ func (x *AuthUserResponse) GetStatus() string {
 	return ""
 }
 
-var File_server_proto_keeper_service_proto protoreflect.FileDescriptor
+var File_server_proto_auth_service_proto protoreflect.FileDescriptor
 
-const file_server_proto_keeper_service_proto_rawDesc = "" +
+const file_server_proto_auth_service_proto_rawDesc = "" +
 	"\n" +
-	"!server/proto/keeper_service.proto\x12\x17GophKeeper.server.proto\"\x83\x01\n" +
+	"\x1fserver/proto/auth_service.proto\x12\x17GophKeeper.server.proto\"\x83\x01\n" +
 	"\x11RegistUserRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
@@ -246,36 +245,36 @@ const file_server_proto_keeper_service_proto_rawDesc = "" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"*\n" +
 	"\x10AuthUserResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status2\xd7\x01\n" +
-	"\rKeeperService\x12e\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status2\xd5\x01\n" +
+	"\vAuthService\x12e\n" +
 	"\n" +
 	"RegistUser\x12*.GophKeeper.server.proto.RegistUserRequest\x1a+.GophKeeper.server.proto.RegistUserResponse\x12_\n" +
-	"\bAuthUser\x12(.GophKeeper.server.proto.AuthUserRequest\x1a).GophKeeper.server.proto.AuthUserResponseB6Z4github.com/boginskiy/GophKeeper/server/internal/grpcb\x06proto3"
+	"\bAuthUser\x12(.GophKeeper.server.proto.AuthUserRequest\x1a).GophKeeper.server.proto.AuthUserResponseB5Z3github.com/boginskiy/GophKeeper/server/internal/rpcb\x06proto3"
 
 var (
-	file_server_proto_keeper_service_proto_rawDescOnce sync.Once
-	file_server_proto_keeper_service_proto_rawDescData []byte
+	file_server_proto_auth_service_proto_rawDescOnce sync.Once
+	file_server_proto_auth_service_proto_rawDescData []byte
 )
 
-func file_server_proto_keeper_service_proto_rawDescGZIP() []byte {
-	file_server_proto_keeper_service_proto_rawDescOnce.Do(func() {
-		file_server_proto_keeper_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_server_proto_keeper_service_proto_rawDesc), len(file_server_proto_keeper_service_proto_rawDesc)))
+func file_server_proto_auth_service_proto_rawDescGZIP() []byte {
+	file_server_proto_auth_service_proto_rawDescOnce.Do(func() {
+		file_server_proto_auth_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_server_proto_auth_service_proto_rawDesc), len(file_server_proto_auth_service_proto_rawDesc)))
 	})
-	return file_server_proto_keeper_service_proto_rawDescData
+	return file_server_proto_auth_service_proto_rawDescData
 }
 
-var file_server_proto_keeper_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_server_proto_keeper_service_proto_goTypes = []any{
+var file_server_proto_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_server_proto_auth_service_proto_goTypes = []any{
 	(*RegistUserRequest)(nil),  // 0: GophKeeper.server.proto.RegistUserRequest
 	(*RegistUserResponse)(nil), // 1: GophKeeper.server.proto.RegistUserResponse
 	(*AuthUserRequest)(nil),    // 2: GophKeeper.server.proto.AuthUserRequest
 	(*AuthUserResponse)(nil),   // 3: GophKeeper.server.proto.AuthUserResponse
 }
-var file_server_proto_keeper_service_proto_depIdxs = []int32{
-	0, // 0: GophKeeper.server.proto.KeeperService.RegistUser:input_type -> GophKeeper.server.proto.RegistUserRequest
-	2, // 1: GophKeeper.server.proto.KeeperService.AuthUser:input_type -> GophKeeper.server.proto.AuthUserRequest
-	1, // 2: GophKeeper.server.proto.KeeperService.RegistUser:output_type -> GophKeeper.server.proto.RegistUserResponse
-	3, // 3: GophKeeper.server.proto.KeeperService.AuthUser:output_type -> GophKeeper.server.proto.AuthUserResponse
+var file_server_proto_auth_service_proto_depIdxs = []int32{
+	0, // 0: GophKeeper.server.proto.AuthService.RegistUser:input_type -> GophKeeper.server.proto.RegistUserRequest
+	2, // 1: GophKeeper.server.proto.AuthService.AuthUser:input_type -> GophKeeper.server.proto.AuthUserRequest
+	1, // 2: GophKeeper.server.proto.AuthService.RegistUser:output_type -> GophKeeper.server.proto.RegistUserResponse
+	3, // 3: GophKeeper.server.proto.AuthService.AuthUser:output_type -> GophKeeper.server.proto.AuthUserResponse
 	2, // [2:4] is the sub-list for method output_type
 	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -283,26 +282,26 @@ var file_server_proto_keeper_service_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_server_proto_keeper_service_proto_init() }
-func file_server_proto_keeper_service_proto_init() {
-	if File_server_proto_keeper_service_proto != nil {
+func init() { file_server_proto_auth_service_proto_init() }
+func file_server_proto_auth_service_proto_init() {
+	if File_server_proto_auth_service_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_proto_keeper_service_proto_rawDesc), len(file_server_proto_keeper_service_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_proto_auth_service_proto_rawDesc), len(file_server_proto_auth_service_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_server_proto_keeper_service_proto_goTypes,
-		DependencyIndexes: file_server_proto_keeper_service_proto_depIdxs,
-		MessageInfos:      file_server_proto_keeper_service_proto_msgTypes,
+		GoTypes:           file_server_proto_auth_service_proto_goTypes,
+		DependencyIndexes: file_server_proto_auth_service_proto_depIdxs,
+		MessageInfos:      file_server_proto_auth_service_proto_msgTypes,
 	}.Build()
-	File_server_proto_keeper_service_proto = out.File
-	file_server_proto_keeper_service_proto_goTypes = nil
-	file_server_proto_keeper_service_proto_depIdxs = nil
+	File_server_proto_auth_service_proto = out.File
+	file_server_proto_auth_service_proto_goTypes = nil
+	file_server_proto_auth_service_proto_depIdxs = nil
 }

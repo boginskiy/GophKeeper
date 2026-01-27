@@ -56,15 +56,21 @@ func (a *RemoteService) Authentication(user model.User) (token string, err error
 	return token, err
 }
 
-func (a *RemoteService) CreateText(user *user.UserCLI, text model.Text) {
-	// req := "TODO"
-	// header := a.ClientAPI.CreateHeaderWithValue("authorization", user.User.Token)
-	// req, err := a.ClientAPI.AutherUser(req, &header)
-	// что будем возвращать клиенту ?
-	fmt.Println("!!! CreateText")
+func (a *RemoteService) Create(user *user.UserCLI, text model.Text) (any, error) {
+	req := &rpc.CreateRequest{
+		Name:         text.Name,
+		Type:         text.Type,
+		Text:         text.Tx,
+		Owner:        text.Owner,
+		ListActivate: text.ListActivate,
+	}
+
+	header := a.ClientAPI.CreateHeaderWithValue("authorization", user.User.Token)
+	return a.ClientAPI.Create(req, &header)
+
 }
 
-func (a *RemoteService) ReadText(user *user.UserCLI, text model.Text) {
+func (a *RemoteService) Read(user *user.UserCLI, text model.Text) {
 	// req := "TODO"
 	// header := a.ClientAPI.CreateHeaderWithValue("authorization", user.User.Token)
 	// req, err := a.ClientAPI.AutherUser(req, &header)
@@ -72,10 +78,26 @@ func (a *RemoteService) ReadText(user *user.UserCLI, text model.Text) {
 	fmt.Println("!!! ReadText")
 }
 
-func (a *RemoteService) UpdateText(user *user.UserCLI, text model.Text) {
+func (a *RemoteService) ReadAll(user *user.UserCLI, text model.Text) {
+	// req := "TODO"
+	// header := a.ClientAPI.CreateHeaderWithValue("authorization", user.User.Token)
+	// req, err := a.ClientAPI.AutherUser(req, &header)
+	// что будем возвращать клиенту ?
+	fmt.Println("!!! ReadText")
+}
+
+func (a *RemoteService) Update(user *user.UserCLI, text model.Text) {
 	// req := "TODO"
 	// header := a.ClientAPI.CreateHeaderWithValue("authorization", user.User.Token)
 	// req, err := a.ClientAPI.AutherUser(req, &header)
 	// что будем возвращать клиенту ?
 	fmt.Println("!!! UpdateText")
+}
+
+func (a *RemoteService) Delete(user *user.UserCLI, text model.Text) {
+	// req := "TODO"
+	// header := a.ClientAPI.CreateHeaderWithValue("authorization", user.User.Token)
+	// req, err := a.ClientAPI.AutherUser(req, &header)
+	// что будем возвращать клиенту ?
+	fmt.Println("!!! Delete")
 }

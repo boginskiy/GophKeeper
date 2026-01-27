@@ -11,9 +11,11 @@ type Auther interface {
 }
 
 type CRUD interface {
-	CreateText(user *user.UserCLI, text model.Text)
-	ReadText(user *user.UserCLI, text model.Text)
-	UpdateText(user *user.UserCLI, text model.Text)
+	Create(user *user.UserCLI, text model.Text) (any, error)
+	// Read(user *user.UserCLI, text model.Text)
+	// ReadAll(user *user.UserCLI, text model.Text)
+	// Update(user *user.UserCLI, text model.Text)
+	// Delete(user *user.UserCLI, text model.Text)
 }
 
 type ServiceAPI interface {

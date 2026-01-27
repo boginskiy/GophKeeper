@@ -9,6 +9,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
+	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
@@ -17,6 +18,7 @@ type TexterService struct {
 	Logg       logg.Logger
 	Dialoger   cli.Dialoger
 	ServiceAPI api.ServiceAPI
+	Type       string
 }
 
 func NewTexterService(
@@ -31,43 +33,50 @@ func NewTexterService(
 		Logg:       logger,
 		Dialoger:   dialog,
 		ServiceAPI: serviceAPI,
+		Type:       "text",
 	}
 }
 
 func (t *TexterService) Create(client *client.ClientCLI, user *user.UserCLI) {
-	// Get info about type text.
-	name, _ := t.Dialoger.GetSomeThing(client, user,
-		fmt.Sprintf("%s\n\r%s",
-			"What type of data do you want to create: \n\r\t credentials \n\r\t text \n\r\t card",
-			"come back: back, need help: help, pass: enter"))
+	// Get info about name text.
+	name := t.Dialoger.DialogsAbAction(client, user, "create")
 
 	// Enter text for saving.
-	tx, _ := t.Dialoger.GetSomeThing(client, user, "Enter the text...")
-	t.ServiceAPI.CreateText(user, *model.NewText(name, tx, user.User.Email))
-}
+	text, _ := t.Dialoger.GetSomeThing(client, user, "Enter the text...")
 
-func (t *TexterService) Read(client *client.ClientCLI, user *user.UserCLI) {
-	name, _ := t.Dialoger.GetSomeThing(client, user,
-		fmt.Sprintf("%s\n\r%s",
-			"What type of data do you want to read: \n\r\t credentials \n\r\t text \n\r\t card",
-			"come back: back, need help: help, pass: enter"))
+	// Call ServiceAPI.
+	obj, err := t.ServiceAPI.Create(user, *model.NewText(name, t.Type, text, user.User.Email))
 
-	t.ServiceAPI.ReadText(user, model.Text{Name: name})
-}
+	if err != nil {
+		t.Dialoger.ShowIt(client, err.Error())
+	}
 
-func (t *TexterService) Update(client *client.ClientCLI, user *user.UserCLI) {
-	name, _ := t.Dialoger.GetSomeThing(client, user,
-		fmt.Sprintf("%s\n\r%s",
-			"What type of data do you want to update: \n\r\t credentials \n\r\t text \n\r\t card",
-			"come back: back, need help: help, pass: enter"))
+	res, ok := obj.(*rpc.CreateResponse)
+	if !ok {
+		t.Dialoger.ShowIt(client, "Type not valid")
+	}
 
-	tx, _ := t.Dialoger.GetSomeThing(client, user, "Enter the new text...")
-	t.ServiceAPI.UpdateText(user, *model.NewText(name, tx, user.User.Email))
-}
-
-func (t *TexterService) Delete(client *client.ClientCLI, user *user.UserCLI) {
+	t.Dialoger.ShowIt(client, fmt.Sprintf("%s: %s\n\r", res.Status, res.UpdatedAt))
+	return
 
 }
+
+// func (t *TexterService) Read(client *client.ClientCLI, user *user.UserCLI) {
+// 	name := t.Dialoger.DialogsAbAction(client, user, "read")
+
+// 	t.ServiceAPI.Read(user, model.Text{Name: name, Type: t.Tp})
+// }
+
+// func (t *TexterService) Update(client *client.ClientCLI, user *user.UserCLI) {
+// 	name := t.Dialoger.DialogsAbAction(client, user, "update")
+
+// 	tx, _ := t.Dialoger.GetSomeThing(client, user, "Enter the new text...")
+// 	t.ServiceAPI.Update(user, *model.NewText(name, t.Tp, tx, user.User.Email))
+// }
+
+// func (t *TexterService) Delete(client *client.ClientCLI, user *user.UserCLI) {
+
+// }
 
 // типы хранимой инфы
 // пары логин/пароль;

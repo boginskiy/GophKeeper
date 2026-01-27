@@ -33,12 +33,12 @@ authLoop:
 
 		case "create":
 			c.Service.Create(client, user)
-		case "read":
-			c.Service.Read(client, user)
-		case "update":
-			c.Service.Update(client, user)
-		case "delete":
-			c.Service.Delete(client, user)
+		// case "read":
+		// 	c.Service.Read(client, user)
+		// case "update":
+		// 	c.Service.Update(client, user)
+		// case "delete":
+		// 	c.Service.Delete(client, user)
 
 		default:
 			c.Dialoger.ShowIt(client, "Invalid command. Try again...")

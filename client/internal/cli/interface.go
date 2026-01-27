@@ -39,4 +39,5 @@ type Dialoger interface {
 	Shower
 
 	DialogsAbRegister(*client.ClientCLI, *user.UserCLI) (userName, email, phone, password string)
+	DialogsAbAction(*client.ClientCLI, *user.UserCLI, string) string
 }

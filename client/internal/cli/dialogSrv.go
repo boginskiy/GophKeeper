@@ -116,6 +116,17 @@ func (d *DialogService) DialogsAbRegister(client *client.ClientCLI, user *user.U
 	return userName, email, phone, password
 }
 
+func (d *DialogService) DialogsAbAction(client *client.ClientCLI, user *user.UserCLI, action string) string {
+	question := fmt.Sprintf(
+		"%s to %s: %s",
+		"What type of data do you want", action, "\n\r\t credentials \n\r\t text \n\r\t card")
+
+	hint := "come back: back, need help: help, pass: enter"
+
+	result, _ := d.GetSomeThing(client, user, fmt.Sprintf("%s\n\r%s", question, hint))
+	return result
+}
+
 // Checker
 func (d *DialogService) CheckEmail(userEmail, email string) bool {
 	return userEmail == email
