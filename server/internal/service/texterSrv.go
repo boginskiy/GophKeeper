@@ -49,7 +49,7 @@ func (t *TexterService) ReadAll(ctx context.Context, req any) (any, error) {
 		return nil, errs.ErrTypeConversion
 	}
 
-	return t.Repo.ReadAllRecord(&model.Text{Name: Req.Type, Owner: Req.Owner})
+	return t.Repo.ReadAllRecord(&model.Text{Type: Req.Type, Owner: Req.Owner})
 }
 
 func (t *TexterService) Update(ctx context.Context, req any) (any, error) {

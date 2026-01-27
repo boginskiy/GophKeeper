@@ -39,47 +39,91 @@ func NewTexterService(
 }
 
 func (t *TexterService) Create(client *client.ClientCLI, user *user.UserCLI) {
-	// Get info about name text.
-	name := t.Dialoger.DialogsAbAction(client, user, "create")
-	// Enter text for saving.
-	text, _ := t.Dialoger.GetSomeThing(client, user, "Enter the text...")
+	name := t.Dialoger.DialogsAbAction(client, user, "create")            // Get info about name text.
+	text, _ := t.Dialoger.GetSomeThing(client, user, "Enter the text...") // Enter text for saving.
 
-	// Call ServiceAPI.
+	// Call service.
 	obj, err := t.ServiceAPI.Create(user, *model.NewText(name, t.Type, text, user.User.Email))
 
-	// Errors.
+	// Proc errors.
 	if err != nil {
 		t.Dialoger.ShowErr(client, err)
+		return
 	}
 
 	res, ok := obj.(*rpc.CreateResponse)
 	if !ok {
 		t.Dialoger.ShowErr(client, errs.ErrTypeConversion)
+		return
 	}
 
-	// Response.
-	t.Dialoger.ShowIt(client, fmt.Sprintf("%s: %s\n\r", res.Status, res.UpdatedAt))
+	// Response in cli.
+	t.Dialoger.ShowIt(client, fmt.Sprintf("%s %s\n\r", res.Status, res.UpdatedAt))
 }
 
-// func (t *TexterService) Read(client *client.ClientCLI, user *user.UserCLI) {
-// 	name := t.Dialoger.DialogsAbAction(client, user, "read")
+func (t *TexterService) Read(client *client.ClientCLI, user *user.UserCLI) {
+	name := t.Dialoger.DialogsAbAction(client, user, "read")
 
-// 	t.ServiceAPI.Read(user, model.Text{Name: name, Type: t.Tp})
-// }
+	obj, err := t.ServiceAPI.Read(user, model.Text{Name: name, Owner: user.User.Email})
+	if err != nil {
+		t.Dialoger.ShowErr(client, err)
+		return
+	}
 
-// func (t *TexterService) Update(client *client.ClientCLI, user *user.UserCLI) {
-// 	name := t.Dialoger.DialogsAbAction(client, user, "update")
+	res, ok := obj.(*rpc.ReadResponse)
+	if !ok {
+		t.Dialoger.ShowErr(client, errs.ErrTypeConversion)
+		return
+	}
 
-// 	tx, _ := t.Dialoger.GetSomeThing(client, user, "Enter the new text...")
-// 	t.ServiceAPI.Update(user, *model.NewText(name, t.Tp, tx, user.User.Email))
-// }
+	t.Dialoger.ShowIt(client, fmt.Sprintf(
+		"%s: %s   last update: %s\n\r",
+		res.Name, res.Text, res.UpdatedAt))
+}
+
+func (t *TexterService) ReadAll(client *client.ClientCLI, user *user.UserCLI) {
+	obj, err := t.ServiceAPI.ReadAll(user, model.Text{Type: t.Type, Owner: user.User.Email})
+	if err != nil {
+		t.Dialoger.ShowErr(client, err)
+		return
+	}
+
+	res, ok := obj.(*rpc.ReadAllResponse)
+	if !ok {
+		t.Dialoger.ShowErr(client, errs.ErrTypeConversion)
+		return
+	}
+
+	for _, text := range res.TextResponses {
+		t.Dialoger.ShowIt(client, fmt.Sprintf(
+			"%s: %s   last update: %s",
+			text.Name, text.Text, text.UpdatedAt))
+	}
+	fmt.Println()
+}
+
+// TODO!!!
+// Надо менять данные для метода Update
+func (t *TexterService) Update(client *client.ClientCLI, user *user.UserCLI) {
+	name := t.Dialoger.DialogsAbAction(client, user, "update")
+	text, _ := t.Dialoger.GetSomeThing(client, user, "Enter the new text...")
+
+	obj, err := t.ServiceAPI.Update(user, *model.NewText(name, t.Type, text, user.User.Email))
+
+	if err != nil {
+		t.Dialoger.ShowErr(client, err)
+		return
+	}
+
+	res, ok := obj.(*rpc.CreateResponse)
+	if !ok {
+		t.Dialoger.ShowErr(client, errs.ErrTypeConversion)
+		return
+	}
+
+	t.Dialoger.ShowIt(client, fmt.Sprintf("%s %s\n\r", res.Status, res.UpdatedAt))
+}
 
 // func (t *TexterService) Delete(client *client.ClientCLI, user *user.UserCLI) {
 
 // }
-
-// типы хранимой инфы
-// пары логин/пароль;
-// произвольные текстовые данные;
-// произвольные бинарные данные;
-// данные банковских карт.

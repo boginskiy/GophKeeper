@@ -39,7 +39,7 @@ authLoop:
 		// Get command.
 		comm, _ := r.Dialoger.GetSomeThing(client, user,
 			fmt.Sprintf("%s\n\r%s",
-				"Enter the data type you want to work with: \n\r\t text \n\r\t image \n\r\t sound",
+				"Enter the data type you want to work with: \n\r\t text \n\r\t bytes \n\r\t image \n\r\t sound",
 				"go out: exit, need help: help"))
 
 		switch comm {

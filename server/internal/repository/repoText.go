@@ -24,7 +24,7 @@ func (r *RepoText) CreateRecord(text *model.Text) (*model.Text, error) {
 	text.CreatedAt = time.Now()
 	text.UpdatedAt = time.Now()
 
-	r.Store[text.Type] = text
+	r.Store[text.Name] = text
 
 	return text, nil
 }

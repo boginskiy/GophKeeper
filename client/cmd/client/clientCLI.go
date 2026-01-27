@@ -25,7 +25,7 @@ func NewClientCLI(logger logg.Logger) *ClientCLI {
 func (c *ClientCLI) print(text string) {
 	for _, ch := range text {
 		fmt.Fprintf(os.Stdout, "%c", ch)
-		time.Sleep(20 * time.Millisecond)
+		time.Sleep(15 * time.Millisecond)
 	}
 }
 

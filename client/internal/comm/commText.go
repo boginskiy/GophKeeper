@@ -24,7 +24,7 @@ authLoop:
 		// Get command.
 		comm, _ := c.Dialoger.GetSomeThing(client, user,
 			fmt.Sprintf("%s\n\r%s",
-				"What do you want to do with the text: \n\r\t create \n\r\t read \n\r\t update \n\r\t delete",
+				"What do you want to do with the text: \n\r\t create \n\r\t read \n\r\t read-all \n\r\t update \n\r\t delete",
 				"come back: back, need help: help"))
 
 		switch comm {
@@ -33,10 +33,12 @@ authLoop:
 
 		case "create":
 			c.Service.Create(client, user)
-		// case "read":
-		// 	c.Service.Read(client, user)
-		// case "update":
-		// 	c.Service.Update(client, user)
+		case "read":
+			c.Service.Read(client, user)
+		case "read-all":
+			c.Service.ReadAll(client, user)
+		case "update":
+			c.Service.Update(client, user)
 		// case "delete":
 		// 	c.Service.Delete(client, user)
 
