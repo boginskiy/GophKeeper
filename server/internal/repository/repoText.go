@@ -55,6 +55,7 @@ func (r *RepoText) ReadAllRecord(text *model.Text) ([]*model.Text, error) {
 
 func (r *RepoText) UpdateRecord(text *model.Text) (*model.Text, error) {
 	for _, record := range r.Store {
+
 		if record.Owner == text.Owner && record.Name == text.Name {
 			record.UpdatedAt = time.Now()
 			record.Tx = text.Tx

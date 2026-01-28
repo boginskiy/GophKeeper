@@ -59,7 +59,7 @@ func (t *TexterService) Update(ctx context.Context, req any) (any, error) {
 		return nil, errs.ErrTypeConversion
 	}
 
-	return t.Repo.UpdateRecord(&model.Text{Name: Req.Type, Owner: Req.Owner})
+	return t.Repo.UpdateRecord(&model.Text{Name: Req.Name, Tx: Req.Text, Owner: Req.Owner})
 }
 
 func (t *TexterService) Delete(ctx context.Context, req any) (any, error) {

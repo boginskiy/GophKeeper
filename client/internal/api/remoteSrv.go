@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
-	"fmt"
+	"io"
 	"time"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
@@ -102,21 +103,56 @@ func (a *RemoteService) ReadAll(user *user.UserCLI, text model.Text) (any, error
 func (a *RemoteService) Update(user *user.UserCLI, text model.Text) (any, error) {
 	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", user.User.Token)
 	req := &rpc.CreateRequest{
-		Name:         text.Name,
-		Type:         text.Type,
-		Text:         text.Tx,
-		Owner:        text.Owner,
-		ListActivate: text.ListActivate,
+		Name:  text.Name,
+		Text:  text.Tx,
+		Owner: text.Owner,
 	}
-
 	var header metadata.MD
 	return a.ClientGRPC.TexterService.Update(ctx, req, grpc.Header(&header))
 }
 
-func (a *RemoteService) Delete(user *user.UserCLI, text model.Text) {
-	// req := "TODO"
-	// header := a.ClientAPI.CreateHeaderWithValue("authorization", user.User.Token)
-	// req, err := a.ClientAPI.AutherUser(req, &header)
-	// что будем возвращать клиенту ?
-	fmt.Println("!!! Delete")
+func (a *RemoteService) Delete(user *user.UserCLI, text model.Text) (any, error) {
+	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", user.User.Token)
+	req := &rpc.DeleteRequest{
+		Name:  text.Name,
+		Owner: text.Owner,
+	}
+
+	var header metadata.MD
+	return a.ClientGRPC.TexterService.Delete(ctx, req, grpc.Header(&header))
+}
+
+func (a *RemoteService) Upload(user *user.UserCLI, bytes model.Bytes) (any, error) {
+	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", user.User.Token)
+
+	stream, err := a.ClientGRPC.ByterService.Upload(ctx)
+	if err != nil {
+		return nil, errs.ErrStartStream.Wrap(err)
+	}
+
+	// buffer 1KB.
+	buffer := make([]byte, 1024)
+
+	// Run stream.
+	for {
+		n, err := bytes.Descr.Read(buffer)
+		if err != nil && err != io.EOF {
+			return nil, errs.ErrReadFileToBuff.Wrap(err)
+		}
+		if n == 0 {
+			break
+		}
+		// Part of request.
+		chunk := &rpc.UploadBytesRequest{
+			Content:   buffer[:n],
+			TotalSize: bytes.Size,
+			Filename:  bytes.Name,
+		}
+		// Send part of request.
+		if err := stream.Send(chunk); err != nil {
+			return nil, errs.ErrSendChankFile.Wrap(err)
+		}
+	}
+
+	return stream.CloseAndRecv()
 }

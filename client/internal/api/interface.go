@@ -15,10 +15,15 @@ type CRUD interface {
 	Read(user *user.UserCLI, text model.Text) (any, error)
 	ReadAll(user *user.UserCLI, text model.Text) (any, error)
 	Update(user *user.UserCLI, text model.Text) (any, error)
-	// Delete(user *user.UserCLI, text model.Text) (any, error)
+	Delete(user *user.UserCLI, text model.Text) (any, error)
+}
+
+type Uploader interface {
+	Upload(*user.UserCLI, model.Bytes) (any, error)
 }
 
 type ServiceAPI interface {
+	Uploader
 	Auther
 	CRUD
 }

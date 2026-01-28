@@ -5,15 +5,17 @@ import (
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
+	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
 type CommBytes struct {
 	Dialoger cli.Dialoger
+	Service  service.ServicerByter
 }
 
-func NewCommBytes(dialoger cli.Dialoger) *CommBytes {
-	return &CommBytes{Dialoger: dialoger}
+func NewCommBytes(dialoger cli.Dialoger, srv service.ServicerByter) *CommBytes {
+	return &CommBytes{Dialoger: dialoger, Service: srv}
 }
 
 func (c *CommBytes) Registration(client *client.ClientCLI, user *user.UserCLI) {
@@ -29,17 +31,14 @@ authLoop:
 		case "back", "help":
 			break authLoop
 
-		case "create":
-			// r.RoutText.Execute(client, user)
-
-		case "read":
-			// r.RoutText.Execute(client, user)
-
-		case "update":
-			// r.RoutText.Execute(client, user)
-
-		case "delete":
-			// r.RoutText.Execute(client, user)
+		case "upload":
+			c.Service.Upload(client, user)
+		case "unload":
+			c.Service.Unload(client, user)
+		// case "update":
+		// 	c.Service.Update(client, user)
+		// case "delete":
+		// 	c.Service.Delete(client, user)
 
 		default:
 			c.Dialoger.ShowIt(client, "Invalid command. Try again...")

@@ -102,13 +102,11 @@ func (t *TexterService) ReadAll(client *client.ClientCLI, user *user.UserCLI) {
 	fmt.Println()
 }
 
-// TODO!!!
-// Надо менять данные для метода Update
 func (t *TexterService) Update(client *client.ClientCLI, user *user.UserCLI) {
 	name := t.Dialoger.DialogsAbAction(client, user, "update")
 	text, _ := t.Dialoger.GetSomeThing(client, user, "Enter the new text...")
 
-	obj, err := t.ServiceAPI.Update(user, *model.NewText(name, t.Type, text, user.User.Email))
+	obj, err := t.ServiceAPI.Update(user, model.Text{Name: name, Tx: text, Owner: user.User.Email})
 
 	if err != nil {
 		t.Dialoger.ShowErr(client, err)
@@ -124,6 +122,20 @@ func (t *TexterService) Update(client *client.ClientCLI, user *user.UserCLI) {
 	t.Dialoger.ShowIt(client, fmt.Sprintf("%s %s\n\r", res.Status, res.UpdatedAt))
 }
 
-// func (t *TexterService) Delete(client *client.ClientCLI, user *user.UserCLI) {
+func (t *TexterService) Delete(client *client.ClientCLI, user *user.UserCLI) {
+	name := t.Dialoger.DialogsAbAction(client, user, "delete")
 
-// }
+	obj, err := t.ServiceAPI.Delete(user, model.Text{Name: name, Owner: user.User.Email})
+
+	if err != nil {
+		t.Dialoger.ShowErr(client, err)
+		return
+	}
+
+	res, ok := obj.(*rpc.DeleteResponse)
+	if !ok {
+		t.Dialoger.ShowErr(client, errs.ErrTypeConversion)
+		return
+	}
+	t.Dialoger.ShowIt(client, fmt.Sprintf("%s %s\n\r", res.Status, res.Name))
+}

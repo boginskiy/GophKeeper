@@ -122,11 +122,10 @@ func (d *DialogService) DialogsAbRegister(client *client.ClientCLI, user *user.U
 
 func (d *DialogService) DialogsAbAction(client *client.ClientCLI, user *user.UserCLI, action string) string {
 	question := fmt.Sprintf(
-		"%s to %s: %s",
-		"What type of data do you want", action, "\n\r\t cred \n\r\t phone \n\r\t card \n\r\t info")
+		"%s to %s %s",
+		"What type of text data do you want", action, "\n\r\t info \n\r\t phone \n\r\t card \n\r\t other")
 
 	hint := "come back: back, need help: help, pass: enter"
-
 	result, _ := d.GetSomeThing(client, user, fmt.Sprintf("%s\n\r%s", question, hint))
 	return result
 }

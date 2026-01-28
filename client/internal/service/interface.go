@@ -5,10 +5,15 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
-type Servicer interface {
+type Servicer interface { // ServicerTexter
 	Create(*client.ClientCLI, *user.UserCLI)
 	Read(*client.ClientCLI, *user.UserCLI)
 	ReadAll(*client.ClientCLI, *user.UserCLI)
 	Update(*client.ClientCLI, *user.UserCLI)
-	// Delete(*client.ClientCLI, *user.UserCLI)
+	Delete(*client.ClientCLI, *user.UserCLI)
+}
+
+type ServicerByter interface {
+	Upload(*client.ClientCLI, *user.UserCLI)
+	Unload(*client.ClientCLI, *user.UserCLI)
 }

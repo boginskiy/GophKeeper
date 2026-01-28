@@ -12,6 +12,7 @@ import (
 type ClientGRPC struct {
 	AuthService   rpc.AuthServiceClient
 	TexterService rpc.TexterServiceClient
+	ByterService  rpc.ByterServiceClient
 	Conn          *grpc.ClientConn
 }
 
@@ -25,6 +26,7 @@ func NewClientGRPC(config config.Config, logger logg.Logger) *ClientGRPC {
 	return &ClientGRPC{
 		AuthService:   rpc.NewAuthServiceClient(conn),
 		TexterService: rpc.NewTexterServiceClient(conn),
+		ByterService:  rpc.NewByterServiceClient(conn),
 		Conn:          conn,
 	}
 }

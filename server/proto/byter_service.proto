@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package GophKeeper.server.proto;
+
+option go_package = "github.com/boginskiy/GophKeeper/server/internal/rpc";
+
+service ByterService {
+  rpc Upload (stream UploadBytesRequest) returns (UploadBytesResponse);
+  rpc Unload (UnloadBytesRequest) returns (stream UnloadBytesResponse);
+}
+
+message UploadBytesRequest {
+  bytes content = 1;
+  int64 total_size = 2;
+  string filename = 3;
+}
+
+message UploadBytesResponse {
+  string status = 1;
+  string updatedAt = 2;
+  int64 total_size = 3;
+}
+
+message UnloadBytesRequest {
+  string filename = 1;
+}
+
+message UnloadBytesResponse {
+  bytes content = 1;
+  int64 total_size = 2;
+  string filename = 3;
+  string updatedAt = 4;
+}

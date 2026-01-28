@@ -43,26 +43,25 @@ func (a *App) Init() {
 	remoteLogg := logg.NewLogg("remote.log", "INFO")
 
 	// Utils.
-	fileHandler := utils.NewWorkingFile()
+	fileHandler := utils.NewFileHdlr()
 
-	// Clients && user
+	// Clients && user.
+	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
 	clientCLI := client.NewClientCLI(a.Logg)
 	userCLI := user.NewUserCLI(a.Logg)
-
-	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
-	// clientAPI := api.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
 
 	// Infra Services.
 	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientGRPC)
 	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
 
 	// Business Services.
+	byter := service.NewByterService(a.Cfg, a.Logg, fileHandler, dialogSrv, remoteSrv)
 	texter := service.NewTexterService(a.Cfg, a.Logg, dialogSrv, remoteSrv)
 
 	// Commonds.
 	commImage := comm.NewCommImage(dialogSrv)
 	commSound := comm.NewCommSound(dialogSrv)
-	commBytes := comm.NewCommBytes(dialogSrv)
+	commBytes := comm.NewCommBytes(dialogSrv, byter)
 	commText := comm.NewCommText(dialogSrv, texter)
 	root := comm.NewRoot(dialogSrv, commText, commBytes, commImage, commSound)
 
