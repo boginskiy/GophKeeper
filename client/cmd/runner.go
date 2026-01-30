@@ -14,8 +14,8 @@ type Runner struct {
 	Cfg        config.Config
 	Logg       logg.Logger
 	Identifier auth.Identifier
-	Dialoger   cli.Dialoger
-	Auth       *auth.Auth
+	DialogSrv  cli.ShowGetter
+	AuthSrv    auth.Auth
 	Root       comm.Rooter
 }
 
@@ -23,37 +23,28 @@ func NewRunner(
 	cfg config.Config,
 	logger logg.Logger,
 	identity auth.Identifier,
-	dialoger cli.Dialoger,
-	auth *auth.Auth,
+	dialog cli.ShowGetter,
+	authSrv auth.Auth,
 	root comm.Rooter) *Runner {
 
 	return &Runner{
 		Cfg:        cfg,
 		Logg:       logger,
 		Identifier: identity,
-		Dialoger:   dialoger,
-		Auth:       auth,
+		DialogSrv:  dialog,
+		AuthSrv:    authSrv,
 		Root:       root,
 	}
 }
 
 func (d *Runner) Run(client *client.ClientCLI, user *user.UserCLI) {
-	d.Dialoger.ShowHello(client, user) // Hello
-	ok := d.ExecuteAuth(client, user)  // Auth
-	d.Root.Execute(ok, client, user)   // Root
+	d.DialogSrv.ShowIt("Hello, Man!")
 
-	d.Dialoger.ShowIt(client, "Session is over. Goodbye")
+	ok := d.Root.ExecuteAuth(d.AuthSrv, user)
+	d.Root.ExecuteComm(ok, client, user)
+
+	d.DialogSrv.ShowIt("Session is over. Goodbye")
+
 	// Save data current user in config.file for feature.
 	defer d.Identifier.SaveCurrentUser(user)
-}
-
-func (d *Runner) ExecuteAuth(client *client.ClientCLI, user *user.UserCLI) bool {
-	// Identification user. load data from config.file if exist.
-	IsThereRegistr := d.Identifier.Identification(user)
-	// Authentication user.
-	IsThereAuthent := d.Auth.Authentication(IsThereRegistr, client, user)
-	// Registration user.
-	IsThereRegistr = d.Auth.Registration(IsThereAuthent, client, user)
-
-	return IsThereRegistr || IsThereAuthent
 }

@@ -5,136 +5,111 @@ import (
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
-	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
-	"github.com/boginskiy/GophKeeper/client/pkg"
+	"github.com/boginskiy/GophKeeper/client/internal/utils"
 )
 
-type GetterFn func(*client.ClientCLI, *user.UserCLI) (string, error)
-type CheckerFn func(string, string) bool
-
 type DialogService struct {
-	Cfg  config.Config
-	Logg logg.Logger
+	Cfg     config.Config
+	Logg    logg.Logger
+	Checker utils.Checker
+	Client  client.Client
+	User    user.User
 }
 
-func NewDialogService(cfg config.Config, logger logg.Logger) *DialogService {
+func NewDialogService(
+	cfg config.Config,
+	logger logg.Logger,
+	ch utils.Checker,
+	cl client.Client,
+	us user.User,
+) *DialogService {
+
 	return &DialogService{
-		Cfg:  cfg,
-		Logg: logger,
+		Cfg:     cfg,
+		Logg:    logger,
+		Checker: ch,
+		Client:  cl,
+		User:    us,
 	}
 }
 
-// ShowHello
-func (d *DialogService) ShowHello(client *client.ClientCLI, user *user.UserCLI) {
-	var tx string
-	if user.User != nil {
-		tx = fmt.Sprintf("Hello, %s!", user.User.UserName)
-	} else {
-		tx = "Hello, Man!"
-	}
-	client.SendMess(tx)
+func (d *DialogService) ShowIt(it string) {
+	d.Client.SendMess(it)
 }
 
-func (d *DialogService) ShowIt(client *client.ClientCLI, it string) {
-	client.SendMess(it)
-}
-
-func (d *DialogService) ShowErr(client *client.ClientCLI, err error) {
-	client.SendMess(err.Error())
+func (d *DialogService) ShowErr(err error) {
+	d.Client.SendMess(err.Error())
 }
 
 // GetSomeThing
-func (d *DialogService) GetSomeThing(client *client.ClientCLI, user *user.UserCLI, mess string) (string, error) {
-	client.SendMess(mess)
-	return user.ReceiveMess()
+func (d *DialogService) GetSomeThing(mess string) (string, error) {
+	d.Client.SendMess(mess)
+	return d.User.ReceiveMess()
 }
 
-// GetIt gives us everything we ask for.
-func (d *DialogService) GetIt(client *client.ClientCLI, user *user.UserCLI, it string) (string, error) {
-	client.SendMess(fmt.Sprintf("Enter the %s...", it))
-	return user.ReceiveMess()
+// GetEnterIt gives us everything we ask for.
+func (d *DialogService) GetEnterIt(it string) (string, error) {
+	d.Client.SendMess(fmt.Sprintf("Enter the %s...", it))
+	return d.User.ReceiveMess()
 }
 
-// GetEmail
-func (d *DialogService) GetEmail(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-	client.SendMess("Enter the email...")
-	return user.ReceiveMess()
-}
-
-// GetEmailWithCheck decorator GetEmail.
-func (d *DialogService) GetEmailWithCheck(dialogGet GetterFn, funcCheck CheckerFn) GetterFn {
-	return func(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-
-		for repeat := 0; repeat < d.Cfg.GetAttempts(); repeat++ {
-			result, err := dialogGet(client, user)
-
-			if err == nil && funcCheck(user.User.Email, result) {
-				return result, nil
-			}
-			client.SendMess("Uncorrected credentials. Try again...")
-		}
-		return "", errs.ErrUncorrectCredentials
-	}
-}
-
-// GetPassword
-func (d *DialogService) GetPassword(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-	client.SendMess("Enter password...")
-	return user.ReceiveMess()
-}
-
-// GetPasswordWithCheck decorator for GetPassword.
-func (d *DialogService) GetPasswordWithCheck(dialogGet GetterFn, funcCheck CheckerFn) GetterFn {
-	return func(client *client.ClientCLI, user *user.UserCLI) (string, error) {
-
-		for repeat := 0; repeat < d.Cfg.GetAttempts(); repeat++ {
-			result, err := dialogGet(client, user)
-
-			if err == nil && funcCheck(user.User.Password, result) {
-				return result, nil
-			}
-			client.SendMess("Uncorrected credentials. Try again...")
-		}
-		return "", errs.ErrUncorrectCredentials
-	}
-}
-
-// DialogsAbRegister return many args.
-func (d *DialogService) DialogsAbRegister(client *client.ClientCLI, user *user.UserCLI) (userName, email, phone, password string) {
-	d.ShowIt(client, "You need to register...")
-
-	userName, err := d.GetIt(client, user, "user name")
-	d.Logg.CheckWithFatal(err, "bad user name")
-
-	email, err = d.GetEmail(client, user)
-	d.Logg.CheckWithFatal(err, "bad email")
-
-	phone, err = d.GetIt(client, user, "phone")
-	d.Logg.CheckWithFatal(err, "bad phone")
-
-	password, err = d.GetPassword(client, user)
-	d.Logg.CheckWithFatal(err, "bad password")
-
-	return userName, email, phone, password
-}
-
-func (d *DialogService) DialogsAbAction(client *client.ClientCLI, user *user.UserCLI, action string) string {
+func (d *DialogService) GetDataAction(action string) string {
 	question := fmt.Sprintf(
 		"%s to %s %s",
 		"What type of text data do you want", action, "\n\r\t info \n\r\t phone \n\r\t card \n\r\t other")
 
 	hint := "come back: back, need help: help, pass: enter"
-	result, _ := d.GetSomeThing(client, user, fmt.Sprintf("%s\n\r%s", question, hint))
+	result, _ := d.GetSomeThing(fmt.Sprintf("%s\n\r%s", question, hint))
 	return result
 }
 
-// Checker
-func (d *DialogService) CheckEmail(userEmail, email string) bool {
-	return userEmail == email
+func (d *DialogService) VerifyEnterIt(needToTake, needToCompare string, quantity int) bool {
+	for q := 0; q < quantity; q++ {
+		result, err := d.GetEnterIt(needToTake)
+		if err == nil && d.Checker.CheckTwoString(needToCompare, result) {
+			return true
+		}
+		d.Client.SendMess("Uncorrected credentials. Try again...")
+	}
+	return false
 }
 
-func (d *DialogService) CheckPassword(userPassword, password string) bool {
-	return pkg.CompareHashAndPassword(userPassword, password)
+func (d *DialogService) VerifyEnterPassword(needToTake, needToCompare string, quantity int) bool {
+	for q := 0; q < quantity; q++ {
+		result, err := d.GetEnterIt(needToTake)
+
+		if err == nil && d.Checker.CheckPassword(needToCompare, result) {
+			return true
+		}
+		d.Client.SendMess("Uncorrected credentials. Try again...")
+	}
+	return false
+}
+
+func (d *DialogService) GetDataRegister() (userName, email, phone, password string) {
+	d.ShowIt("You need to register...")
+
+	userName, err := d.GetEnterIt("user name")
+	d.Logg.CheckWithFatal(err, "bad user name")
+
+	email, err = d.GetEnterIt("email")
+	d.Logg.CheckWithFatal(err, "bad email")
+
+	phone, err = d.GetEnterIt("phone")
+	d.Logg.CheckWithFatal(err, "bad phone")
+
+	password, err = d.GetEnterIt("password")
+	d.Logg.CheckWithFatal(err, "bad password")
+
+	return userName, email, phone, password
+}
+
+func (d *DialogService) VerifyDataAuth(user user.User) bool {
+	d.ShowIt("You need log in")
+	ok := d.VerifyEnterIt("email", user.GetModelUser().Email, d.Cfg.GetAttempts())
+	ok2 := d.VerifyEnterPassword("password", user.GetModelUser().Password, d.Cfg.GetAttempts())
+
+	return ok && ok2
 }

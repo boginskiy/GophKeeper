@@ -70,8 +70,10 @@ func (a *RemoteService) Authentication(user model.User) (token string, err error
 	return token, err
 }
 
-func (a *RemoteService) Create(user *user.UserCLI, text model.Text) (any, error) {
-	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", user.User.Token)
+func (a *RemoteService) Create(user user.User, text model.Text) (any, error) {
+	ctx := metadata.AppendToOutgoingContext(
+		context.Background(), "authorization", user.GetModelUser().Token)
+
 	req := &rpc.CreateRequest{
 		Name:         text.Name,
 		Type:         text.Type,
@@ -80,28 +82,33 @@ func (a *RemoteService) Create(user *user.UserCLI, text model.Text) (any, error)
 		ListActivate: text.ListActivate,
 	}
 	var header metadata.MD
-
 	return a.ClientGRPC.TexterService.Create(ctx, req, grpc.Header(&header))
 }
 
-func (a *RemoteService) Read(user *user.UserCLI, text model.Text) (any, error) {
-	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", user.User.Token)
+func (a *RemoteService) Read(user user.User, text model.Text) (any, error) {
+	ctx := metadata.AppendToOutgoingContext(
+		context.Background(), "authorization", user.GetModelUser().Token)
+
 	req := &rpc.ReadRequest{Name: text.Name, Owner: text.Owner}
 	var header metadata.MD
 
 	return a.ClientGRPC.TexterService.Read(ctx, req, grpc.Header(&header))
 }
 
-func (a *RemoteService) ReadAll(user *user.UserCLI, text model.Text) (any, error) {
-	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", user.User.Token)
+func (a *RemoteService) ReadAll(user user.User, text model.Text) (any, error) {
+	ctx := metadata.AppendToOutgoingContext(
+		context.Background(), "authorization", user.GetModelUser().Token)
+
 	req := &rpc.ReadAllRequest{Type: text.Type, Owner: text.Owner}
 	var header metadata.MD
 
 	return a.ClientGRPC.TexterService.ReadAll(ctx, req, grpc.Header(&header))
 }
 
-func (a *RemoteService) Update(user *user.UserCLI, text model.Text) (any, error) {
-	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", user.User.Token)
+func (a *RemoteService) Update(user user.User, text model.Text) (any, error) {
+	ctx := metadata.AppendToOutgoingContext(
+		context.Background(), "authorization", user.GetModelUser().Token)
+
 	req := &rpc.CreateRequest{
 		Name:  text.Name,
 		Text:  text.Tx,
@@ -111,8 +118,10 @@ func (a *RemoteService) Update(user *user.UserCLI, text model.Text) (any, error)
 	return a.ClientGRPC.TexterService.Update(ctx, req, grpc.Header(&header))
 }
 
-func (a *RemoteService) Delete(user *user.UserCLI, text model.Text) (any, error) {
-	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", user.User.Token)
+func (a *RemoteService) Delete(user user.User, text model.Text) (any, error) {
+	ctx := metadata.AppendToOutgoingContext(
+		context.Background(), "authorization", user.GetModelUser().Token)
+
 	req := &rpc.DeleteRequest{
 		Name:  text.Name,
 		Owner: text.Owner,
@@ -124,8 +133,9 @@ func (a *RemoteService) Delete(user *user.UserCLI, text model.Text) (any, error)
 
 func (a *RemoteService) Upload(user *user.UserCLI, bytes model.Bytes) (any, error) {
 	ctx := metadata.AppendToOutgoingContext(context.Background(), "authorization", user.User.Token)
+	var header metadata.MD
 
-	stream, err := a.ClientGRPC.ByterService.Upload(ctx)
+	stream, err := a.ClientGRPC.ByterService.Upload(ctx, grpc.Header(&header))
 	if err != nil {
 		return nil, errs.ErrStartStream.Wrap(err)
 	}

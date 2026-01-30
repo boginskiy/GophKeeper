@@ -34,6 +34,7 @@ func (a *App) Run() {
 
 	// Services
 	texterSrv := service.NewTexterService(a.Cfg, a.Logg, repoText)
+	byterSrv := service.NewByterService(a.Cfg, a.Logg, repoText)
 
 	// Interceptor
 	interceptor := intercept.NewIntercept(a.Cfg, a.Logg, authSrv)
@@ -41,9 +42,10 @@ func (a *App) Run() {
 	// Handler
 	authHdlr := handler.NewAuthHandler(authSrv)
 	texterHdlr := handler.NewTexterHandler(texterSrv)
+	byterHdlr := handler.NewByterHandler(byterSrv)
 
 	// Start server
 	server := server.NewServerGRPC(a.Cfg, a.Logg, interceptor)
-	server.Registration(authHdlr, texterHdlr)
+	server.Registration(authHdlr, texterHdlr, byterHdlr)
 	server.Run()
 }

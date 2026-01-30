@@ -4,12 +4,14 @@ import (
 	"fmt"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
+	"github.com/boginskiy/GophKeeper/client/internal/auth"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
+	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
 type Root struct {
-	Dialoger  cli.Dialoger
+	DialogSrv cli.ShowGetter
 	CommText  Commander
 	CommBytes Commander
 	CommImage Commander
@@ -17,7 +19,7 @@ type Root struct {
 }
 
 func NewRoot(
-	dialoger cli.Dialoger,
+	dialog cli.ShowGetter,
 	commtext Commander,
 	commbytes Commander,
 	commimage Commander,
@@ -25,7 +27,7 @@ func NewRoot(
 ) *Root {
 
 	return &Root{
-		Dialoger:  dialoger,
+		DialogSrv: dialog,
 		CommText:  commtext,
 		CommBytes: commbytes,
 		CommImage: commimage,
@@ -33,11 +35,12 @@ func NewRoot(
 	}
 }
 
-func (r *Root) Execute(authOK bool, client *client.ClientCLI, user *user.UserCLI) {
+func (r *Root) ExecuteComm(authOK bool, client *client.ClientCLI, user *user.UserCLI) {
 authLoop:
 	for authOK {
 		// Get command.
-		comm, _ := r.Dialoger.GetSomeThing(client, user,
+		comm, _ := r.DialogSrv.GetSomeThing(
+
 			fmt.Sprintf("%s\n\r%s",
 				"Enter the data type you want to work with: \n\r\t text \n\r\t bytes \n\r\t image \n\r\t sound",
 				"go out: exit, need help: help"))
@@ -56,9 +59,37 @@ authLoop:
 			r.CommSound.Registration(client, user)
 
 		default:
-			r.Dialoger.ShowIt(client, "Invalid command. Try again...")
+			r.DialogSrv.ShowIt("Invalid command. Try again...")
 		}
 	}
+}
+
+func (r *Root) ExecuteAuth(authSrv auth.Auth, user user.User) bool {
+	// Identification.
+	if ok := authSrv.Identification(user); ok {
+
+		// Authentication.
+		verify := r.DialogSrv.VerifyDataAuth(user)
+		info, err := authSrv.Authentication(verify, user)
+
+		if err == nil {
+			r.DialogSrv.ShowIt("Authentication is successful")
+			return true
+		}
+		r.DialogSrv.ShowIt(info)
+	}
+
+	// Registration.
+	newUser := model.NewUser(r.DialogSrv.GetDataRegister())
+	info, err := authSrv.Registration(user, newUser)
+
+	if err == nil {
+		r.DialogSrv.ShowIt("Registration is successful")
+		return true
+	}
+
+	r.DialogSrv.ShowIt(info)
+	return false
 }
 
 // пары логин/пароль;

@@ -10,21 +10,23 @@ import (
 )
 
 type CommBytes struct {
-	Dialoger cli.Dialoger
-	Service  service.ServicerByter
+	DialogSrv cli.ShowGetter
+	Service   service.ServicerByter
+	Tp        string
 }
 
-func NewCommBytes(dialoger cli.Dialoger, srv service.ServicerByter) *CommBytes {
-	return &CommBytes{Dialoger: dialoger, Service: srv}
+func NewCommBytes(dialog cli.ShowGetter, srv service.ServicerByter) *CommBytes {
+	return &CommBytes{DialogSrv: dialog, Service: srv, Tp: "bytes"}
 }
 
 func (c *CommBytes) Registration(client *client.ClientCLI, user *user.UserCLI) {
 authLoop:
 	for {
 		// Get command.
-		comm, _ := c.Dialoger.GetSomeThing(client, user,
+		comm, _ := c.DialogSrv.GetSomeThing(
+
 			fmt.Sprintf("%s\n\r%s",
-				"What do you want to do with the bytes: \n\r\t create \n\r\t read \n\r\t update \n\r\t delete",
+				"What do you want to do with the bytes: \n\r\t upload \n\r\t unload \n\r\t update \n\r\t delete",
 				"come back: back, need help: help"))
 
 		switch comm {
@@ -41,7 +43,7 @@ authLoop:
 		// 	c.Service.Delete(client, user)
 
 		default:
-			c.Dialoger.ShowIt(client, "Invalid command. Try again...")
+			c.DialogSrv.ShowIt("Invalid command. Try again...")
 		}
 	}
 }

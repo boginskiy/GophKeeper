@@ -23,16 +23,21 @@ type Pather interface {
 	TakeFileFromPath(string) string
 }
 
-type Checker interface {
+type FileChecker interface {
 	CheckOfFile(string) bool
 }
 
 type FileHandler interface {
 	Serializater
-	Checker
+	FileChecker
 	Creater
 	Cleaner
 	Pather
 
 	TakeSizeFile(*os.File) (int64, error)
+}
+
+type Checker interface {
+	CheckTwoString(oneStr, twoStr string) bool
+	CheckPassword(userPassword, password string) bool
 }

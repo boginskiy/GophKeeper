@@ -14,6 +14,8 @@ var (
 	ErrUserPassword   = errors.New("invalid password")
 	ErrTypeConversion = errors.New("object type conversion error")
 
+	ErrDataOwner = errors.New("owner of the data is not defined")
+
 	// RepoUser
 	ErrEmailNotUnique = errors.New("email is not unique")
 	ErrUserNotFound   = errors.New("user not found")

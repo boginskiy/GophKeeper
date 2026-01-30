@@ -34,10 +34,15 @@ func NewServerGRPC(config config.Config, logger logg.Logger, interceptor interce
 	}
 }
 
-func (s *ServerGRPC) Registration(authSrv rpc.AuthServiceServer, texterSrv rpc.TexterServiceServer) {
+func (s *ServerGRPC) Registration(
+	authSrv rpc.AuthServiceServer,
+	texterSrv rpc.TexterServiceServer,
+	byterSrv rpc.ByterServiceServer) {
+
 	// Registration services.
-	rpc.RegisterAuthServiceServer(s.S, authSrv)
 	rpc.RegisterTexterServiceServer(s.S, texterSrv)
+	rpc.RegisterByterServiceServer(s.S, byterSrv)
+	rpc.RegisterAuthServiceServer(s.S, authSrv)
 }
 
 func (s *ServerGRPC) Run() {

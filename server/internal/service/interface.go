@@ -9,3 +9,8 @@ type Servicer interface {
 	Update(context.Context, any) (any, error)
 	Delete(context.Context, any) (any, error)
 }
+
+type ServicerByter interface {
+	Upload(any) (any, error)
+	Unload(any) (any, error)
+}

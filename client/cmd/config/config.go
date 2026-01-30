@@ -6,35 +6,78 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 )
 
-// Data default.
-const (
-	APPNAME = "gophclient"
-	DESC    = "HI man! It is special CLI application for your computer"
-	VERS    = "1.1.01"
-	CONFIG  = "config.json"
-)
-
 type Conf struct {
 	Logg           logg.Logger
 	PortServerGRPC string
+	Attempts       int
+	WaitTimeRes    int
+	RetryReq       int
+
+	// Info App
+	NameApp    string
+	DescApp    string
+	VersionApp string
+	ConfigFile string
 }
 
-func NewConf(logger logg.Logger) *Conf {
-	return &Conf{Logg: logger}
+func NewConf(
+	logger logg.Logger,
+	port string,
+	attempts int,
+	waitTimeRes int,
+	retryReq int,
+
+	// Info App
+	nameApp string,
+	descApp string,
+	versionApp string,
+	configFile string,
+
+) *Conf {
+
+	return &Conf{
+		Logg:           logger,
+		PortServerGRPC: port,
+		Attempts:       attempts,
+		WaitTimeRes:    waitTimeRes,
+		RetryReq:       retryReq,
+
+		// Info App
+		NameApp:    nameApp,
+		DescApp:    descApp,
+		VersionApp: versionApp,
+		ConfigFile: configFile,
+	}
 }
 
 func (c *Conf) GetPortServerGRPC() string {
-	return ":8080"
+	return c.PortServerGRPC
 }
 
 func (c *Conf) GetAttempts() int {
-	return 3
+	return c.Attempts
 }
 
 func (c *Conf) GetWaitingTimeResponse() int {
-	return 500 * int(time.Millisecond)
+	return c.WaitTimeRes * int(time.Millisecond)
 }
 
 func (c *Conf) GetCountRetryRequest() int {
-	return 3
+	return c.RetryReq
+}
+
+func (c *Conf) GetNameApp() string {
+	return c.NameApp
+}
+
+func (c *Conf) GetDescApp() string {
+	return c.DescApp
+}
+
+func (c *Conf) GetVersionApp() string {
+	return c.VersionApp
+}
+
+func (c *Conf) GetConfigFile() string {
+	return c.ConfigFile
 }

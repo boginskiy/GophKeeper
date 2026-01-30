@@ -7,15 +7,15 @@ import (
 
 type Auther interface {
 	Registration(model.User) (token string, err error)
-	Authentication(user model.User) (token string, err error)
+	Authentication(model.User) (token string, err error)
 }
 
 type CRUD interface {
-	Create(user *user.UserCLI, text model.Text) (any, error)
-	Read(user *user.UserCLI, text model.Text) (any, error)
-	ReadAll(user *user.UserCLI, text model.Text) (any, error)
-	Update(user *user.UserCLI, text model.Text) (any, error)
-	Delete(user *user.UserCLI, text model.Text) (any, error)
+	Create(user.User, model.Text) (any, error)
+	Read(user.User, model.Text) (any, error)
+	ReadAll(user.User, model.Text) (any, error)
+	Update(user.User, model.Text) (any, error)
+	Delete(user.User, model.Text) (any, error)
 }
 
 type Uploader interface {

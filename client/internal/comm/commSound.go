@@ -9,18 +9,19 @@ import (
 )
 
 type CommSound struct {
-	Dialoger cli.Dialoger
+	DialogSrv cli.ShowGetter
 }
 
-func NewCommSound(dialoger cli.Dialoger) *CommSound {
-	return &CommSound{Dialoger: dialoger}
+func NewCommSound(dialog cli.ShowGetter) *CommSound {
+	return &CommSound{DialogSrv: dialog}
 }
 
 func (c *CommSound) Registration(client *client.ClientCLI, user *user.UserCLI) {
 authLoop:
 	for {
 		// Get command.
-		comm, _ := c.Dialoger.GetSomeThing(client, user,
+		comm, _ := c.DialogSrv.GetSomeThing(
+
 			fmt.Sprintf("%s\n\r%s",
 				"What do you want to do with the sound: \n\r\t create \n\r\t read \n\r\t update \n\r\t delete",
 				"come back: back, need help: help"))
@@ -42,7 +43,7 @@ authLoop:
 			// r.RoutText.Execute(client, user)
 
 		default:
-			c.Dialoger.ShowIt(client, "Invalid command. Try again...")
+			c.DialogSrv.ShowIt("Invalid command. Try again...")
 		}
 	}
 }

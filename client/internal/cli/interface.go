@@ -1,44 +1,33 @@
 package cli
 
 import (
-	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
-// TODO! Это вынести в отдельный сервис. Пока так оставил
-type Checker interface {
-	CheckPassword(userPassword, password string) bool
-	CheckEmail(userEmail, email string) bool
-}
-
-type GetterEmail interface {
-	GetEmailWithCheck(GetterFn, CheckerFn) GetterFn
-	GetEmail(*client.ClientCLI, *user.UserCLI) (string, error)
-}
-
-type GetterPassword interface {
-	GetPasswordWithCheck(GetterFn, CheckerFn) GetterFn
-	GetPassword(*client.ClientCLI, *user.UserCLI) (string, error)
-}
-
 type Getter interface {
-	GetIt(*client.ClientCLI, *user.UserCLI, string) (string, error)
-	GetSomeThing(*client.ClientCLI, *user.UserCLI, string) (string, error)
+	GetEnterIt(string) (string, error)
+	GetSomeThing(string) (string, error)
+}
+
+type DataGetter interface {
+	GetDataAction(action string) string
+	GetDataRegister() (userName, email, phone, password string)
 }
 
 type Shower interface {
-	ShowHello(*client.ClientCLI, *user.UserCLI)
-	ShowIt(*client.ClientCLI, string)
-	ShowErr(*client.ClientCLI, error)
+	ShowIt(string)
+	ShowErr(error)
 }
 
-type Dialoger interface {
-	GetterPassword
-	GetterEmail
-	Checker
+type Verifer interface {
+	VerifyEnterPassword(needToTake, needToCompare string, quantity int) bool
+	VerifyEnterIt(needToTake, needToCompare string, quantity int) bool
+	VerifyDataAuth(user.User) bool
+}
+
+type ShowGetter interface {
+	DataGetter
+	Verifer
 	Getter
 	Shower
-
-	DialogsAbRegister(*client.ClientCLI, *user.UserCLI) (userName, email, phone, password string)
-	DialogsAbAction(*client.ClientCLI, *user.UserCLI, string) string
 }

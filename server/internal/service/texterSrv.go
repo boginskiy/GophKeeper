@@ -30,7 +30,6 @@ func (t *TexterService) Create(ctx context.Context, req any) (any, error) {
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-
 	return t.Repo.CreateRecord(model.NewText(Req))
 }
 
@@ -39,7 +38,6 @@ func (t *TexterService) Read(ctx context.Context, req any) (any, error) {
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-
 	return t.Repo.ReadRecord(&model.Text{Name: Req.Name, Owner: Req.Owner})
 }
 
@@ -48,17 +46,14 @@ func (t *TexterService) ReadAll(ctx context.Context, req any) (any, error) {
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-
 	return t.Repo.ReadAllRecord(&model.Text{Type: Req.Type, Owner: Req.Owner})
 }
 
 func (t *TexterService) Update(ctx context.Context, req any) (any, error) {
-	// req *rpc.CreateRequest
 	Req, ok := req.(*rpc.CreateRequest)
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-
 	return t.Repo.UpdateRecord(&model.Text{Name: Req.Name, Tx: Req.Text, Owner: Req.Owner})
 }
 
@@ -67,6 +62,5 @@ func (t *TexterService) Delete(ctx context.Context, req any) (any, error) {
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-
 	return t.Repo.DeleteRecord(&model.Text{Name: Req.Name, Owner: Req.Owner})
 }
