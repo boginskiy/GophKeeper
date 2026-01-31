@@ -37,7 +37,7 @@ func (a *App) Run() {
 	byterSrv := service.NewByterService(a.Cfg, a.Logg, repoText)
 
 	// Interceptor
-	interceptor := intercept.NewIntercept(a.Cfg, a.Logg, authSrv)
+	interceptor := intercept.NewServIntercept(a.Cfg, a.Logg, authSrv)
 
 	// Handler
 	authHdlr := handler.NewAuthHandler(authSrv)

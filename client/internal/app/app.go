@@ -10,6 +10,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/comm"
+	"github.com/boginskiy/GophKeeper/client/internal/intercept"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
@@ -46,18 +47,23 @@ func (a *App) Init() {
 	fileHandler := utils.NewFileHdlr()
 	checker := utils.NewCheck()
 
-	// Clients && user.
-	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
-	clientCLI := client.NewClientCLI(a.Logg)
+	// User
 	userCLI := user.NewUserCLI(a.Logg)
+
+	// Interceptor
+	interceptor := intercept.NewClientIntercept(a.Cfg, a.Logg, userCLI)
+
+	// Clients
+	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg, interceptor)
+	clientCLI := client.NewClientCLI(a.Logg)
 
 	// Infra Services.
 	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg, checker, clientCLI, userCLI)
 	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientGRPC)
 
 	// Business Services.
-	byter := service.NewByterService(a.Cfg, a.Logg, fileHandler, dialogSrv, remoteSrv)
-	texter := service.NewTexterService(a.Cfg, a.Logg, dialogSrv, remoteSrv)
+	byter := service.NewByterService(a.Cfg, a.Logg, fileHandler, remoteSrv)
+	texter := service.NewTexterService(a.Cfg, a.Logg, remoteSrv)
 
 	// Auth.
 	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler)

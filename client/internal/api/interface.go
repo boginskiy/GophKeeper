@@ -18,12 +18,12 @@ type CRUD interface {
 	Delete(user.User, model.Text) (any, error)
 }
 
-type Uploader interface {
-	Upload(*user.UserCLI, model.Bytes) (any, error)
+type Loader interface {
+	Upload(user.User, model.Bytes) (any, error)
 }
 
 type ServiceAPI interface {
-	Uploader
+	Loader
 	Auther
 	CRUD
 }

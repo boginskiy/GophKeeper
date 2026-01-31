@@ -5,6 +5,7 @@ import (
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 	"github.com/boginskiy/GophKeeper/client/internal/utils"
@@ -65,27 +66,27 @@ func (d *DialogService) GetDataAction(action string) string {
 	return result
 }
 
-func (d *DialogService) VerifyEnterIt(needToTake, needToCompare string, quantity int) bool {
+func (d *DialogService) VerifyEnterIt(needToTake, needToCompare string, quantity int) (string, error) {
 	for q := 0; q < quantity; q++ {
 		result, err := d.GetEnterIt(needToTake)
 		if err == nil && d.Checker.CheckTwoString(needToCompare, result) {
-			return true
+			return result, nil
 		}
 		d.Client.SendMess("Uncorrected credentials. Try again...")
 	}
-	return false
+	return "", errs.ErrUncorrectCredentials
 }
 
-func (d *DialogService) VerifyEnterPassword(needToTake, needToCompare string, quantity int) bool {
+func (d *DialogService) VerifyEnterPassword(needToTake, needToCompare string, quantity int) (string, error) {
 	for q := 0; q < quantity; q++ {
 		result, err := d.GetEnterIt(needToTake)
 
 		if err == nil && d.Checker.CheckPassword(needToCompare, result) {
-			return true
+			return result, nil
 		}
 		d.Client.SendMess("Uncorrected credentials. Try again...")
 	}
-	return false
+	return "", errs.ErrUncorrectCredentials
 }
 
 func (d *DialogService) GetDataRegister() (userName, email, phone, password string) {
@@ -106,10 +107,18 @@ func (d *DialogService) GetDataRegister() (userName, email, phone, password stri
 	return userName, email, phone, password
 }
 
-func (d *DialogService) VerifyDataAuth(user user.User) bool {
+func (d *DialogService) VerifyDataAuth(user user.User) (email, password string, err error) {
 	d.ShowIt("You need log in")
-	ok := d.VerifyEnterIt("email", user.GetModelUser().Email, d.Cfg.GetAttempts())
-	ok2 := d.VerifyEnterPassword("password", user.GetModelUser().Password, d.Cfg.GetAttempts())
 
-	return ok && ok2
+	email, err = d.VerifyEnterIt("email", user.GetModelUser().Email, d.Cfg.GetAttempts())
+	if err != nil {
+		return "", "", err
+	}
+
+	password, err = d.VerifyEnterPassword("password", user.GetModelUser().Password, d.Cfg.GetAttempts())
+	if err != nil {
+		return "", "", err
+	}
+
+	return email, password, nil
 }

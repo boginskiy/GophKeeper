@@ -33,6 +33,7 @@ func (b *ByterService) Upload(stream any) (any, error) {
 		return nil, errs.ErrTypeConversion
 	}
 
+	// TODO!
 	owner, ok := Stm.Context().Value(auth.EmailCtx).(string)
 	if !ok {
 		return nil, errs.ErrDataOwner

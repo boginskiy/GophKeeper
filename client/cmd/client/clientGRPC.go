@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/intercept"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"google.golang.org/grpc"
@@ -16,10 +17,13 @@ type ClientGRPC struct {
 	Conn          *grpc.ClientConn
 }
 
-func NewClientGRPC(config config.Config, logger logg.Logger) *ClientGRPC {
+func NewClientGRPC(config config.Config, logger logg.Logger, intrcept intercept.ClientInterceptor) *ClientGRPC {
 	// Conn
 	conn, err := grpc.NewClient(
-		config.GetPortServerGRPC(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+		config.GetPortServerGRPC(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(intrcept.ClientAuth),
+	)
 
 	logger.CheckWithFatal(err, "error created client gRPC")
 

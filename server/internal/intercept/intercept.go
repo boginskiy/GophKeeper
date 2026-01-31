@@ -11,25 +11,25 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type Interceptor interface {
-	WithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
+type ServInterceptor interface {
+	ServAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
 }
 
-type Intercept struct {
+type ServIntercept struct {
 	Cfg  config.Config
 	Logg logg.Logger
 	Auth auth.Auther
 }
 
-func NewIntercept(config config.Config, logger logg.Logger, auther auth.Auther) *Intercept {
-	return &Intercept{
+func NewServIntercept(config config.Config, logger logg.Logger, auther auth.Auther) *ServIntercept {
+	return &ServIntercept{
 		Cfg:  config,
 		Logg: logger,
 		Auth: auther,
 	}
 }
 
-func (i *Intercept) WithAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func (i *ServIntercept) ServAuth(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	infoToken, ok := i.Auth.Identification(ctx, req)
 
 	// Bad identification. Send response about Authentication.

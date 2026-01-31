@@ -21,6 +21,9 @@ func NewByterHandler(srv service.ServicerByter) *ByterHandler {
 }
 
 func (b *ByterHandler) Upload(stream rpc.ByterService_UploadServer) error {
+
+	stream.Context()
+
 	obj, err := b.Srv.Upload(stream)
 
 	if err != nil {

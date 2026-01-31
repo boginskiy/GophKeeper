@@ -19,12 +19,12 @@ type ServerGRPC struct {
 	S      *grpc.Server
 }
 
-func NewServerGRPC(config config.Config, logger logg.Logger, interceptor intercept.Interceptor) *ServerGRPC {
+func NewServerGRPC(config config.Config, logger logg.Logger, intrcep intercept.ServInterceptor) *ServerGRPC {
 	// Port for server.
 	lst, err := net.Listen("tcp", config.GetPortServerGRPC())
 	logger.CheckWithFatal(err, "server listener initialization error")
 
-	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.WithAuth))
+	server := grpc.NewServer(grpc.UnaryInterceptor(intrcep.ServAuth))
 
 	return &ServerGRPC{
 		Cfg:    config,

@@ -20,9 +20,9 @@ type Shower interface {
 }
 
 type Verifer interface {
-	VerifyEnterPassword(needToTake, needToCompare string, quantity int) bool
-	VerifyEnterIt(needToTake, needToCompare string, quantity int) bool
-	VerifyDataAuth(user.User) bool
+	VerifyEnterPassword(needToTake, needToCompare string, quantity int) (string, error)
+	VerifyEnterIt(needToTake, needToCompare string, quantity int) (string, error)
+	VerifyDataAuth(user.User) (email, password string, err error)
 }
 
 type ShowGetter interface {

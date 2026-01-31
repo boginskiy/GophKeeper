@@ -5,6 +5,8 @@ import (
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
+	"github.com/boginskiy/GophKeeper/client/internal/errs"
+	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
@@ -34,9 +36,10 @@ authLoop:
 			break authLoop
 
 		case "upload":
-			c.Service.Upload(client, user)
+			c.executeUpload(user)
 		case "unload":
-			c.Service.Unload(client, user)
+			c.executeUnload(user)
+
 		// case "update":
 		// 	c.Service.Update(client, user)
 		// case "delete":
@@ -46,4 +49,28 @@ authLoop:
 			c.DialogSrv.ShowIt("Invalid command. Try again...")
 		}
 	}
+}
+
+func (c *CommBytes) executeUpload(user user.User) {
+	pathToFile, _ := c.DialogSrv.GetSomeThing("Enter the abs path to file...")
+
+	// Call Service.
+	obj, err := c.Service.Upload(user, pathToFile)
+
+	if err != nil {
+		c.DialogSrv.ShowErr(err)
+		return
+	}
+
+	res, ok := obj.(*rpc.UploadBytesResponse)
+	if !ok {
+		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		return
+	}
+
+	c.DialogSrv.ShowIt(fmt.Sprintf("%s %s\n\r", res.Status, res.UpdatedAt))
+}
+
+func (c *CommBytes) executeUnload(user user.User) {
+
 }

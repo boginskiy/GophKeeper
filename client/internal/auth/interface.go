@@ -6,7 +6,7 @@ import (
 )
 
 type Auth interface {
-	Authentication(bool, user.User) (string, error)
+	Authentication(user.User, *model.User) (string, error)
 	Registration(user.User, *model.User) (string, error)
 	Identification(user.User) bool
 }

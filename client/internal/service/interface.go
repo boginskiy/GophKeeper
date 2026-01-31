@@ -1,8 +1,6 @@
 package service
 
 import (
-	"github.com/boginskiy/GophKeeper/client/cmd/client"
-	"github.com/boginskiy/GophKeeper/client/internal/auth"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
@@ -15,10 +13,6 @@ type Servicer[T any] interface { // ServicerTexter
 }
 
 type ServicerByter interface {
-	Upload(*client.ClientCLI, *user.UserCLI)
-	Unload(*client.ClientCLI, *user.UserCLI)
-}
-
-type Dialoger interface {
-	DialogAbAuthentication(auth.Auth, user.User) bool
+	Upload(user.User, string) (any, error)
+	Unload(user.User) (any, error)
 }

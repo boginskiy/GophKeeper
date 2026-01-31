@@ -69,14 +69,18 @@ func (r *Root) ExecuteAuth(authSrv auth.Auth, user user.User) bool {
 	if ok := authSrv.Identification(user); ok {
 
 		// Authentication.
-		verify := r.DialogSrv.VerifyDataAuth(user)
-		info, err := authSrv.Authentication(verify, user)
+		email, password, err := r.DialogSrv.VerifyDataAuth(user)
 
 		if err == nil {
-			r.DialogSrv.ShowIt("Authentication is successful")
-			return true
+			checkUser := &model.User{Email: email, Password: password}
+			info, err := authSrv.Authentication(user, checkUser)
+
+			if err == nil {
+				r.DialogSrv.ShowIt("Authentication is successful")
+				return true
+			}
+			r.DialogSrv.ShowIt(info)
 		}
-		r.DialogSrv.ShowIt(info)
 	}
 
 	// Registration.

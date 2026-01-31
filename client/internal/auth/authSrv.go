@@ -3,7 +3,6 @@ package auth
 import (
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
-	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
@@ -56,11 +55,8 @@ func (a *AuthService) Registration(user user.User, modUser *model.User) (string,
 	return token, nil
 }
 
-func (a *AuthService) Authentication(verify bool, user user.User) (string, error) {
-	if !verify {
-		return "uncorrected credentials", errs.ErrUncorrectCredentials
-	}
-	token, err := a.ServiceAPI.Authentication(*user.GetModelUser())
+func (a *AuthService) Authentication(user user.User, modUser *model.User) (string, error) {
+	token, err := a.ServiceAPI.Authentication(*modUser)
 
 	// Обработка ошибок
 	ok, info := ErrorHandler(err)
