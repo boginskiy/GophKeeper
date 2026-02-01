@@ -1,4 +1,4 @@
-package repository
+package repo
 
 var (
 // // Errors for this package.

@@ -1,4 +1,4 @@
-package repository
+package repo
 
 type CreateReader[T any] interface {
 	CreateRecord(obj T) (T, error)

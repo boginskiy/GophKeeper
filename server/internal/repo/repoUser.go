@@ -1,4 +1,4 @@
-package repository
+package repo
 
 import (
 	"github.com/boginskiy/GophKeeper/server/internal/errs"

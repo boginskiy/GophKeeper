@@ -11,7 +11,8 @@ import (
 )
 
 type ClientInterceptor interface {
-	ClientAuth(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error
+	SingleAuth(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error
+	StreamAuth(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error)
 }
 
 type ClientIntercept struct {
@@ -28,7 +29,7 @@ func NewClientIntercept(config config.Config, logger logg.Logger, user user.User
 	}
 }
 
-func (i *ClientIntercept) ClientAuth(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+func (i *ClientIntercept) SingleAuth(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	md, ok := metadata.FromOutgoingContext(ctx)
 	if !ok {
 		md = metadata.Pairs()
@@ -37,4 +38,15 @@ func (i *ClientIntercept) ClientAuth(ctx context.Context, method string, req, re
 	md.Set("authorization", i.User.GetModelUser().Token)
 	newCtx := metadata.NewOutgoingContext(ctx, md)
 	return invoker(newCtx, method, req, reply, cc, opts...)
+}
+
+func (i *ClientIntercept) StreamAuth(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
+	md, ok := metadata.FromOutgoingContext(ctx)
+	if !ok {
+		md = metadata.Pairs()
+	}
+
+	md.Set("authorization", i.User.GetModelUser().Token)
+	newCtx := metadata.NewOutgoingContext(ctx, md)
+	return streamer(newCtx, desc, cc, method, opts...)
 }

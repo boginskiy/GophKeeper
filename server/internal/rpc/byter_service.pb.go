@@ -7,12 +7,11 @@
 package rpc
 
 import (
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
-
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -25,8 +24,6 @@ const (
 type UploadBytesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Content       []byte                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
-	TotalSize     int64                  `protobuf:"varint,2,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`
-	Filename      string                 `protobuf:"bytes,3,opt,name=filename,proto3" json:"filename,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -68,27 +65,14 @@ func (x *UploadBytesRequest) GetContent() []byte {
 	return nil
 }
 
-func (x *UploadBytesRequest) GetTotalSize() int64 {
-	if x != nil {
-		return x.TotalSize
-	}
-	return 0
-}
-
-func (x *UploadBytesRequest) GetFilename() string {
-	if x != nil {
-		return x.Filename
-	}
-	return ""
-}
-
 type UploadBytesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
-	UpdatedAt     string                 `protobuf:"bytes,2,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
-	TotalSize     int64                  `protobuf:"varint,3,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Status           string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	UpdatedAt        string                 `protobuf:"bytes,2,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
+	SentFileSize     string                 `protobuf:"bytes,3,opt,name=sent_file_size,json=sentFileSize,proto3" json:"sent_file_size,omitempty"`
+	ReceivedFileSize string                 `protobuf:"bytes,4,opt,name=received_file_size,json=receivedFileSize,proto3" json:"received_file_size,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *UploadBytesResponse) Reset() {
@@ -135,16 +119,22 @@ func (x *UploadBytesResponse) GetUpdatedAt() string {
 	return ""
 }
 
-func (x *UploadBytesResponse) GetTotalSize() int64 {
+func (x *UploadBytesResponse) GetSentFileSize() string {
 	if x != nil {
-		return x.TotalSize
+		return x.SentFileSize
 	}
-	return 0
+	return ""
+}
+
+func (x *UploadBytesResponse) GetReceivedFileSize() string {
+	if x != nil {
+		return x.ReceivedFileSize
+	}
+	return ""
 }
 
 type UnloadBytesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Filename      string                 `protobuf:"bytes,1,opt,name=filename,proto3" json:"filename,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -179,19 +169,11 @@ func (*UnloadBytesRequest) Descriptor() ([]byte, []int) {
 	return file_server_proto_byter_service_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *UnloadBytesRequest) GetFilename() string {
-	if x != nil {
-		return x.Filename
-	}
-	return ""
-}
-
 type UnloadBytesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Content       []byte                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
-	TotalSize     int64                  `protobuf:"varint,2,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`
-	Filename      string                 `protobuf:"bytes,3,opt,name=filename,proto3" json:"filename,omitempty"`
-	UpdatedAt     string                 `protobuf:"bytes,4,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
+	FileSize      string                 `protobuf:"bytes,2,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`
+	UpdatedAt     string                 `protobuf:"bytes,3,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -233,16 +215,9 @@ func (x *UnloadBytesResponse) GetContent() []byte {
 	return nil
 }
 
-func (x *UnloadBytesResponse) GetTotalSize() int64 {
+func (x *UnloadBytesResponse) GetFileSize() string {
 	if x != nil {
-		return x.TotalSize
-	}
-	return 0
-}
-
-func (x *UnloadBytesResponse) GetFilename() string {
-	if x != nil {
-		return x.Filename
+		return x.FileSize
 	}
 	return ""
 }
@@ -258,25 +233,19 @@ var File_server_proto_byter_service_proto protoreflect.FileDescriptor
 
 const file_server_proto_byter_service_proto_rawDesc = "" +
 	"\n" +
-	" server/proto/byter_service.proto\x12\x17GophKeeper.server.proto\"i\n" +
+	" server/proto/byter_service.proto\x12\x17GophKeeper.server.proto\".\n" +
 	"\x12UploadBytesRequest\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\fR\acontent\x12\x1d\n" +
-	"\n" +
-	"total_size\x18\x02 \x01(\x03R\ttotalSize\x12\x1a\n" +
-	"\bfilename\x18\x03 \x01(\tR\bfilename\"j\n" +
+	"\acontent\x18\x01 \x01(\fR\acontent\"\x9f\x01\n" +
 	"\x13UploadBytesResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1c\n" +
-	"\tupdatedAt\x18\x02 \x01(\tR\tupdatedAt\x12\x1d\n" +
-	"\n" +
-	"total_size\x18\x03 \x01(\x03R\ttotalSize\"0\n" +
-	"\x12UnloadBytesRequest\x12\x1a\n" +
-	"\bfilename\x18\x01 \x01(\tR\bfilename\"\x88\x01\n" +
+	"\tupdatedAt\x18\x02 \x01(\tR\tupdatedAt\x12$\n" +
+	"\x0esent_file_size\x18\x03 \x01(\tR\fsentFileSize\x12,\n" +
+	"\x12received_file_size\x18\x04 \x01(\tR\x10receivedFileSize\"\x14\n" +
+	"\x12UnloadBytesRequest\"j\n" +
 	"\x13UnloadBytesResponse\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\fR\acontent\x12\x1d\n" +
-	"\n" +
-	"total_size\x18\x02 \x01(\x03R\ttotalSize\x12\x1a\n" +
-	"\bfilename\x18\x03 \x01(\tR\bfilename\x12\x1c\n" +
-	"\tupdatedAt\x18\x04 \x01(\tR\tupdatedAt2\xdc\x01\n" +
+	"\acontent\x18\x01 \x01(\fR\acontent\x12\x1b\n" +
+	"\tfile_size\x18\x02 \x01(\tR\bfileSize\x12\x1c\n" +
+	"\tupdatedAt\x18\x03 \x01(\tR\tupdatedAt2\xdc\x01\n" +
 	"\fByterService\x12e\n" +
 	"\x06Upload\x12+.GophKeeper.server.proto.UploadBytesRequest\x1a,.GophKeeper.server.proto.UploadBytesResponse(\x01\x12e\n" +
 	"\x06Unload\x12+.GophKeeper.server.proto.UnloadBytesRequest\x1a,.GophKeeper.server.proto.UnloadBytesResponse0\x01B5Z3github.com/boginskiy/GophKeeper/server/internal/rpcb\x06proto3"

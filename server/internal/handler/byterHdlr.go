@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
+	"github.com/boginskiy/GophKeeper/server/internal/model"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"github.com/boginskiy/GophKeeper/server/internal/service"
 	"github.com/boginskiy/GophKeeper/server/internal/utils"
@@ -21,31 +22,29 @@ func NewByterHandler(srv service.ServicerByter) *ByterHandler {
 }
 
 func (b *ByterHandler) Upload(stream rpc.ByterService_UploadServer) error {
-
-	stream.Context()
-
 	obj, err := b.Srv.Upload(stream)
+
+	// Какие нибудь спец ошибки ? Internal cлишком //
 
 	if err != nil {
 		return status.Errorf(codes.Internal, "%s", err)
 	}
 
-	res, ok := obj.(*rpc.UploadBytesResponse)
+	modBytes, ok := obj.(*model.Bytes)
 	if !ok {
 		return status.Errorf(codes.Internal, "%s", errs.ErrTypeConversion)
 	}
 
-	res.Status = "ok"
-	res.UpdatedAt = utils.ConvertDtStr(time.Now())
+	// Response
+	err = stream.SendAndClose(&rpc.UploadBytesResponse{
+		Status:           "uploaded",
+		UpdatedAt:        utils.ConvertDtStr(time.Now()),
+		SentFileSize:     modBytes.SentSize,
+		ReceivedFileSize: modBytes.ReceivedSize,
+	})
 
-	// Отправка response to client
-	if err := stream.SendAndClose(res); err != nil {
+	if err != nil {
 		return err
 	}
-
 	return nil
 }
-
-// Чтов в итогге на клиенте &
-// Пройтись еще раз по цепочке логики
-//

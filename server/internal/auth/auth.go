@@ -6,11 +6,11 @@ import (
 	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
+	"github.com/boginskiy/GophKeeper/server/internal/manager"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
-	repo "github.com/boginskiy/GophKeeper/server/internal/repository"
+	repo "github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"github.com/boginskiy/GophKeeper/server/pkg"
-	"google.golang.org/grpc/metadata"
 )
 
 type Auth struct {
@@ -105,7 +105,7 @@ func (a *Auth) Identification(ctx context.Context, req any) (*ExtraInfoToken, bo
 		return nil, true
 	}
 
-	token := a.takeDataFromCtx(ctx, "authorization")
+	token := manager.TakeDataFromCtx(ctx, "authorization")
 
 	// Try Authentication.
 	infoToken, err := a.JWTService.GetInfoAndValidJWT(token)
@@ -126,15 +126,4 @@ func (a *Auth) CheckPathToReg(ctx context.Context, req any) bool {
 func (a *Auth) CheckPathToAuth(ctx context.Context, req any) bool {
 	_, ok := req.(*rpc.AuthUserRequest)
 	return ok
-}
-
-func (a *Auth) takeDataFromCtx(ctx context.Context, data string) string {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		val := md.Get(data)
-		if len(val) > 0 {
-			return val[0]
-		}
-	}
-	return ""
 }

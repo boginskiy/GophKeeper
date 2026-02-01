@@ -7,17 +7,17 @@ import (
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
-	"github.com/boginskiy/GophKeeper/server/internal/repository"
+	"github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 )
 
 type TexterService struct {
 	Cfg  config.Config
 	Logg logg.Logger
-	Repo repository.Repository[*model.Text]
+	Repo repo.Repository[*model.Text]
 }
 
-func NewTexterService(config config.Config, logger logg.Logger, repo repository.Repository[*model.Text]) *TexterService {
+func NewTexterService(config config.Config, logger logg.Logger, repo repo.Repository[*model.Text]) *TexterService {
 	return &TexterService{
 		Cfg:  config,
 		Logg: logger,

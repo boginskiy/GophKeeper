@@ -13,8 +13,7 @@ var (
 
 	ErrUserPassword   = errors.New("invalid password")
 	ErrTypeConversion = errors.New("object type conversion error")
-
-	ErrDataOwner = errors.New("owner of the data is not defined")
+	ErrDataCtx        = errors.New("context data error")
 
 	// RepoUser
 	ErrEmailNotUnique = errors.New("email is not unique")
@@ -24,6 +23,10 @@ var (
 	ErrDataNotFound = errors.New("data not found")
 
 	// Errors with wrap.
-	ErrCreateUser  = NewErrWrapper("user creation error")
-	ErrCreateToken = NewErrWrapper("token creation error")
+	ErrCreateUser           = NewErrWrapper("user creation error")
+	ErrCreateToken          = NewErrWrapper("token creation error")
+	ErrCreatePathToStore    = NewErrWrapper("store path creation error")
+	ErrCreateFoldersToStore = NewErrWrapper("store folder creation error")
+	ErrCreateFile           = NewErrWrapper("file creation error")
+	ErrRunStream            = NewErrWrapper("run stream error")
 )

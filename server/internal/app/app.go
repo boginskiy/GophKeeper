@@ -7,8 +7,10 @@ import (
 	"github.com/boginskiy/GophKeeper/server/internal/handler"
 	"github.com/boginskiy/GophKeeper/server/internal/intercept"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
-	"github.com/boginskiy/GophKeeper/server/internal/repository"
+	"github.com/boginskiy/GophKeeper/server/internal/manager"
+	"github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/service"
+	"github.com/boginskiy/GophKeeper/server/internal/utils"
 )
 
 type App struct {
@@ -24,17 +26,24 @@ func NewApp(config config.Config, logger logg.Logger) *App {
 }
 
 func (a *App) Run() {
+
+	// Utils.
+	fileHandler := utils.NewFileHdlr()
+
 	// Repository
-	repoUser := repository.NewRepoUser()
-	repoText := repository.NewRepoText()
+	repoUser := repo.NewRepoUser()
+	repoText := repo.NewRepoText()
 
 	// Auth
 	jwtSrv := auth.NewJWTService(a.Cfg)
 	authSrv := auth.NewAuth(a.Cfg, a.Logg, jwtSrv, repoUser)
 
+	// Infra services
+	fileManage := manager.NewFileManage(fileHandler)
+
 	// Services
 	texterSrv := service.NewTexterService(a.Cfg, a.Logg, repoText)
-	byterSrv := service.NewByterService(a.Cfg, a.Logg, repoText)
+	byterSrv := service.NewByterService(a.Cfg, a.Logg, repoText, fileHandler, fileManage)
 
 	// Interceptor
 	interceptor := intercept.NewServIntercept(a.Cfg, a.Logg, authSrv)

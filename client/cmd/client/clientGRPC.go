@@ -22,8 +22,8 @@ func NewClientGRPC(config config.Config, logger logg.Logger, intrcept intercept.
 	conn, err := grpc.NewClient(
 		config.GetPortServerGRPC(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(intrcept.ClientAuth),
-	)
+		grpc.WithUnaryInterceptor(intrcept.SingleAuth),
+		grpc.WithChainStreamInterceptor(intrcept.StreamAuth))
 
 	logger.CheckWithFatal(err, "error created client gRPC")
 

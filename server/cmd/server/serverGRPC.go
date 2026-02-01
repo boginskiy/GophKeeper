@@ -24,7 +24,12 @@ func NewServerGRPC(config config.Config, logger logg.Logger, intrcep intercept.S
 	lst, err := net.Listen("tcp", config.GetPortServerGRPC())
 	logger.CheckWithFatal(err, "server listener initialization error")
 
-	server := grpc.NewServer(grpc.UnaryInterceptor(intrcep.ServAuth))
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(intrcep.ServAuth),        // Обрабатываем single запросы
+		grpc.StreamInterceptor(intrcep.StreamServAuth), // Обрабатываем stream запросы
+	}
+
+	server := grpc.NewServer(opts...)
 
 	return &ServerGRPC{
 		Cfg:    config,

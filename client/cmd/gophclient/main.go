@@ -15,7 +15,7 @@ const (
 
 var (
 	port        = ":8080"
-	attempts    = 3
+	attempts    = 1
 	waitTimeRes = 500
 	retryReq    = 3
 )

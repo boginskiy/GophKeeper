@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"io"
+	"strconv"
 	"time"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
@@ -49,10 +50,10 @@ func (a *RemoteService) Registration(user model.User) (token string, err error) 
 		Phonenumber: user.PhoneNumber}
 
 	// Header.
-	var header metadata.MD
+	var serverHeader metadata.MD
 
-	_, err = a.ClientGRPC.AuthService.RegistUser(ctx, req, grpc.Header(&header))
-	token = a.ClientGRPC.TakeValueFromHeader(header, "authorization", 0)
+	_, err = a.ClientGRPC.AuthService.RegistUser(ctx, req, grpc.Header(&serverHeader))
+	token = a.ClientGRPC.TakeValueFromHeader(serverHeader, "authorization", 0)
 
 	return token, err
 }
@@ -62,16 +63,16 @@ func (a *RemoteService) Authentication(user model.User) (token string, err error
 	defer cancel()
 
 	req := &rpc.AuthUserRequest{Email: user.Email, Password: user.Password}
-	var header metadata.MD
+	var serverHeader metadata.MD
 
-	_, err = a.ClientGRPC.AuthService.AuthUser(ctx, req, grpc.Header(&header))
-	token = a.ClientGRPC.TakeValueFromHeader(header, "authorization", 0)
+	_, err = a.ClientGRPC.AuthService.AuthUser(ctx, req, grpc.Header(&serverHeader))
+	token = a.ClientGRPC.TakeValueFromHeader(serverHeader, "authorization", 0)
 
 	return token, err
 }
 
 func (a *RemoteService) Create(user user.User, text model.Text) (any, error) {
-	var header metadata.MD
+	var serverHeader metadata.MD
 
 	req := &rpc.CreateRequest{
 		Name:         text.Name,
@@ -81,25 +82,25 @@ func (a *RemoteService) Create(user user.User, text model.Text) (any, error) {
 		ListActivate: text.ListActivate,
 	}
 
-	return a.ClientGRPC.TexterService.Create(context.Background(), req, grpc.Header(&header))
+	return a.ClientGRPC.TexterService.Create(context.Background(), req, grpc.Header(&serverHeader))
 }
 
 func (a *RemoteService) Read(user user.User, text model.Text) (any, error) {
-	var header metadata.MD
+	var serverHeader metadata.MD
 	req := &rpc.ReadRequest{Name: text.Name, Owner: text.Owner}
 
-	return a.ClientGRPC.TexterService.Read(context.Background(), req, grpc.Header(&header))
+	return a.ClientGRPC.TexterService.Read(context.Background(), req, grpc.Header(&serverHeader))
 }
 
 func (a *RemoteService) ReadAll(user user.User, text model.Text) (any, error) {
-	var header metadata.MD
+	var serverHeader metadata.MD
 	req := &rpc.ReadAllRequest{Type: text.Type, Owner: text.Owner}
 
-	return a.ClientGRPC.TexterService.ReadAll(context.Background(), req, grpc.Header(&header))
+	return a.ClientGRPC.TexterService.ReadAll(context.Background(), req, grpc.Header(&serverHeader))
 }
 
 func (a *RemoteService) Update(user user.User, text model.Text) (any, error) {
-	var header metadata.MD
+	var serverHeader metadata.MD
 
 	req := &rpc.CreateRequest{
 		Name:  text.Name,
@@ -107,33 +108,40 @@ func (a *RemoteService) Update(user user.User, text model.Text) (any, error) {
 		Owner: text.Owner,
 	}
 
-	return a.ClientGRPC.TexterService.Update(context.Background(), req, grpc.Header(&header))
+	return a.ClientGRPC.TexterService.Update(context.Background(), req, grpc.Header(&serverHeader))
 }
 
 func (a *RemoteService) Delete(user user.User, text model.Text) (any, error) {
-	var header metadata.MD
+	var serverHeader metadata.MD
 
 	req := &rpc.DeleteRequest{
 		Name:  text.Name,
 		Owner: text.Owner,
 	}
-	return a.ClientGRPC.TexterService.Delete(context.Background(), req, grpc.Header(&header))
+	return a.ClientGRPC.TexterService.Delete(context.Background(), req, grpc.Header(&serverHeader))
 }
 
-func (a *RemoteService) Upload(user user.User, bytes model.Bytes) (any, error) {
-	var header metadata.MD
+func (a *RemoteService) Upload(user user.User, modBytes model.Bytes) (any, error) {
+	var serverHeader metadata.MD
 
-	stream, err := a.ClientGRPC.ByterService.Upload(context.Background(), grpc.Header(&header))
+	md := metadata.Pairs(
+		"total_size", strconv.FormatInt(modBytes.Size, 10),
+		"file_name", modBytes.Name,
+	)
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	// Stream.
+	stream, err := a.ClientGRPC.ByterService.Upload(ctx, grpc.Header(&serverHeader))
 	if err != nil {
 		return nil, errs.ErrStartStream.Wrap(err)
 	}
 
-	// buffer 1KB.
+	// Buffer 1KB.
 	buffer := make([]byte, 1024)
 
 	// Run stream.
 	for {
-		n, err := bytes.Descr.Read(buffer)
+		n, err := modBytes.Descr.Read(buffer)
 		if err != nil && err != io.EOF {
 			return nil, errs.ErrReadFileToBuff.Wrap(err)
 		}
@@ -141,11 +149,8 @@ func (a *RemoteService) Upload(user user.User, bytes model.Bytes) (any, error) {
 			break
 		}
 		// Part of request.
-		chunk := &rpc.UploadBytesRequest{
-			Content:   buffer[:n],
-			TotalSize: bytes.Size,
-			Filename:  bytes.Name,
-		}
+		chunk := &rpc.UploadBytesRequest{Content: buffer[:n]}
+
 		// Send part of request.
 		if err := stream.Send(chunk); err != nil {
 			return nil, errs.ErrSendChankFile.Wrap(err)
