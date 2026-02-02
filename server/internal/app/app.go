@@ -33,6 +33,7 @@ func (a *App) Run() {
 	// Repository
 	repoUser := repo.NewRepoUser()
 	repoText := repo.NewRepoText()
+	repoBytes := repo.NewRepoBytes()
 
 	// Auth
 	jwtSrv := auth.NewJWTService(a.Cfg)
@@ -43,7 +44,7 @@ func (a *App) Run() {
 
 	// Services
 	texterSrv := service.NewTexterService(a.Cfg, a.Logg, repoText)
-	byterSrv := service.NewByterService(a.Cfg, a.Logg, repoText, fileHandler, fileManage)
+	byterSrv := service.NewByterService(a.Cfg, a.Logg, repoBytes, fileHandler, fileManage)
 
 	// Interceptor
 	interceptor := intercept.NewServIntercept(a.Cfg, a.Logg, authSrv)

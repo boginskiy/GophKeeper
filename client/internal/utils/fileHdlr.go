@@ -7,8 +7,12 @@ import (
 	"strings"
 )
 
-var NAMEFILE = "config.json"
-var NAMEAPPL = "gophclient"
+const (
+	NAMEFILE = "config.json"
+	NAMEAPPL = "gophclient"
+	STORE    = "store"
+	MOD      = 0755
+)
 
 type FileHdlr struct {
 }
@@ -17,6 +21,7 @@ func NewFileHdlr() *FileHdlr {
 	return &FileHdlr{}
 }
 
+// CreateFolder
 func (f *FileHdlr) CreateFolder(path string, mod os.FileMode) error {
 	// Creating a directory if it does not exist
 	err := os.MkdirAll(filepath.Dir(path), mod)
@@ -34,12 +39,22 @@ func (f *FileHdlr) CreatePathToConfig(nameApp, nameFile string) (path string, er
 	return filepath.Join(dir, nameApp, nameFile), nil
 }
 
+// ReadOrCreateFile
 func (f *FileHdlr) ReadOrCreateFile(path string, mod os.FileMode) (file *os.File, err error) {
 	file, err = os.OpenFile(path, os.O_RDWR|os.O_CREATE, mod)
 	if err != nil {
 		return nil, err
 	}
 	return file, nil
+}
+
+// CreatePathToWd
+func (f *FileHdlr) CreatePathToWd(f1, f2, f3 string) (path string, err error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(dir, f1, f2, f3), nil
 }
 
 func (f *FileHdlr) TruncateFile(path string, mod os.FileMode) (file *os.File, err error) {
@@ -107,4 +122,33 @@ func (f *FileHdlr) TakeSizeFile(file *os.File) (int64, error) {
 		return 0, err
 	}
 	return stats.Size(), nil
+}
+
+func (f *FileHdlr) GetTypeFile(fileName string) string {
+	res := strings.Split(fileName, ".")
+	if len(res) > 1 {
+		return res[len(res)-1]
+	}
+	return ""
+}
+
+func (m *FileHdlr) CreateFileInStore(obj PathCreater) (file *os.File, path string, err error) {
+	// Create path
+	path, err = m.CreatePathToWd(STORE, obj.GetFileType(), obj.GetFileName())
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Create all folders
+	err = m.CreateFolder(path, MOD)
+	if err != nil {
+		return nil, "", err
+	}
+
+	// Create file
+	file, err = m.ReadOrCreateFile(path, MOD)
+	if err != nil {
+		return nil, "", err
+	}
+	return file, path, err
 }

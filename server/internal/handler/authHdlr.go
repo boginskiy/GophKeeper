@@ -5,10 +5,9 @@ import (
 
 	"github.com/boginskiy/GophKeeper/server/internal/auth"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
+	"github.com/boginskiy/GophKeeper/server/internal/manager"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -40,7 +39,7 @@ func (k *AuthHandler) RegistUser(ctx context.Context, req *rpc.RegistUserRequest
 	}
 
 	// Кладем токен в заголовок
-	err = k.putDataToCtx(ctx, "authorization", token)
+	err = manager.PutDataToCtx(ctx, "authorization", token)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
@@ -67,14 +66,10 @@ func (k *AuthHandler) AuthUser(ctx context.Context, req *rpc.AuthUserRequest) (*
 	}
 
 	// Кладем токен в заголовок
-	err = k.putDataToCtx(ctx, "authorization", token)
+	err = manager.PutDataToCtx(ctx, "authorization", token)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
 
 	return &rpc.AuthUserResponse{Status: "ok"}, nil
-}
-
-func (k *AuthHandler) putDataToCtx(ctx context.Context, key, val string) error {
-	return grpc.SetHeader(ctx, metadata.Pairs(key, val))
 }

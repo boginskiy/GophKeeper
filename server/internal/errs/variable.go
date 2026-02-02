@@ -18,6 +18,7 @@ var (
 	// RepoUser
 	ErrEmailNotUnique = errors.New("email is not unique")
 	ErrUserNotFound   = errors.New("user not found")
+	ErrFileNotFound   = errors.New("file not found")
 
 	// RepoText
 	ErrDataNotFound = errors.New("data not found")
@@ -29,4 +30,7 @@ var (
 	ErrCreateFoldersToStore = NewErrWrapper("store folder creation error")
 	ErrCreateFile           = NewErrWrapper("file creation error")
 	ErrRunStream            = NewErrWrapper("run stream error")
+
+	ErrReadFileToBuff = NewErrWrapper("error reading the file into the buffer")
+	ErrSendChankFile  = NewErrWrapper("error sending the part of file to server")
 )

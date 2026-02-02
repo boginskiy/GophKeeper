@@ -2,6 +2,7 @@ package comm
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
@@ -9,6 +10,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
+	"github.com/boginskiy/GophKeeper/client/internal/utils"
 )
 
 type CommBytes struct {
@@ -68,9 +70,32 @@ func (c *CommBytes) executeUpload(user user.User) {
 		return
 	}
 
-	c.DialogSrv.ShowIt(fmt.Sprintf("%s %s\n\r", res.Status, res.UpdatedAt))
+	c.DialogSrv.ShowIt(
+		fmt.Sprintf("%s %s  sent size: %s received: %s\n\r",
+			res.Status, res.UpdatedAt, res.SentFileSize, res.ReceivedFileSize))
 }
 
 func (c *CommBytes) executeUnload(user user.User) {
+	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
+
+	// Call Service.
+	_, err := c.Service.Unload(user, nameFile)
+
+	if err != nil {
+		c.DialogSrv.ShowErr(err)
+		return
+	}
+
+	// Данные для Response надо взять из заголовков.
+	// Пока стоят заглушки.
+
+	// res, ok := obj.(*rpc.UnloadBytesResponse)
+	// if !ok {
+	// 	c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+	// 	return
+	// }
+
+	// nameFile поменять на реально загруженный файл!
+	c.DialogSrv.ShowIt(fmt.Sprintf("%s: %s   last update: %s\n\r", nameFile, "999", utils.ConvertDtStr(time.Now())))
 
 }

@@ -20,6 +20,7 @@ type CRUD interface {
 
 type Loader interface {
 	Upload(user.User, model.Bytes) (any, error)
+	Unload(user.User, model.Bytes) (any, error)
 }
 
 type ServiceAPI interface {

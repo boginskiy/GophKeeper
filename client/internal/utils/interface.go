@@ -34,10 +34,17 @@ type FileHandler interface {
 	Cleaner
 	Pather
 
+	CreateFileInStore(obj PathCreater) (file *os.File, path string, err error)
 	TakeSizeFile(*os.File) (int64, error)
+	GetTypeFile(fileName string) string
 }
 
 type Checker interface {
 	CheckTwoString(oneStr, twoStr string) bool
 	CheckPassword(userPassword, password string) bool
+}
+
+type PathCreater interface {
+	GetFileType() string
+	GetFileName() string
 }

@@ -14,15 +14,15 @@ import (
 
 type TexterHandler struct {
 	rpc.UnimplementedTexterServiceServer
-	Srv service.Servicer
+	Service service.Servicer
 }
 
 func NewTexterHandler(srv service.Servicer) *TexterHandler {
-	return &TexterHandler{Srv: srv}
+	return &TexterHandler{Service: srv}
 }
 
 func (k *TexterHandler) Create(ctx context.Context, req *rpc.CreateRequest) (*rpc.CreateResponse, error) {
-	obj, err := k.Srv.Create(ctx, req)
+	obj, err := k.Service.Create(ctx, req)
 
 	// Тут надо сделать проверку на уникальность типа записи.
 	if err == errs.ErrEmailNotUnique {
@@ -46,7 +46,7 @@ func (k *TexterHandler) Create(ctx context.Context, req *rpc.CreateRequest) (*rp
 }
 
 func (k *TexterHandler) Read(ctx context.Context, req *rpc.ReadRequest) (*rpc.ReadResponse, error) {
-	obj, err := k.Srv.Read(ctx, req)
+	obj, err := k.Service.Read(ctx, req)
 
 	// Данные не найдены.
 	if err == errs.ErrDataNotFound {
@@ -72,7 +72,7 @@ func (k *TexterHandler) Read(ctx context.Context, req *rpc.ReadRequest) (*rpc.Re
 }
 
 func (k *TexterHandler) ReadAll(ctx context.Context, req *rpc.ReadAllRequest) (*rpc.ReadAllResponse, error) {
-	objs, err := k.Srv.ReadAll(ctx, req)
+	objs, err := k.Service.ReadAll(ctx, req)
 
 	if err == errs.ErrDataNotFound {
 		return nil, status.Errorf(codes.NotFound, "%s", err)
@@ -102,7 +102,7 @@ func (k *TexterHandler) ReadAll(ctx context.Context, req *rpc.ReadAllRequest) (*
 }
 
 func (k *TexterHandler) Update(ctx context.Context, req *rpc.CreateRequest) (*rpc.CreateResponse, error) {
-	obj, err := k.Srv.Update(ctx, req)
+	obj, err := k.Service.Update(ctx, req)
 
 	if err == errs.ErrDataNotFound {
 		return nil, status.Errorf(codes.NotFound, "%s", err)
@@ -123,7 +123,7 @@ func (k *TexterHandler) Update(ctx context.Context, req *rpc.CreateRequest) (*rp
 }
 
 func (k *TexterHandler) Delete(ctx context.Context, req *rpc.DeleteRequest) (*rpc.DeleteResponse, error) {
-	obj, err := k.Srv.Delete(ctx, req)
+	obj, err := k.Service.Delete(ctx, req)
 
 	if err == errs.ErrDataNotFound {
 		return nil, status.Errorf(codes.NotFound, "%s", err)

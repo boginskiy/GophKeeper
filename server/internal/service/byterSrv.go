@@ -18,7 +18,7 @@ import (
 type ByterService struct {
 	Cfg         config.Config
 	Logg        logg.Logger
-	Repo        repo.Repository[*model.Bytes]
+	Repo        repo.CreateReader[*model.Bytes]
 	FileHdler   utils.FileHandler
 	FileManager manager.FileManager
 }
@@ -26,7 +26,7 @@ type ByterService struct {
 func NewByterService(
 	config config.Config,
 	logger logg.Logger,
-	repo repo.Repository[*model.Bytes],
+	repo repo.CreateReader[*model.Bytes],
 	fileHdler utils.FileHandler,
 	fileManager manager.FileManager,
 ) *ByterService {
@@ -104,16 +104,66 @@ func (b *ByterService) uploadStream(stream rpc.ByterService_UploadServer, modByt
 }
 
 func (b *ByterService) Unload(stream any) (any, error) {
-	return nil, nil
+	Stm, okS := stream.(rpc.ByterService_UnloadServer)
+	if !okS {
+		return nil, errs.ErrTypeConversion
+	}
+
+	fileName, errFile := manager.TakeClientValueFromCtx(Stm.Context(), "file_name", 0)
+	owner, errOwner := manager.TakeServerValueFromCtx(Stm.Context(), manager.EmailCtx)
+
+	if errFile != nil || errOwner != nil {
+		return nil, utils.DefinErr(errFile, errOwner)
+	}
+
+	// Take record from DB.
+	modBytes, err := b.Repo.ReadRecord(&model.Bytes{Name: fileName, Owner: owner})
+	if err != nil {
+		return nil, err
+	}
+
+	// Check and Read file
+	if !b.FileHdler.CheckOfFile(modBytes.Path) {
+		return nil, errs.ErrFileNotFound
+	}
+
+	file, err := b.FileHdler.ReadOrCreateFile(modBytes.Path, manager.MOD)
+	if err != nil {
+		return nil, err
+	}
+
+	defer modBytes.Descr.Close()
+	modBytes.Descr = file
+
+	err = b.unloadStream(Stm, modBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return modBytes, nil
 }
 
-// type Bytes struct {
-// 	Name      string
-// 	Path      string
-// 	Descr     *os.File
-// 	Size      int64
-// 	Type      string
-// 	Owner     string
-// 	CreatedAt time.Time
-// 	UpdatedAt time.Time
-// }
+func (b *ByterService) unloadStream(stream rpc.ByterService_UnloadServer, modBytes *model.Bytes) error {
+	// Buffer 1KB.
+	buffer := make([]byte, 1024)
+
+	// Run stream.
+	for {
+		n, err := modBytes.Descr.Read(buffer)
+
+		if err != nil && err != io.EOF {
+			return errs.ErrReadFileToBuff.Wrap(err)
+		}
+		if n == 0 {
+			break
+		}
+		// Part of request.
+		chunk := &rpc.UnloadBytesResponse{Content: buffer[:n]}
+
+		// Send part of request.
+		if err := stream.Send(chunk); err != nil {
+			return errs.ErrSendChankFile.Wrap(err)
+		}
+	}
+	return nil
+}

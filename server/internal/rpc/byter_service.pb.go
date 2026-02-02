@@ -172,8 +172,6 @@ func (*UnloadBytesRequest) Descriptor() ([]byte, []int) {
 type UnloadBytesResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Content       []byte                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
-	FileSize      string                 `protobuf:"bytes,2,opt,name=file_size,json=fileSize,proto3" json:"file_size,omitempty"`
-	UpdatedAt     string                 `protobuf:"bytes,3,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -215,20 +213,6 @@ func (x *UnloadBytesResponse) GetContent() []byte {
 	return nil
 }
 
-func (x *UnloadBytesResponse) GetFileSize() string {
-	if x != nil {
-		return x.FileSize
-	}
-	return ""
-}
-
-func (x *UnloadBytesResponse) GetUpdatedAt() string {
-	if x != nil {
-		return x.UpdatedAt
-	}
-	return ""
-}
-
 var File_server_proto_byter_service_proto protoreflect.FileDescriptor
 
 const file_server_proto_byter_service_proto_rawDesc = "" +
@@ -241,11 +225,9 @@ const file_server_proto_byter_service_proto_rawDesc = "" +
 	"\tupdatedAt\x18\x02 \x01(\tR\tupdatedAt\x12$\n" +
 	"\x0esent_file_size\x18\x03 \x01(\tR\fsentFileSize\x12,\n" +
 	"\x12received_file_size\x18\x04 \x01(\tR\x10receivedFileSize\"\x14\n" +
-	"\x12UnloadBytesRequest\"j\n" +
+	"\x12UnloadBytesRequest\"/\n" +
 	"\x13UnloadBytesResponse\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\fR\acontent\x12\x1b\n" +
-	"\tfile_size\x18\x02 \x01(\tR\bfileSize\x12\x1c\n" +
-	"\tupdatedAt\x18\x03 \x01(\tR\tupdatedAt2\xdc\x01\n" +
+	"\acontent\x18\x01 \x01(\fR\acontent2\xdc\x01\n" +
 	"\fByterService\x12e\n" +
 	"\x06Upload\x12+.GophKeeper.server.proto.UploadBytesRequest\x1a,.GophKeeper.server.proto.UploadBytesResponse(\x01\x12e\n" +
 	"\x06Unload\x12+.GophKeeper.server.proto.UnloadBytesRequest\x1a,.GophKeeper.server.proto.UnloadBytesResponse0\x01B5Z3github.com/boginskiy/GophKeeper/server/internal/rpcb\x06proto3"

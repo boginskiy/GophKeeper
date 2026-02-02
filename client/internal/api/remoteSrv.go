@@ -1,9 +1,9 @@
 package api
 
 import (
+	"bufio"
 	"context"
 	"io"
-	"strconv"
 	"time"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
@@ -125,7 +125,7 @@ func (a *RemoteService) Upload(user user.User, modBytes model.Bytes) (any, error
 	var serverHeader metadata.MD
 
 	md := metadata.Pairs(
-		"total_size", strconv.FormatInt(modBytes.Size, 10),
+		"total_size", modBytes.SentSize,
 		"file_name", modBytes.Name,
 	)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
@@ -156,6 +156,62 @@ func (a *RemoteService) Upload(user user.User, modBytes model.Bytes) (any, error
 			return nil, errs.ErrSendChankFile.Wrap(err)
 		}
 	}
-
 	return stream.CloseAndRecv()
+}
+
+// func (a *RemoteService) streamUpload() {
+
+// }
+
+func (a *RemoteService) Unload(user user.User, modBytes model.Bytes) (any, error) {
+	md := metadata.Pairs("file_name", modBytes.Name)
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	var serverHeader metadata.MD
+
+	// Single Request
+	stream, err := a.ClientGRPC.ByterService.Unload(ctx, &rpc.UnloadBytesRequest{}, grpc.Header(&serverHeader))
+	if err != nil {
+		return nil, errs.ErrStartStream.Wrap(err)
+	}
+
+	// TODO имя, размер, обновление
+
+	_, err = a.unloadStream(stream, &modBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+}
+
+func (a *RemoteService) unloadStream(stream rpc.ByterService_UnloadClient, modBytes *model.Bytes) (int64, error) {
+	// Writer
+	writer := bufio.NewWriter(modBytes.Descr)
+	var CNT int64
+
+	for {
+		// Обработка запроса.
+		req, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return CNT, err
+		}
+
+		nn, err := writer.Write(req.Content)
+		if err != nil {
+			return CNT, err
+		}
+
+		CNT += int64(nn)
+	}
+
+	err := writer.Flush()
+	if err != nil {
+		return CNT, err
+	}
+
+	return CNT, nil
 }

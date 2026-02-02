@@ -1,6 +1,8 @@
 package service
 
 import (
+	"os"
+
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
@@ -41,13 +43,28 @@ func (t *ByterService) Upload(user user.User, pathToFile string) (any, error) {
 	return t.ServiceAPI.Upload(user, *bytes)
 }
 
-func (t *ByterService) Unload(user user.User) (any, error) {
+func (t *ByterService) Unload(user user.User, fileName string) (any, error) {
+	modBytes := &model.Bytes{Name: fileName, Type: t.FileHandler.GetTypeFile(fileName)}
+
+	file, path, err := t.FileHandler.CreateFileInStore(modBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	defer file.Close()
+	modBytes.Descr = file
+
+	_, err = t.ServiceAPI.Unload(user, *modBytes)
+	if err != nil {
+		// Удаляем созданный ранее файл
+		os.Remove(path)
+		return nil, err
+	}
+
+	// Что передать в хендлер ?
 	return nil, nil
 }
 
 // TODO!
 // Шифрование: Если безопасность критична, подумайте о шифровании файлов до отправки и дешифрации на стороне сервера.
 // Контроль целостности: Возможно добавить проверку контрольных сумм (CRC, SHA-256) для гарантированной доставки файлов без повреждений.
-
-// Читаем файл и получаем байты
-// Наверно надо читать большие файлы и передавать их

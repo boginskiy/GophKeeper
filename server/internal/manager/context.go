@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -47,4 +48,8 @@ func TakeDataFromCtx(ctx context.Context, data string) string {
 		}
 	}
 	return ""
+}
+
+func PutDataToCtx(ctx context.Context, key, val string) error {
+	return grpc.SetHeader(ctx, metadata.Pairs(key, val))
 }

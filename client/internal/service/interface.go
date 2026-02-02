@@ -14,5 +14,5 @@ type Servicer[T any] interface { // ServicerTexter
 
 type ServicerByter interface {
 	Upload(user.User, string) (any, error)
-	Unload(user.User) (any, error)
+	Unload(user.User, string) (any, error)
 }

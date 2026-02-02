@@ -25,6 +25,4 @@ message UnloadBytesRequest {
 
 message UnloadBytesResponse {
   bytes content = 1;
-  string file_size = 2;
-  string updatedAt = 3;
 }

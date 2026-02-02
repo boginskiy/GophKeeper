@@ -14,15 +14,15 @@ import (
 
 type ByterHandler struct {
 	rpc.UnimplementedByterServiceServer
-	Srv service.ServicerByter
+	Service service.ServicerByter
 }
 
 func NewByterHandler(srv service.ServicerByter) *ByterHandler {
-	return &ByterHandler{Srv: srv}
+	return &ByterHandler{Service: srv}
 }
 
 func (b *ByterHandler) Upload(stream rpc.ByterService_UploadServer) error {
-	obj, err := b.Srv.Upload(stream)
+	obj, err := b.Service.Upload(stream)
 
 	// Какие нибудь спец ошибки ? Internal cлишком //
 
@@ -46,5 +46,26 @@ func (b *ByterHandler) Upload(stream rpc.ByterService_UploadServer) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (b *ByterHandler) Unload(req *rpc.UnloadBytesRequest, stream rpc.ByterService_UnloadServer) error {
+	_, err := b.Service.Unload(stream)
+
+	// Запрашиваемые данные не найдены в БД
+	if err == errs.ErrDataNotFound {
+		return status.Errorf(codes.NotFound, "%s", err)
+	}
+
+	// Запрашиваемые данные не найдены в файле
+	if err == errs.ErrFileNotFound {
+		return status.Errorf(codes.NotFound, "%s", err)
+	}
+
+	// Остальные ошибки.
+	if err != nil {
+		return status.Errorf(codes.Internal, "%s", err)
+	}
+
 	return nil
 }

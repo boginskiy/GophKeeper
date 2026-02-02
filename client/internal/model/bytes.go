@@ -2,15 +2,28 @@ package model
 
 import (
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/utils"
 )
 
 type Bytes struct {
-	Name  string
-	Descr *os.File
-	Size  int64
+	Name         string
+	Descr        *os.File
+	SentSize     string
+	ReceivedSize string
+	Type         string
+	UpdatedAt    time.Time
+}
+
+func (b *Bytes) GetFileType() string {
+	return b.Type
+}
+
+func (b *Bytes) GetFileName() string {
+	return b.Name
 }
 
 func NewBytesFromFile(fileHdlr utils.FileHandler, pathToFile string) (*Bytes, error) {
@@ -32,8 +45,8 @@ func NewBytesFromFile(fileHdlr utils.FileHandler, pathToFile string) (*Bytes, er
 	}
 
 	return &Bytes{
-		Name:  name,
-		Descr: descr,
-		Size:  size,
+		Name:     name,
+		Descr:    descr,
+		SentSize: strconv.FormatInt(size, 10),
 	}, nil
 }
