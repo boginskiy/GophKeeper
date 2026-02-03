@@ -6,8 +6,8 @@ import (
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
-	"github.com/boginskiy/GophKeeper/client/internal/manager"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"google.golang.org/grpc"
@@ -46,7 +46,7 @@ func (a *RemoteAuthService) Registration(user model.User) (token string, err err
 	var serverHeader metadata.MD
 
 	_, err = a.ClientGRPC.AuthService.RegistUser(ctx, req, grpc.Header(&serverHeader))
-	token = manager.TakeValueFromHeader(serverHeader, "authorization", 0)
+	token = infra.TakeValueFromHeader(serverHeader, "authorization", 0)
 
 	return token, err
 }
@@ -59,7 +59,7 @@ func (a *RemoteAuthService) Authentication(user model.User) (token string, err e
 	var serverHeader metadata.MD
 
 	_, err = a.ClientGRPC.AuthService.AuthUser(ctx, req, grpc.Header(&serverHeader))
-	token = manager.TakeValueFromHeader(serverHeader, "authorization", 0)
+	token = infra.TakeValueFromHeader(serverHeader, "authorization", 0)
 
 	return token, err
 }

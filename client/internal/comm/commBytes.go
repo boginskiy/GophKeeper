@@ -6,7 +6,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
-	"github.com/boginskiy/GophKeeper/client/internal/manager"
+	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
@@ -61,7 +61,7 @@ func (c *CommBytes) executeUpload(user user.User) {
 	pathToFile, _ := c.DialogSrv.GetSomeThing("Enter the abs path to file...")
 
 	// Call Service.
-	obj, err := c.Service.Upload(user, pathToFile)
+	obj, err := c.Service.Upload(user, pathToFile, c.Tp)
 
 	if err != nil {
 		c.DialogSrv.ShowErr(err)
@@ -101,9 +101,9 @@ func (c *CommBytes) executeUnload(user user.User) {
 	c.DialogSrv.ShowIt(
 		fmt.Sprintf("%s %s  sent size: %s received: %s\n\r",
 			"unloaded",
-			manager.TakeValueFromHeader(*serverHeader, "updated_at", 0),
-			manager.TakeValueFromHeader(*serverHeader, "sent_size", 0),
-			manager.TakeValueFromHeader(*serverHeader, "received_size", 0)))
+			infra.TakeValueFromHeader(*serverHeader, "updated_at", 0),
+			infra.TakeValueFromHeader(*serverHeader, "sent_size", 0),
+			infra.TakeValueFromHeader(*serverHeader, "received_size", 0)))
 }
 
 func (c *CommBytes) executeRead(user user.User) {

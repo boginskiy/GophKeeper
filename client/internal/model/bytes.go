@@ -26,7 +26,7 @@ func (b *Bytes) GetFileName() string {
 	return b.Name
 }
 
-func NewBytesFromFile(fileHdlr utils.FileHandler, pathToFile string) (*Bytes, error) {
+func NewBytesFromFile(fileHdlr utils.FileHandler, pathToFile string, tp string) (*Bytes, error) {
 	pathToFile, err := fileHdlr.TransPathToAbs(pathToFile)
 
 	if err != nil || !fileHdlr.CheckOfFile(pathToFile) {
@@ -48,6 +48,6 @@ func NewBytesFromFile(fileHdlr utils.FileHandler, pathToFile string) (*Bytes, er
 		Name:     name,
 		Descr:    descr,
 		SentSize: strconv.FormatInt(size, 10),
-		Type:     "bytes",
+		Type:     tp,
 	}, nil
 }

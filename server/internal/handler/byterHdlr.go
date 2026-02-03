@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
-	"github.com/boginskiy/GophKeeper/server/internal/manager"
+	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"github.com/boginskiy/GophKeeper/server/internal/service"
@@ -65,9 +65,9 @@ func (b *ByterHandler) Unload(req *rpc.UnloadBytesRequest, stream rpc.ByterServi
 	}
 
 	// Кладем данные в заголовок для клиента
-	errUp := manager.PutDataToCtx(stream.Context(), "updated_at", utils.ConvertDtStr(modBytes.UpdatedAt))
-	errSz := manager.PutDataToCtx(stream.Context(), "sent_size", modBytes.ReceivedSize)
-	errFn := manager.PutDataToCtx(stream.Context(), "file_name", modBytes.Name)
+	errUp := infra.PutDataToCtx(stream.Context(), "updated_at", utils.ConvertDtStr(modBytes.UpdatedAt))
+	errSz := infra.PutDataToCtx(stream.Context(), "sent_size", modBytes.ReceivedSize)
+	errFn := infra.PutDataToCtx(stream.Context(), "file_name", modBytes.Name)
 
 	if errUp != nil || errSz != nil || errFn != nil {
 		return status.Errorf(codes.Internal, "%s", utils.DefinErr(errUp, errSz, errFn))

@@ -50,9 +50,14 @@ func (a *RemoteBytesService) Upload(user user.User, modBytes model.Bytes) (any, 
 		return nil, errs.ErrStartStream.Wrap(err)
 	}
 
+	UploadBytesResponse, err := a.streamUpload(stream, &modBytes)
+	return UploadBytesResponse, err
+}
+
+func (a *RemoteBytesService) streamUpload(
+	stream rpc.ByterService_UploadClient, modBytes *model.Bytes) (*rpc.UploadBytesResponse, error) {
 	// Buffer 1KB.
 	buffer := make([]byte, 1024)
-
 	// Run stream.
 	for {
 		n, err := modBytes.Descr.Read(buffer)
@@ -72,10 +77,6 @@ func (a *RemoteBytesService) Upload(user user.User, modBytes model.Bytes) (any, 
 	}
 	return stream.CloseAndRecv()
 }
-
-// func (a *RemoteBytesService) streamUpload() {
-
-// }
 
 func (a *RemoteBytesService) Unload(user user.User, modBytes model.Bytes) (any, error) {
 	md := metadata.Pairs("file_name", modBytes.Name)

@@ -6,15 +6,15 @@ import (
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
+	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
-	"github.com/boginskiy/GophKeeper/client/internal/utils"
 )
 
 type DialogService struct {
 	Cfg     config.Config
 	Logg    logg.Logger
-	Checker utils.Checker
+	Checker infra.Checker
 	Client  client.Client
 	User    user.User
 }
@@ -22,7 +22,7 @@ type DialogService struct {
 func NewDialogService(
 	cfg config.Config,
 	logger logg.Logger,
-	ch utils.Checker,
+	ch infra.Checker,
 	cl client.Client,
 	us user.User,
 ) *DialogService {

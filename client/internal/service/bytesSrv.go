@@ -31,8 +31,8 @@ func NewBytesService(
 	}
 }
 
-func (t *BytesService) Upload(user user.User, pathToFile string) (any, error) {
-	bytes, err := model.NewBytesFromFile(t.FileHandler, pathToFile)
+func (t *BytesService) Upload(user user.User, pathToFile string, tp string) (any, error) {
+	bytes, err := model.NewBytesFromFile(t.FileHandler, pathToFile, tp)
 	if err != nil {
 		return nil, err
 	}

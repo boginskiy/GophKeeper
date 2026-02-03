@@ -8,8 +8,8 @@ import (
 
 	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
+	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
-	"github.com/boginskiy/GophKeeper/server/internal/manager"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
 	"github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
@@ -21,7 +21,7 @@ type BytesService struct {
 	Logg        logg.Logger
 	Repo        repo.Repository[*model.Bytes]
 	FileHdler   utils.FileHandler
-	FileManager manager.FileManager
+	FileManager infra.FileManager
 }
 
 func NewBytesService(
@@ -29,7 +29,7 @@ func NewBytesService(
 	logger logg.Logger,
 	repo repo.Repository[*model.Bytes],
 	fileHdler utils.FileHandler,
-	fileManager manager.FileManager,
+	fileManager infra.FileManager,
 ) *BytesService {
 
 	return &BytesService{
@@ -106,11 +106,11 @@ func (b *BytesService) uploadStream(stream rpc.ByterService_UploadServer, modByt
 
 func (b *BytesService) Read(ctx context.Context, req any) (*model.Bytes, error) {
 	// Info from context.
-	fileName, err := manager.TakeClientValueFromCtx(ctx, "file_name", 0)
+	fileName, err := infra.TakeClientValueFromCtx(ctx, "file_name", 0)
 	if err != nil {
 		return nil, err
 	}
-	owner, err := manager.TakeServerValueFromCtx(ctx, manager.EmailCtx)
+	owner, err := infra.TakeServerValueFromCtx(ctx, infra.EmailCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -120,11 +120,11 @@ func (b *BytesService) Read(ctx context.Context, req any) (*model.Bytes, error) 
 
 func (b *BytesService) ReadAll(ctx context.Context, req any) ([]*model.Bytes, error) {
 	// Info from context.
-	fileType, err := manager.TakeClientValueFromCtx(ctx, "file_type", 0)
+	fileType, err := infra.TakeClientValueFromCtx(ctx, "file_type", 0)
 	if err != nil {
 		return nil, err
 	}
-	owner, err := manager.TakeServerValueFromCtx(ctx, manager.EmailCtx)
+	owner, err := infra.TakeServerValueFromCtx(ctx, infra.EmailCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -134,11 +134,11 @@ func (b *BytesService) ReadAll(ctx context.Context, req any) ([]*model.Bytes, er
 
 func (b *BytesService) Delete(ctx context.Context, req any) (*model.Bytes, error) {
 	// Info from context.
-	fileName, err := manager.TakeClientValueFromCtx(ctx, "file_name", 0)
+	fileName, err := infra.TakeClientValueFromCtx(ctx, "file_name", 0)
 	if err != nil {
 		return nil, err
 	}
-	owner, err := manager.TakeServerValueFromCtx(ctx, manager.EmailCtx)
+	owner, err := infra.TakeServerValueFromCtx(ctx, infra.EmailCtx)
 	if err != nil {
 		return nil, err
 	}

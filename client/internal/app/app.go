@@ -7,6 +7,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/comm"
+	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/intercept"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
@@ -39,7 +40,6 @@ func (a *App) Init() {
 
 	// Utils.
 	fileHandler := utils.NewFileHdlr()
-	checker := utils.NewCheck()
 
 	// User.
 	userCLI := user.NewUserCLI(a.Logg)
@@ -52,6 +52,7 @@ func (a *App) Init() {
 	clientCLI := client.NewClientCLI(a.Logg)
 
 	// Infra Services.
+	checker := infra.NewCheck(fileHandler)
 	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg, checker, clientCLI, userCLI)
 
 	// Remote Services.
@@ -68,11 +69,11 @@ func (a *App) Init() {
 	authSrv := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuthSrv)
 
 	// Commonds.
-	commImage := comm.NewCommImage(dialogSrv)
-	commSound := comm.NewCommSound(dialogSrv)
+	commVideo := comm.NewCommVideo(checker, dialogSrv, byterSrv)
+	commSound := comm.NewCommSound(checker, dialogSrv, byterSrv)
 	commBytes := comm.NewCommBytes(dialogSrv, byterSrv)
 	commText := comm.NewCommText(dialogSrv, texterSrv)
-	root := comm.NewRoot(dialogSrv, commText, commBytes, commImage, commSound)
+	root := comm.NewRoot(dialogSrv, commText, commBytes, commVideo, commSound)
 
 	// Start.
 	NewRunner(

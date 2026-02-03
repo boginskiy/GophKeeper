@@ -14,7 +14,7 @@ type Root struct {
 	DialogSrv cli.ShowGetter
 	CommText  Commander
 	CommBytes Commander
-	CommImage Commander
+	CommVideo Commander
 	CommSound Commander
 }
 
@@ -22,7 +22,7 @@ func NewRoot(
 	dialog cli.ShowGetter,
 	commtext Commander,
 	commbytes Commander,
-	commimage Commander,
+	commvideo Commander,
 	commsound Commander,
 ) *Root {
 
@@ -30,7 +30,7 @@ func NewRoot(
 		DialogSrv: dialog,
 		CommText:  commtext,
 		CommBytes: commbytes,
-		CommImage: commimage,
+		CommVideo: commvideo,
 		CommSound: commsound,
 	}
 }
@@ -53,8 +53,8 @@ authLoop:
 			r.CommText.Registration(client, user)
 		case "bytes":
 			r.CommBytes.Registration(client, user)
-		case "image":
-			r.CommImage.Registration(client, user)
+		case "video":
+			r.CommVideo.Registration(client, user)
 		case "sound":
 			r.CommSound.Registration(client, user)
 
@@ -95,37 +95,3 @@ func (r *Root) ExecuteAuth(authSrv auth.Auth, user user.User) bool {
 	r.DialogSrv.ShowIt(info)
 	return false
 }
-
-// пары логин/пароль;
-// произвольные текстовые данные;
-// произвольные бинарные данные;
-// данные банковских карт.
-
-// как забирать данные, как их вносить ? Может отправка в поток ввода ?
-
-// TODO...
-// var CommStore = make(map[string]func(), 10)
-// Что я хочу хранить на удаленном сервере ?
-// Как я это туда буду передавать ?
-// Как я это буду от туда забирать ?
-
-// Для хранения музыки и фото буду использовать обычную файловую систему
-// Под чтение и запись чего то в файловую систему создаем отдельный поток!
-// Применяйте очереди заданий (RabbitMQ, Kafka) для снижения пиковых нагрузок.
-
-// безопасно хранить логины, пароли, бинарные данные и прочую приватную информацию
-// Передача пароля без явного вида. Как то надо хешировать ?
-// обеспечение безопасности передачи и хранения данных
-
-// типы хранимой инфы
-// пары логин/пароль;
-// произвольные текстовые данные;
-// произвольные бинарные данные;
-// данные банковских карт.
-
-// Для любых данных должна быть возможность хранения произвольной текстовой
-// метаинформации (принадлежность данных к веб-сайту, личности или банку,
-// 	списки одноразовых кодов активации и прочее).
-
-// Пользователь добавляет в клиент новые данные.
-// Клиент синхронизирует данные с сервером.

@@ -40,11 +40,6 @@ type FileHandler interface {
 	GetTypeFile(fileName string) string
 }
 
-type Checker interface {
-	CheckTwoString(oneStr, twoStr string) bool
-	CheckPassword(userPassword, password string) bool
-}
-
 type PathCreater interface {
 	GetFileType() string
 	GetFileName() string

@@ -5,8 +5,8 @@ import (
 
 	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
+	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
-	"github.com/boginskiy/GophKeeper/server/internal/manager"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
 	"github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
@@ -36,12 +36,12 @@ func NewUnloadService(
 
 func (s *UnloadService) Prepar(stream rpc.ByterService_UnloadServer) (*model.Bytes, error) {
 	// Info from context.
-	fileName, err := manager.TakeClientValueFromCtx(stream.Context(), "file_name", 0)
+	fileName, err := infra.TakeClientValueFromCtx(stream.Context(), "file_name", 0)
 	if err != nil {
 		return nil, err
 	}
 
-	owner, err := manager.TakeServerValueFromCtx(stream.Context(), manager.EmailCtx)
+	owner, err := infra.TakeServerValueFromCtx(stream.Context(), infra.EmailCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (s *UnloadService) Load(stream rpc.ByterService_UnloadServer, modBytes *mod
 		return errs.ErrFileNotFound
 	}
 
-	file, err := s.FileHdler.ReadOrCreateFile(modBytes.Path, manager.MOD)
+	file, err := s.FileHdler.ReadOrCreateFile(modBytes.Path, infra.MOD)
 	if err != nil {
 		return err
 	}

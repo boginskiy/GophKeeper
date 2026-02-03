@@ -5,8 +5,8 @@ import (
 
 	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
+	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
-	"github.com/boginskiy/GophKeeper/server/internal/manager"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
 	repo "github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
@@ -105,7 +105,7 @@ func (a *Auth) Identification(ctx context.Context, req any) (*ExtraInfoToken, bo
 		return nil, true
 	}
 
-	token := manager.TakeDataFromCtx(ctx, "authorization")
+	token := infra.TakeDataFromCtx(ctx, "authorization")
 
 	// Try Authentication.
 	infoToken, err := a.JWTService.GetInfoAndValidJWT(token)

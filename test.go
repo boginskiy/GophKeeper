@@ -2,11 +2,16 @@ package main
 
 import (
 	"fmt"
-	"os"
+
+	"github.com/boginskiy/GophKeeper/client/internal/utils"
 )
 
 func main() {
-	currentDir, _ := os.Getwd()
 
-	fmt.Println(currentDir)
+	filePath := "file.txt"
+
+	d := utils.NewFileHdlr()
+	fileName := d.FileHandler.TakeFileFromPath(filePath)
+
+	fmt.Println(fileName)
 }

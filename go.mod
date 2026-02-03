@@ -5,14 +5,15 @@ go 1.25.5
 require (
 	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/sirupsen/logrus v1.9.4
+	github.com/sqweek/dialog v0.0.0-20260123140253-64c163d53aac
 	github.com/stretchr/testify v1.11.1
-	go.opentelemetry.io/otel v1.38.0
 	golang.org/x/crypto v0.47.0
 	google.golang.org/grpc v1.78.0
 	google.golang.org/protobuf v1.36.11
 )
 
 require (
+	github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

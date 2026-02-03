@@ -5,7 +5,7 @@ import (
 
 	"github.com/boginskiy/GophKeeper/server/internal/auth"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
-	"github.com/boginskiy/GophKeeper/server/internal/manager"
+	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -39,7 +39,7 @@ func (k *AuthHandler) RegistUser(ctx context.Context, req *rpc.RegistUserRequest
 	}
 
 	// Кладем токен в заголовок
-	err = manager.PutDataToCtx(ctx, "authorization", token)
+	err = infra.PutDataToCtx(ctx, "authorization", token)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
@@ -66,7 +66,7 @@ func (k *AuthHandler) AuthUser(ctx context.Context, req *rpc.AuthUserRequest) (*
 	}
 
 	// Кладем токен в заголовок
-	err = manager.PutDataToCtx(ctx, "authorization", token)
+	err = infra.PutDataToCtx(ctx, "authorization", token)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
