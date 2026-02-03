@@ -21,7 +21,7 @@ type ServerGRPC struct {
 
 func NewServerGRPC(config config.Config, logger logg.Logger, intrcep intercept.ServInterceptor) *ServerGRPC {
 	// Port for server.
-	lst, err := net.Listen("tcp", config.GetPortServerGRPC())
+	lst, err := net.Listen("tcp", config.GetServerGrpc())
 	logger.CheckWithFatal(err, "server listener initialization error")
 
 	opts := []grpc.ServerOption{

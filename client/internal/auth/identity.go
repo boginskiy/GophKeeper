@@ -21,7 +21,7 @@ type Identity struct {
 
 func NewIdentity(cfg config.Config, logger logg.Logger, fileHndl utils.FileHandler) *Identity {
 	// Path to config file.
-	path, err := fileHndl.CreatePathToConfig(cfg.GetNameApp(), cfg.GetConfigFile())
+	path, err := fileHndl.CreatePathToConfig(config.APPNAME, config.CONFIG)
 	logger.CheckWithFatal(err, "error in creating path to config file")
 
 	// Create folder for config file.

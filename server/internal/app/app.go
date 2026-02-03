@@ -26,7 +26,6 @@ func NewApp(config config.Config, logger logg.Logger) *App {
 }
 
 func (a *App) Run() {
-
 	// Utils.
 	fileHandler := utils.NewFileHdlr()
 
@@ -43,18 +42,18 @@ func (a *App) Run() {
 	fileManage := manager.NewFileManage(fileHandler)
 
 	// Services
-	unloader := service.NewUnloadService(a.Cfg, a.Logg, fileHandler, repoBytes)
+	unloaderSrv := service.NewUnloadService(a.Cfg, a.Logg, fileHandler, repoBytes)
 
-	texter := service.NewTextService(a.Cfg, a.Logg, repoText)
-	byter := service.NewBytesService(a.Cfg, a.Logg, repoBytes, fileHandler, fileManage)
+	texterSrv := service.NewTextService(a.Cfg, a.Logg, repoText)
+	byterSrv := service.NewBytesService(a.Cfg, a.Logg, repoBytes, fileHandler, fileManage)
 
 	// Interceptor
 	interceptor := intercept.NewServIntercept(a.Cfg, a.Logg, authSrv)
 
 	// Handler
 	authHdlr := handler.NewAuthHandler(authSrv)
-	texterHdlr := handler.NewTexterHandler(texter)
-	byterHdlr := handler.NewByterHandler(fileHandler, byter, unloader)
+	texterHdlr := handler.NewTexterHandler(texterSrv)
+	byterHdlr := handler.NewByterHandler(fileHandler, byterSrv, unloaderSrv)
 
 	// Start server
 	server := server.NewServerGRPC(a.Cfg, a.Logg, interceptor)

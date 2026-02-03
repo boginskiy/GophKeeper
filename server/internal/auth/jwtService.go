@@ -40,12 +40,12 @@ func (j *JWTService) CreateJWT(infoToken *ExtraInfoToken) (string, error) {
 	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(
-				time.Now().Add(time.Duration(j.Cfg.GetTokenLiveTime())))},
+				time.Now().Add(time.Duration(j.Cfg.GetTokenLifetime())))},
 		InfoToken: infoToken,
 	})
 
 	// Line of token.
-	token, err := jwtToken.SignedString([]byte(j.Cfg.GetSecretKey()))
+	token, err := jwtToken.SignedString([]byte(j.Cfg.GetTokenSecretKey()))
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +60,7 @@ func (j *JWTService) GetInfoAndValidJWT(checkingToken string) (*ExtraInfoToken, 
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
-		return []byte(j.Cfg.GetSecretKey()), nil
+		return []byte(j.Cfg.GetTokenSecretKey()), nil
 	})
 
 	if err != nil {

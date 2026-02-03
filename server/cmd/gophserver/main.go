@@ -7,16 +7,10 @@ import (
 	"github.com/boginskiy/GophKeeper/server/pkg"
 )
 
-var (
-	buildVersion string
-	buildDate    string
-	buildCommit  string
-)
-
 func main() {
-	pkg.PrintInfo(buildVersion, buildDate, buildCommit)
+	pkg.PrintInfo(config.BuildVersion, config.BuildDate, config.BuildCommit)
 
-	logger := logg.NewLogg("main_server.log", "INFO")
-	cfg := config.NewConf(logger)
+	logger := logg.NewLogg("main.log", "INFO")
+	cfg := config.NewArgsCLI(logger)
 	app.NewApp(cfg, logger).Run()
 }

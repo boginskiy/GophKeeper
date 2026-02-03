@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/boginskiy/GophKeeper/client/cmd"
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
@@ -27,9 +26,9 @@ func NewApp(conf config.Config, logg logg.Logger) *App {
 	tmpApp := &App{
 		Cfg:         conf,
 		Logg:        logg,
-		Name:        conf.GetNameApp(),
-		Description: conf.GetDescApp(),
-		Version:     conf.GetVersionApp(),
+		Name:        config.APPNAME,
+		Description: config.DESC,
+		Version:     config.VERS,
 	}
 	return tmpApp
 }
@@ -42,13 +41,13 @@ func (a *App) Init() {
 	fileHandler := utils.NewFileHdlr()
 	checker := utils.NewCheck()
 
-	// User
+	// User.
 	userCLI := user.NewUserCLI(a.Logg)
 
-	// Interceptor
+	// Interceptor.
 	interceptor := intercept.NewClientIntercept(a.Cfg, a.Logg, userCLI)
 
-	// Clients
+	// Clients.
 	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg, interceptor)
 	clientCLI := client.NewClientCLI(a.Logg)
 
@@ -61,8 +60,8 @@ func (a *App) Init() {
 	remoteBytesSrv := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC)
 
 	// Business Services.
-	byter := service.NewBytesService(a.Cfg, a.Logg, fileHandler, remoteBytesSrv)
-	texter := service.NewTextService(a.Cfg, a.Logg, remoteTextSrv)
+	byterSrv := service.NewBytesService(a.Cfg, a.Logg, fileHandler, remoteBytesSrv)
+	texterSrv := service.NewTextService(a.Cfg, a.Logg, remoteTextSrv)
 
 	// Auth.
 	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler)
@@ -71,12 +70,12 @@ func (a *App) Init() {
 	// Commonds.
 	commImage := comm.NewCommImage(dialogSrv)
 	commSound := comm.NewCommSound(dialogSrv)
-	commBytes := comm.NewCommBytes(dialogSrv, byter)
-	commText := comm.NewCommText(dialogSrv, texter)
+	commBytes := comm.NewCommBytes(dialogSrv, byterSrv)
+	commText := comm.NewCommText(dialogSrv, texterSrv)
 	root := comm.NewRoot(dialogSrv, commText, commBytes, commImage, commSound)
 
 	// Start.
-	cmd.NewRunner(
+	NewRunner(
 		a.Cfg, a.Logg, identity, dialogSrv, authSrv, root).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()

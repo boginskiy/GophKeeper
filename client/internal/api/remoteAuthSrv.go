@@ -32,8 +32,7 @@ func NewRemoteAuthService(
 }
 
 func (a *RemoteAuthService) Registration(user model.User) (token string, err error) {
-	// Ctx.
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.Cfg.GetWaitingTimeResponse()))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.Cfg.GetResTimeout()))
 	defer cancel()
 
 	// Request.
@@ -53,7 +52,7 @@ func (a *RemoteAuthService) Registration(user model.User) (token string, err err
 }
 
 func (a *RemoteAuthService) Authentication(user model.User) (token string, err error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.Cfg.GetWaitingTimeResponse()))
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.Cfg.GetResTimeout()))
 	defer cancel()
 
 	req := &rpc.AuthUserRequest{Email: user.Email, Password: user.Password}

@@ -6,22 +6,8 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 )
 
-const (
-	APPNAME = "gophclient"
-	DESC    = "HI man! It is special CLI application for your computer"
-	VERS    = "1.1.01"
-	CONFIG  = "config.json"
-)
-
-var (
-	port        = ":8080"
-	attempts    = 1
-	waitTimeRes = 500
-	retryReq    = 3
-)
-
 func main() {
-	logg := logg.NewLogg("main_client.log", "INFO")
-	cfg := config.NewConf(logg, port, attempts, waitTimeRes, retryReq, APPNAME, DESC, VERS, CONFIG)
+	logg := logg.NewLogg("main.log", "INFO")
+	cfg := config.NewArgsCLI(logg)
 	app.NewApp(cfg, logg).Init()
 }

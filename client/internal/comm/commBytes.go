@@ -30,7 +30,7 @@ authLoop:
 		comm, _ := c.DialogSrv.GetSomeThing(
 
 			fmt.Sprintf("%s\n\r%s",
-				"What do you want to do with the bytes: \n\r\t upload \n\r\t unload \n\r\t update \n\r\t delete",
+				"What do you want to do with the bytes: \n\r\t upload \n\r\t unload \n\r\t read \n\r\t read-all \n\r\t delete",
 				"come back: back, need help: help"))
 
 		switch comm {
@@ -124,8 +124,8 @@ func (c *CommBytes) executeRead(user user.User) {
 	}
 
 	c.DialogSrv.ShowIt(
-		fmt.Sprintf("%s %s  type: %s created: %s\n\r",
-			res.Status, nameFile, res.Type, res.CreatedAt))
+		fmt.Sprintf("%s   type: %s   created: %s\n\r",
+			nameFile, res.Type, res.CreatedAt))
 }
 
 func (c *CommBytes) executeReadAll(user user.User) {

@@ -19,7 +19,7 @@ type ClientGRPC struct {
 func NewClientGRPC(config config.Config, logger logg.Logger, intrcept intercept.ClientInterceptor) *ClientGRPC {
 	// Conn
 	conn, err := grpc.NewClient(
-		config.GetPortServerGRPC(),
+		config.GetServerGrpc(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(intrcept.SingleAuth),
 		grpc.WithChainStreamInterceptor(intrcept.StreamAuth))

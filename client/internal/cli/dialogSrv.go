@@ -110,12 +110,12 @@ func (d *DialogService) GetDataRegister() (userName, email, phone, password stri
 func (d *DialogService) VerifyDataAuth(user user.User) (email, password string, err error) {
 	d.ShowIt("You need log in")
 
-	email, err = d.VerifyEnterIt("email", user.GetModelUser().Email, d.Cfg.GetAttempts())
+	email, err = d.VerifyEnterIt("email", user.GetModelUser().Email, d.Cfg.GetMaxRetries())
 	if err != nil {
 		return "", "", err
 	}
 
-	password, err = d.VerifyEnterPassword("password", user.GetModelUser().Password, d.Cfg.GetAttempts())
+	password, err = d.VerifyEnterPassword("password", user.GetModelUser().Password, d.Cfg.GetMaxRetries())
 	if err != nil {
 		return "", "", err
 	}
