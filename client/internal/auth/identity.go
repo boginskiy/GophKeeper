@@ -13,12 +13,13 @@ import (
 )
 
 type Identity struct {
+	Cfg          config.Config
 	Logger       logg.Logger
 	FileHendler  utils.FileHandler
 	PathToConfig string
 }
 
-func NewIdentity(logger logg.Logger, fileHndl utils.FileHandler) *Identity {
+func NewIdentity(cfg config.Config, logger logg.Logger, fileHndl utils.FileHandler) *Identity {
 	// Path to config file.
 	path, err := fileHndl.CreatePathToConfig(config.APPNAME, config.CONFIG)
 	logger.CheckWithFatal(err, "error in creating path to config file")
@@ -36,32 +37,30 @@ func NewIdentity(logger logg.Logger, fileHndl utils.FileHandler) *Identity {
 	return tmp
 }
 
-func (i *Identity) Identification(userCLI *user.UserCLI) bool {
+func (i *Identity) Identification(user user.User) bool {
 	previosUser, err := i.takePreviosUser()
 	if err != nil {
 		return false
 	}
-
-	systemUserName, systemUserId := userCLI.TakeSystemInfoCurrentUser()
-
+	systemUserName, systemUserId := user.GetSystemInfo()
 	if previosUser.SystemUserName != systemUserName || previosUser.SystemUserId != systemUserId {
 		return false
 	}
+	// Save restored data in user.
+	user.SavePreviosUser(previosUser)
 
-	// Save restored data in userCLI.
-	userCLI.User = previosUser
 	return true
 }
 
 // PutCurrentUser need for save data about current user.
-func (i *Identity) SaveCurrentUser(user *user.UserCLI) {
+func (i *Identity) SaveCurrentUser(user user.User) {
 	file, err := i.FileHendler.TruncateFile(i.PathToConfig, 0755)
 	if err != nil {
 		i.Logger.RaiseError(err, "error in trancate config file", nil)
 		return
 	}
 
-	dataByte, err := i.FileHendler.Serialization(user.User)
+	dataByte, err := i.FileHendler.Serialization(user.GetModelUser())
 	if err != nil {
 		i.Logger.RaiseError(err, "error in serialization config file", nil)
 		return

@@ -1,51 +1,33 @@
 package cli
 
 import (
-	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
-// TODO! Это вынести в отдельный сервис. Пока так оставил
-type Checker interface {
-	CheckPassword(userPassword, password string) bool
-	CheckEmail(userEmail, email string) bool
+type Getter interface {
+	GetEnterIt(string) (string, error)
+	GetSomeThing(string) (string, error)
 }
 
-type GetterEmail interface {
-	GetEmailWithCheck(GetterFn, CheckerFn) GetterFn
-	GetEmail(*client.ClientCLI, *user.UserCLI) (string, error)
+type DataGetter interface {
+	GetDataAction(action string) string
+	GetDataRegister() (userName, email, phone, password string)
 }
 
-type GetterPassword interface {
-	GetPasswordWithCheck(GetterFn, CheckerFn) GetterFn
-	GetPassword(*client.ClientCLI, *user.UserCLI) (string, error)
+type Shower interface {
+	ShowIt(string)
+	ShowErr(error)
 }
 
-type GetterUserName interface {
-	GetUserName(*client.ClientCLI, *user.UserCLI) (string, error)
+type Verifer interface {
+	VerifyEnterPassword(needToTake, needToCompare string, quantity int) (string, error)
+	VerifyEnterIt(needToTake, needToCompare string, quantity int) (string, error)
+	VerifyDataAuth(user.User) (email, password string, err error)
 }
 
-type GetterCommand interface {
-	GetCommand(*client.ClientCLI, *user.UserCLI) (string, error)
-}
-
-type GetterPhone interface {
-	GetPhone(*client.ClientCLI, *user.UserCLI) (string, error)
-}
-
-type Dialoger interface {
-	GetterUserName
-	GetterPassword
-	GetterCommand
-	GetterPhone
-	GetterEmail
-	Checker
-
-	ShowStatusAuth(*client.ClientCLI, *user.UserCLI)
-	ShowRegister(*client.ClientCLI, *user.UserCLI)
-	ShowHello(*client.ClientCLI, *user.UserCLI)
-	ShowLogIn(*client.ClientCLI, *user.UserCLI)
-	ShowSomeInfo(*client.ClientCLI, string)
-
-	DialogsAbRegister(*client.ClientCLI, *user.UserCLI) (userName, email, phone, password string)
+type ShowGetter interface {
+	DataGetter
+	Verifer
+	Getter
+	Shower
 }

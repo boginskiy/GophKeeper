@@ -2,7 +2,6 @@ package user
 
 import (
 	"bufio"
-	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -19,29 +18,33 @@ const NAMECLI = "USER"
 type UserCLI struct {
 	Name    string
 	Scanner *bufio.Scanner
-	Logger  logg.Logger
+	Logg    logg.Logger
 	User    *model.User
 }
 
-func NewUserCLI(ctx context.Context, logger logg.Logger) *UserCLI {
+func NewUserCLI(logger logg.Logger) *UserCLI {
 	return &UserCLI{
 		Name:    NAMECLI,
-		Logger:  logger,
+		Logg:    logger,
 		Scanner: bufio.NewScanner(os.Stdin),
 	}
 }
 
-func (u *UserCLI) TakeSystemInfoCurrentUser() (username, uid string) {
+func (u *UserCLI) GetModelUser() *model.User {
+	return u.User
+}
+
+func (u *UserCLI) GetSystemInfo() (username, uid string) {
 	user, err := user.Current()
 	if err != nil {
-		u.Logger.RaiseError(err, "error taking extra user info", nil)
+		u.Logg.RaiseError(err, "error taking extra user info", nil)
 		return
 	}
 	return user.Username, user.Uid
 }
 
 func (u *UserCLI) ReceiveMess() (string, error) {
-	time.Sleep(300 * time.Millisecond)
+	time.Sleep(200 * time.Millisecond)
 	fmt.Fprintf(os.Stdout, "%s: ", u.Name)
 
 	if !u.Scanner.Scan() {
@@ -50,16 +53,19 @@ func (u *UserCLI) ReceiveMess() (string, error) {
 	return u.Scanner.Text(), nil
 }
 
-func (u *UserCLI) SaveLocalUser(user *model.User) {
-	// Save system info about new user
-	systemName, systemId := u.TakeSystemInfoCurrentUser()
-	// Hash password
-	hash, err := pkg.GenerateHash(user.Password)
-	u.Logger.CheckWithFatal(err, "error in hashing password")
+func (u *UserCLI) SaveLocalUser(localUser *model.User) {
+	systemName, systemId := u.GetSystemInfo()         // Save system info about new user
+	hash, err := pkg.GenerateHash(localUser.Password) // Hash password
 
-	user.SystemUserName = systemName
-	user.SystemUserId = systemId
-	user.Password = hash
+	u.Logg.CheckWithFatal(err, "error in hashing password")
 
-	u.User = user
+	localUser.SystemUserName = systemName
+	localUser.SystemUserId = systemId
+	localUser.Password = hash
+
+	u.User = localUser
+}
+
+func (u *UserCLI) SavePreviosUser(previosUser *model.User) {
+	u.User = previosUser
 }

@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/intercept"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"google.golang.org/grpc"
@@ -9,20 +10,27 @@ import (
 )
 
 type ClientGRPC struct {
-	Service rpc.KeeperServiceClient
-	Conn    *grpc.ClientConn
+	AuthService   rpc.AuthServiceClient
+	TexterService rpc.TexterServiceClient
+	ByterService  rpc.ByterServiceClient
+	Conn          *grpc.ClientConn
 }
 
-func NewClientGRPC(config config.Config, logger logg.Logger) *ClientGRPC {
+func NewClientGRPC(config config.Config, logger logg.Logger, intrcept intercept.ClientInterceptor) *ClientGRPC {
 	// Conn
 	conn, err := grpc.NewClient(
-		config.GetPortServerGRPC(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+		config.GetServerGrpc(),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(intrcept.SingleAuth),
+		grpc.WithChainStreamInterceptor(intrcept.StreamAuth))
 
 	logger.CheckWithFatal(err, "error created client gRPC")
 
 	return &ClientGRPC{
-		Service: rpc.NewKeeperServiceClient(conn),
-		Conn:    conn,
+		AuthService:   rpc.NewAuthServiceClient(conn),
+		TexterService: rpc.NewTexterServiceClient(conn),
+		ByterService:  rpc.NewByterServiceClient(conn),
+		Conn:          conn,
 	}
 }
 

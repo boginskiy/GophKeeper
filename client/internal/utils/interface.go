@@ -17,8 +17,35 @@ type Cleaner interface {
 	TruncateFile(configPath string, mod os.FileMode) (file *os.File, err error)
 }
 
+type Pather interface {
+	TakeDescrFromFile(string) (*os.File, error)
+	TransPathToAbs(string) (string, error)
+	TakeFileFromPath(string) string
+	DeleteFile(path string) error
+}
+
+type FileChecker interface {
+	CheckOfFile(string) bool
+}
+
 type FileHandler interface {
 	Serializater
+	FileChecker
 	Creater
 	Cleaner
+	Pather
+
+	CreateFileInStore(obj PathCreater) (file *os.File, path string, err error)
+	TakeSizeFile(*os.File) (int64, error)
+	GetTypeFile(fileName string) string
+}
+
+type Checker interface {
+	CheckTwoString(oneStr, twoStr string) bool
+	CheckPassword(userPassword, password string) bool
+}
+
+type PathCreater interface {
+	GetFileType() string
+	GetFileName() string
 }

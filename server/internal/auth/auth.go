@@ -6,26 +6,26 @@ import (
 	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
+	"github.com/boginskiy/GophKeeper/server/internal/manager"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
-	repo "github.com/boginskiy/GophKeeper/server/internal/repository"
+	repo "github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"github.com/boginskiy/GophKeeper/server/pkg"
-	"google.golang.org/grpc/metadata"
 )
 
 type Auth struct {
 	Cfg        config.Config
 	Logg       logg.Logger
 	JWTService JWTer
-	RepoUser   repo.RepositoryUser
+	Repo       repo.CreateReader[*model.User]
 }
 
 func NewAuth(
 	config config.Config,
 	logger logg.Logger,
 	jwtSrv JWTer,
-	repoUser repo.RepositoryUser) *Auth {
-	return &Auth{Cfg: config, Logg: logger, JWTService: jwtSrv, RepoUser: repoUser}
+	repo repo.CreateReader[*model.User]) *Auth {
+	return &Auth{Cfg: config, Logg: logger, JWTService: jwtSrv, Repo: repo}
 }
 
 func NewUser(name, email, password, phone string) (*model.User, error) {
@@ -44,7 +44,7 @@ func NewUser(name, email, password, phone string) (*model.User, error) {
 
 func (a *Auth) Authentication(ctx context.Context, req *rpc.AuthUserRequest) (token string, err error) {
 	// Check user in DB.
-	user, err := a.RepoUser.ReadRecord(req.Email)
+	user, err := a.Repo.ReadRecord(&model.User{Email: req.Email})
 	if err != nil {
 		// TODO!
 		// Пользователь по введенному email не найден в БД.
@@ -79,7 +79,7 @@ func (a *Auth) Registration(ctx context.Context, req *rpc.RegistUserRequest) (to
 	}
 
 	// Create new record with user.
-	_, err = a.RepoUser.CreateRecord(newUser)
+	_, err = a.Repo.CreateRecord(newUser)
 	if err != nil {
 		return "", err
 	}
@@ -105,7 +105,7 @@ func (a *Auth) Identification(ctx context.Context, req any) (*ExtraInfoToken, bo
 		return nil, true
 	}
 
-	token := a.takeDataFromCtx(ctx, "authorization")
+	token := manager.TakeDataFromCtx(ctx, "authorization")
 
 	// Try Authentication.
 	infoToken, err := a.JWTService.GetInfoAndValidJWT(token)
@@ -126,15 +126,4 @@ func (a *Auth) CheckPathToReg(ctx context.Context, req any) bool {
 func (a *Auth) CheckPathToAuth(ctx context.Context, req any) bool {
 	_, ok := req.(*rpc.AuthUserRequest)
 	return ok
-}
-
-func (a *Auth) takeDataFromCtx(ctx context.Context, data string) string {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		val := md.Get(data)
-		if len(val) > 0 {
-			return val[0]
-		}
-	}
-	return ""
 }

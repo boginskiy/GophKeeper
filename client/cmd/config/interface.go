@@ -1,8 +1,8 @@
 package config
 
 type Config interface {
-	GetWaitingTimeResponse() int
-	GetCountRetryRequest() int
-	GetPortServerGRPC() string
-	GetAttempts() int
+	GetReqRetries() int
+	GetServerGrpc() string
+	GetResTimeout() int
+	GetMaxRetries() int
 }

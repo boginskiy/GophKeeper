@@ -1,15 +1,13 @@
 package app
 
 import (
-	"bufio"
-	"context"
-	"os"
-
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
+	"github.com/boginskiy/GophKeeper/client/internal/comm"
+	"github.com/boginskiy/GophKeeper/client/internal/intercept"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
@@ -20,7 +18,6 @@ type App struct {
 	Name        string
 	Description string
 	Version     string
-	Scanner     *bufio.Scanner
 	Cfg         config.Config
 	Logg        logg.Logger
 }
@@ -32,42 +29,55 @@ func NewApp(conf config.Config, logg logg.Logger) *App {
 		Name:        config.APPNAME,
 		Description: config.DESC,
 		Version:     config.VERS,
-		Scanner:     bufio.NewScanner(os.Stdin),
 	}
-
 	return tmpApp
-
 }
 
-func (a *App) Run() {
-	// Contexts and channels.
-	ctx, cancel := context.WithCancel(context.Background())
-
+func (a *App) Init() {
 	// Logger.
 	remoteLogg := logg.NewLogg("remote.log", "INFO")
 
 	// Utils.
-	fileHandler := utils.NewWorkingFile()
+	fileHandler := utils.NewFileHdlr()
+	checker := utils.NewCheck()
 
-	// Clients && user
-	userCLI := user.NewUserCLI(ctx, a.Logg)
-	clientCLI := client.NewClientCLI(ctx)
+	// User.
+	userCLI := user.NewUserCLI(a.Logg)
 
-	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg)
-	clientAPI := api.NewClientAPI(a.Cfg, a.Logg, clientGRPC)
+	// Interceptor.
+	interceptor := intercept.NewClientIntercept(a.Cfg, a.Logg, userCLI)
 
-	// Services.
-	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg)
-	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientAPI)
+	// Clients.
+	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg, interceptor)
+	clientCLI := client.NewClientCLI(a.Logg)
+
+	// Infra Services.
+	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg, checker, clientCLI, userCLI)
+
+	// Remote Services.
+	remoteAuthSrv := api.NewRemoteAuthService(a.Cfg, remoteLogg, clientGRPC)
+	remoteTextSrv := api.NewRemoteTextService(a.Cfg, remoteLogg, clientGRPC)
+	remoteBytesSrv := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC)
+
+	// Business Services.
+	byterSrv := service.NewBytesService(a.Cfg, a.Logg, fileHandler, remoteBytesSrv)
+	texterSrv := service.NewTextService(a.Cfg, a.Logg, remoteTextSrv)
 
 	// Auth.
-	identity := auth.NewIdentity(a.Logg, fileHandler)
-	auther := auth.NewAuth(a.Cfg, a.Logg, fileHandler, identity, dialogSrv, remoteSrv)
+	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler)
+	authSrv := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuthSrv)
 
-	service.NewKeeperService(
-		a.Cfg, a.Logg, identity, dialogSrv, auther).Run(clientCLI, userCLI)
+	// Commonds.
+	commImage := comm.NewCommImage(dialogSrv)
+	commSound := comm.NewCommSound(dialogSrv)
+	commBytes := comm.NewCommBytes(dialogSrv, byterSrv)
+	commText := comm.NewCommText(dialogSrv, texterSrv)
+	root := comm.NewRoot(dialogSrv, commText, commBytes, commImage, commSound)
+
+	// Start.
+	NewRunner(
+		a.Cfg, a.Logg, identity, dialogSrv, authSrv, root).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()
 	defer a.Logg.Close()
-	defer cancel()
 }

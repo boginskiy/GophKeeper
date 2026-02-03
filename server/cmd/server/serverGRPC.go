@@ -16,26 +16,41 @@ type ServerGRPC struct {
 	Cfg    config.Config
 	Logg   logg.Logger
 	listen net.Listener
+	S      *grpc.Server
 }
 
-func NewServerGRPC(config config.Config, logger logg.Logger) *ServerGRPC {
+func NewServerGRPC(config config.Config, logger logg.Logger, intrcep intercept.ServInterceptor) *ServerGRPC {
 	// Port for server.
-	lst, err := net.Listen("tcp", config.GetPortServerGRPC())
+	lst, err := net.Listen("tcp", config.GetServerGrpc())
 	logger.CheckWithFatal(err, "server listener initialization error")
+
+	opts := []grpc.ServerOption{
+		grpc.UnaryInterceptor(intrcep.ServAuth),        // Обрабатываем single запросы
+		grpc.StreamInterceptor(intrcep.StreamServAuth), // Обрабатываем stream запросы
+	}
+
+	server := grpc.NewServer(opts...)
 
 	return &ServerGRPC{
 		Cfg:    config,
 		Logg:   logger,
 		listen: lst,
+		S:      server,
 	}
 }
 
-func (s *ServerGRPC) Run(handler rpc.KeeperServiceServer, interceptor intercept.Interceptor) {
-	// New server.
-	server := grpc.NewServer(grpc.UnaryInterceptor(interceptor.WithAuth))
-	// Registration handler.
-	rpc.RegisterKeeperServiceServer(server, handler)
-	// Run.
+func (s *ServerGRPC) Registration(
+	authSrv rpc.AuthServiceServer,
+	texterSrv rpc.TexterServiceServer,
+	byterSrv rpc.ByterServiceServer) {
+
+	// Registration services.
+	rpc.RegisterTexterServiceServer(s.S, texterSrv)
+	rpc.RegisterByterServiceServer(s.S, byterSrv)
+	rpc.RegisterAuthServiceServer(s.S, authSrv)
+}
+
+func (s *ServerGRPC) Run() {
 	fmt.Fprintf(os.Stdout, "Protocol:      %s\n", "gRPC")
-	s.Logg.CheckWithFatal(server.Serve(s.listen), "gRPC server has not started")
+	s.Logg.CheckWithFatal(s.S.Serve(s.listen), "gRPC server has not started")
 }

@@ -1,42 +1,36 @@
 package client
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/boginskiy/GophKeeper/client/internal/logg"
 )
 
 const NAME = "CLIENT"
 
 type ClientCLI struct {
+	Logg logg.Logger
 	Name string
 }
 
-func NewClientCLI(ctx context.Context) *ClientCLI {
+func NewClientCLI(logger logg.Logger) *ClientCLI {
 	return &ClientCLI{
 		Name: NAME,
+		Logg: logger,
 	}
 }
 
-func (c *ClientCLI) Reciver() (string, error) {
-	return "", nil
-}
-
-func (c *ClientCLI) Sender(text string) {
-	fmt.Fprintf(os.Stdout, "%s: %s\n\r", c.Name, text)
-	// c.OutMess <- text
-}
-
-func (c *ClientCLI) Pprint(text string) {
+func (c *ClientCLI) print(text string) {
 	for _, ch := range text {
 		fmt.Fprintf(os.Stdout, "%c", ch)
-		time.Sleep(20 * time.Millisecond)
+		time.Sleep(15 * time.Millisecond)
 	}
 }
 
 func (c *ClientCLI) SendMess(text ...string) {
 	for _, t := range text {
-		c.Pprint(fmt.Sprintf("%s: %s\n\r", c.Name, t))
+		c.print(fmt.Sprintf("%s: %s\n\r", c.Name, t))
 	}
 }
