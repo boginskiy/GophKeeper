@@ -69,3 +69,7 @@ func (t *BytesService) Read(user user.User, nameFile string) (any, error) {
 func (t *BytesService) ReadAll(user user.User, typeFile string) (any, error) {
 	return t.RemoteByter.ReadAll(user, model.Bytes{Type: typeFile})
 }
+
+func (t *BytesService) Delete(user user.User, nameFile string) (any, error) {
+	return t.RemoteByter.Delete(user, model.Bytes{Name: nameFile})
+}

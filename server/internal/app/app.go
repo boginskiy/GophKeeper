@@ -54,7 +54,7 @@ func (a *App) Run() {
 	// Handler
 	authHdlr := handler.NewAuthHandler(authSrv)
 	texterHdlr := handler.NewTexterHandler(texter)
-	byterHdlr := handler.NewByterHandler(byter, unloader)
+	byterHdlr := handler.NewByterHandler(fileHandler, byter, unloader)
 
 	// Start server
 	server := server.NewServerGRPC(a.Cfg, a.Logg, interceptor)

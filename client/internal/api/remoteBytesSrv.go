@@ -131,7 +131,7 @@ func (a *RemoteBytesService) unloadStream(stream rpc.ByterService_UnloadClient, 
 	return CNT, nil
 }
 
-func (a *RemoteBytesService) Read(user model.User, modBytes model.Bytes) (any, error) {
+func (a *RemoteBytesService) Read(user user.User, modBytes model.Bytes) (any, error) {
 	md := metadata.Pairs("file_name", modBytes.Name)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
@@ -140,7 +140,7 @@ func (a *RemoteBytesService) Read(user model.User, modBytes model.Bytes) (any, e
 	return a.ClientGRPC.ByterService.Read(ctx, &rpc.ReadBytesRequest{}, grpc.Header(&serverHeader))
 }
 
-func (a *RemoteBytesService) ReadAll(user model.User, modBytes model.Bytes) (any, error) {
+func (a *RemoteBytesService) ReadAll(user user.User, modBytes model.Bytes) (any, error) {
 	md := metadata.Pairs("file_type", modBytes.Type)
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
@@ -149,5 +149,11 @@ func (a *RemoteBytesService) ReadAll(user model.User, modBytes model.Bytes) (any
 	return a.ClientGRPC.ByterService.ReadAll(ctx, &rpc.ReadAllBytesRequest{}, grpc.Header(&serverHeader))
 }
 
-//   rpc Delete (DeleteBytesRequest) returns (DeleteBytesResponse);
-// Далее тестирование всего того что сделал!
+func (a *RemoteBytesService) Delete(user user.User, modBytes model.Bytes) (any, error) {
+	md := metadata.Pairs("file_name", modBytes.Name)
+	ctx := metadata.NewOutgoingContext(context.Background(), md)
+
+	var serverHeader metadata.MD
+
+	return a.ClientGRPC.ByterService.Delete(ctx, &rpc.DeleteBytesRequest{}, grpc.Header(&serverHeader))
+}

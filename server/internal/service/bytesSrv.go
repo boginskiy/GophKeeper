@@ -110,7 +110,6 @@ func (b *BytesService) Read(ctx context.Context, req any) (*model.Bytes, error) 
 	if err != nil {
 		return nil, err
 	}
-
 	owner, err := manager.TakeServerValueFromCtx(ctx, manager.EmailCtx)
 	if err != nil {
 		return nil, err
@@ -125,7 +124,6 @@ func (b *BytesService) ReadAll(ctx context.Context, req any) ([]*model.Bytes, er
 	if err != nil {
 		return nil, err
 	}
-
 	owner, err := manager.TakeServerValueFromCtx(ctx, manager.EmailCtx)
 	if err != nil {
 		return nil, err
@@ -135,5 +133,15 @@ func (b *BytesService) ReadAll(ctx context.Context, req any) ([]*model.Bytes, er
 }
 
 func (b *BytesService) Delete(ctx context.Context, req any) (*model.Bytes, error) {
-	return nil, nil
+	// Info from context.
+	fileName, err := manager.TakeClientValueFromCtx(ctx, "file_name", 0)
+	if err != nil {
+		return nil, err
+	}
+	owner, err := manager.TakeServerValueFromCtx(ctx, manager.EmailCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.Repo.DeleteRecord(&model.Bytes{Name: fileName, Owner: owner})
 }

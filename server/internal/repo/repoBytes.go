@@ -54,3 +54,17 @@ func (r *RepoBytes) ReadAllRecord(bytes *model.Bytes) ([]*model.Bytes, error) {
 	}
 	return res, nil
 }
+
+func (r *RepoBytes) DeleteRecord(text *model.Bytes) (*model.Bytes, error) {
+	for k, record := range r.Store {
+		if record.Owner == text.Owner && record.Name == text.Name {
+			delete(r.Store, k)
+			return record, nil
+		}
+	}
+	return nil, errs.ErrDataNotFound
+}
+
+func (r *RepoBytes) UpdateRecord(text *model.Bytes) (*model.Bytes, error) {
+	return nil, nil
+}

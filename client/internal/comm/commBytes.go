@@ -154,6 +154,18 @@ func (c *CommBytes) executeDelete(user user.User) {
 	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
 
 	// Call Service.
-	obj, err := c.Service.Unload(user, nameFile)
+	obj, err := c.Service.Delete(user, nameFile)
 
+	if err != nil {
+		c.DialogSrv.ShowErr(err)
+		return
+	}
+
+	res, ok := obj.(*rpc.DeleteBytesResponse)
+	if !ok {
+		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		return
+	}
+
+	c.DialogSrv.ShowIt(fmt.Sprintf("%s %s\n\r", res.Status, nameFile))
 }

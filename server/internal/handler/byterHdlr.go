@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"time"
 
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
 	"github.com/boginskiy/GophKeeper/server/internal/manager"
@@ -125,4 +126,20 @@ func (b *ByterHandler) ReadAll(ctx context.Context, req *rpc.ReadAllBytesRequest
 	return &rpc.ReadAllBytesResponse{
 		Status:         "read",
 		BytesResponses: bytesResponses}, nil
+}
+
+func (b *ByterHandler) Delete(ctx context.Context, req *rpc.DeleteBytesRequest) (*rpc.DeleteBytesResponse, error) {
+	_, err := b.BytesSrv.Delete(ctx, req)
+
+	if err == errs.ErrDataNotFound {
+		return nil, status.Errorf(codes.NotFound, "%s", err)
+	}
+
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	return &rpc.DeleteBytesResponse{
+		Status:    "deleted",
+		DeletedAt: utils.ConvertDtStr(time.Now())}, nil
 }

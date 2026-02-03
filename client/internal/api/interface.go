@@ -34,5 +34,6 @@ type RemoteTexter[T any] interface {
 type RemoteByter[T any] interface {
 	ReadAll[T]
 	Loader[T]
-	CRUD[T]
+	Read(user.User, T) (any, error)
+	Delete(user.User, T) (any, error)
 }
