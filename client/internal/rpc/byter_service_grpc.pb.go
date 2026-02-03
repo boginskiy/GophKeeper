@@ -19,8 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ByterService_Upload_FullMethodName = "/GophKeeper.server.proto.ByterService/Upload"
-	ByterService_Unload_FullMethodName = "/GophKeeper.server.proto.ByterService/Unload"
+	ByterService_Upload_FullMethodName  = "/GophKeeper.server.proto.ByterService/Upload"
+	ByterService_Unload_FullMethodName  = "/GophKeeper.server.proto.ByterService/Unload"
+	ByterService_ReadAll_FullMethodName = "/GophKeeper.server.proto.ByterService/ReadAll"
+	ByterService_Read_FullMethodName    = "/GophKeeper.server.proto.ByterService/Read"
+	ByterService_Delete_FullMethodName  = "/GophKeeper.server.proto.ByterService/Delete"
 )
 
 // ByterServiceClient is the client API for ByterService service.
@@ -29,6 +32,9 @@ const (
 type ByterServiceClient interface {
 	Upload(ctx context.Context, opts ...grpc.CallOption) (grpc.ClientStreamingClient[UploadBytesRequest, UploadBytesResponse], error)
 	Unload(ctx context.Context, in *UnloadBytesRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[UnloadBytesResponse], error)
+	ReadAll(ctx context.Context, in *ReadAllBytesRequest, opts ...grpc.CallOption) (*ReadAllBytesResponse, error)
+	Read(ctx context.Context, in *ReadBytesRequest, opts ...grpc.CallOption) (*ReadBytesResponse, error)
+	Delete(ctx context.Context, in *DeleteBytesRequest, opts ...grpc.CallOption) (*DeleteBytesResponse, error)
 }
 
 type byterServiceClient struct {
@@ -71,12 +77,45 @@ func (c *byterServiceClient) Unload(ctx context.Context, in *UnloadBytesRequest,
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ByterService_UnloadClient = grpc.ServerStreamingClient[UnloadBytesResponse]
 
+func (c *byterServiceClient) ReadAll(ctx context.Context, in *ReadAllBytesRequest, opts ...grpc.CallOption) (*ReadAllBytesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReadAllBytesResponse)
+	err := c.cc.Invoke(ctx, ByterService_ReadAll_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *byterServiceClient) Read(ctx context.Context, in *ReadBytesRequest, opts ...grpc.CallOption) (*ReadBytesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ReadBytesResponse)
+	err := c.cc.Invoke(ctx, ByterService_Read_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *byterServiceClient) Delete(ctx context.Context, in *DeleteBytesRequest, opts ...grpc.CallOption) (*DeleteBytesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteBytesResponse)
+	err := c.cc.Invoke(ctx, ByterService_Delete_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ByterServiceServer is the server API for ByterService service.
 // All implementations must embed UnimplementedByterServiceServer
 // for forward compatibility.
 type ByterServiceServer interface {
 	Upload(grpc.ClientStreamingServer[UploadBytesRequest, UploadBytesResponse]) error
 	Unload(*UnloadBytesRequest, grpc.ServerStreamingServer[UnloadBytesResponse]) error
+	ReadAll(context.Context, *ReadAllBytesRequest) (*ReadAllBytesResponse, error)
+	Read(context.Context, *ReadBytesRequest) (*ReadBytesResponse, error)
+	Delete(context.Context, *DeleteBytesRequest) (*DeleteBytesResponse, error)
 	mustEmbedUnimplementedByterServiceServer()
 }
 
@@ -92,6 +131,15 @@ func (UnimplementedByterServiceServer) Upload(grpc.ClientStreamingServer[UploadB
 }
 func (UnimplementedByterServiceServer) Unload(*UnloadBytesRequest, grpc.ServerStreamingServer[UnloadBytesResponse]) error {
 	return status.Error(codes.Unimplemented, "method Unload not implemented")
+}
+func (UnimplementedByterServiceServer) ReadAll(context.Context, *ReadAllBytesRequest) (*ReadAllBytesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ReadAll not implemented")
+}
+func (UnimplementedByterServiceServer) Read(context.Context, *ReadBytesRequest) (*ReadBytesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Read not implemented")
+}
+func (UnimplementedByterServiceServer) Delete(context.Context, *DeleteBytesRequest) (*DeleteBytesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Delete not implemented")
 }
 func (UnimplementedByterServiceServer) mustEmbedUnimplementedByterServiceServer() {}
 func (UnimplementedByterServiceServer) testEmbeddedByValue()                      {}
@@ -132,13 +180,80 @@ func _ByterService_Unload_Handler(srv interface{}, stream grpc.ServerStream) err
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type ByterService_UnloadServer = grpc.ServerStreamingServer[UnloadBytesResponse]
 
+func _ByterService_ReadAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadAllBytesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ByterServiceServer).ReadAll(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ByterService_ReadAll_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ByterServiceServer).ReadAll(ctx, req.(*ReadAllBytesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ByterService_Read_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ReadBytesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ByterServiceServer).Read(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ByterService_Read_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ByterServiceServer).Read(ctx, req.(*ReadBytesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ByterService_Delete_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteBytesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ByterServiceServer).Delete(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ByterService_Delete_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ByterServiceServer).Delete(ctx, req.(*DeleteBytesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ByterService_ServiceDesc is the grpc.ServiceDesc for ByterService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ByterService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "GophKeeper.server.proto.ByterService",
 	HandlerType: (*ByterServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ReadAll",
+			Handler:    _ByterService_ReadAll_Handler,
+		},
+		{
+			MethodName: "Read",
+			Handler:    _ByterService_Read_Handler,
+		},
+		{
+			MethodName: "Delete",
+			Handler:    _ByterService_Delete_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Upload",

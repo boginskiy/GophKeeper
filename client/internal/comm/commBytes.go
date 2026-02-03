@@ -2,24 +2,24 @@ package comm
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
+	"github.com/boginskiy/GophKeeper/client/internal/manager"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
-	"github.com/boginskiy/GophKeeper/client/internal/utils"
+	"google.golang.org/grpc/metadata"
 )
 
 type CommBytes struct {
 	DialogSrv cli.ShowGetter
-	Service   service.ServicerByter
+	Service   service.BytesServicer
 	Tp        string
 }
 
-func NewCommBytes(dialog cli.ShowGetter, srv service.ServicerByter) *CommBytes {
+func NewCommBytes(dialog cli.ShowGetter, srv service.BytesServicer) *CommBytes {
 	return &CommBytes{DialogSrv: dialog, Service: srv, Tp: "bytes"}
 }
 
@@ -41,11 +41,15 @@ authLoop:
 			c.executeUpload(user)
 		case "unload":
 			c.executeUnload(user)
+		case "read":
+			c.executeRead(user)
+		case "read-all":
+			c.executeReadAll(user)
+		case "delete":
+			c.executeDelete(user)
 
 		// case "update":
-		// 	c.Service.Update(client, user)
-		// case "delete":
-		// 	c.Service.Delete(client, user)
+		// 	c.executeUpdate(user)
 
 		default:
 			c.DialogSrv.ShowIt("Invalid command. Try again...")
@@ -63,7 +67,9 @@ func (c *CommBytes) executeUpload(user user.User) {
 		c.DialogSrv.ShowErr(err)
 		return
 	}
-
+	// TODO...
+	// Ну вот говно же полное, что ты не возвращаешь универсальные данные
+	// у каждого метода Service свой тип ответа.
 	res, ok := obj.(*rpc.UploadBytesResponse)
 	if !ok {
 		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
@@ -72,30 +78,82 @@ func (c *CommBytes) executeUpload(user user.User) {
 
 	c.DialogSrv.ShowIt(
 		fmt.Sprintf("%s %s  sent size: %s received: %s\n\r",
-			res.Status, res.UpdatedAt, res.SentFileSize, res.ReceivedFileSize))
+			res.Status, res.UpdatedAt, res.SentSize, res.ReceivedSize))
 }
 
 func (c *CommBytes) executeUnload(user user.User) {
 	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
 
 	// Call Service.
-	_, err := c.Service.Unload(user, nameFile)
+	obj, err := c.Service.Unload(user, nameFile)
 
 	if err != nil {
 		c.DialogSrv.ShowErr(err)
 		return
 	}
 
-	// Данные для Response надо взять из заголовков.
-	// Пока стоят заглушки.
+	serverHeader, ok := obj.(*metadata.MD)
+	if !ok {
+		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		return
+	}
 
-	// res, ok := obj.(*rpc.UnloadBytesResponse)
-	// if !ok {
-	// 	c.DialogSrv.ShowErr(errs.ErrTypeConversion)
-	// 	return
-	// }
+	c.DialogSrv.ShowIt(
+		fmt.Sprintf("%s %s  sent size: %s received: %s\n\r",
+			"unloaded",
+			manager.TakeValueFromHeader(*serverHeader, "updated_at", 0),
+			manager.TakeValueFromHeader(*serverHeader, "sent_size", 0),
+			manager.TakeValueFromHeader(*serverHeader, "received_size", 0)))
+}
 
-	// nameFile поменять на реально загруженный файл!
-	c.DialogSrv.ShowIt(fmt.Sprintf("%s: %s   last update: %s\n\r", nameFile, "999", utils.ConvertDtStr(time.Now())))
+func (c *CommBytes) executeRead(user user.User) {
+	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
+
+	// Call Service.
+	obj, err := c.Service.Read(user, nameFile)
+
+	if err != nil {
+		c.DialogSrv.ShowErr(err)
+		return
+	}
+
+	res, ok := obj.(*rpc.ReadBytesResponse)
+	if !ok {
+		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		return
+	}
+
+	c.DialogSrv.ShowIt(
+		fmt.Sprintf("%s %s  type: %s created: %s\n\r",
+			res.Status, nameFile, res.Type, res.CreatedAt))
+}
+
+func (c *CommBytes) executeReadAll(user user.User) {
+	// Call Service.
+	obj, err := c.Service.ReadAll(user, c.Tp)
+
+	if err != nil {
+		c.DialogSrv.ShowErr(err)
+		return
+	}
+
+	res, ok := obj.(*rpc.ReadAllBytesResponse)
+	if !ok {
+		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		return
+	}
+
+	for _, bytes := range res.BytesResponses {
+		c.DialogSrv.ShowIt(fmt.Sprintf("%s   total size: %s   last update: %s", bytes.Name, bytes.TotalSize, bytes.UpdatedAt))
+	}
+	fmt.Println()
+
+}
+
+func (c *CommBytes) executeDelete(user user.User) {
+	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
+
+	// Call Service.
+	obj, err := c.Service.Unload(user, nameFile)
 
 }

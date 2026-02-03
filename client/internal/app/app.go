@@ -1,8 +1,6 @@
 package app
 
 import (
-	"context"
-
 	"github.com/boginskiy/GophKeeper/client/cmd"
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
@@ -37,9 +35,6 @@ func NewApp(conf config.Config, logg logg.Logger) *App {
 }
 
 func (a *App) Init() {
-	// Contexts and channels.
-	ctx, cancel := context.WithCancel(context.Background())
-
 	// Logger.
 	remoteLogg := logg.NewLogg("remote.log", "INFO")
 
@@ -59,15 +54,19 @@ func (a *App) Init() {
 
 	// Infra Services.
 	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg, checker, clientCLI, userCLI)
-	remoteSrv := api.NewRemoteService(ctx, a.Cfg, remoteLogg, clientGRPC)
+
+	// Remote Services.
+	remoteAuthSrv := api.NewRemoteAuthService(a.Cfg, remoteLogg, clientGRPC)
+	remoteTextSrv := api.NewRemoteTextService(a.Cfg, remoteLogg, clientGRPC)
+	remoteBytesSrv := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC)
 
 	// Business Services.
-	byter := service.NewByterService(a.Cfg, a.Logg, fileHandler, remoteSrv)
-	texter := service.NewTexterService(a.Cfg, a.Logg, remoteSrv)
+	byter := service.NewBytesService(a.Cfg, a.Logg, fileHandler, remoteBytesSrv)
+	texter := service.NewTextService(a.Cfg, a.Logg, remoteTextSrv)
 
 	// Auth.
 	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler)
-	authSrv := auth.NewAuthService(a.Cfg, a.Logg, fileHandler, identity, remoteSrv)
+	authSrv := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuthSrv)
 
 	// Commonds.
 	commImage := comm.NewCommImage(dialogSrv)
@@ -82,5 +81,4 @@ func (a *App) Init() {
 
 	defer clientGRPC.Close()
 	defer a.Logg.Close()
-	defer cancel()
 }

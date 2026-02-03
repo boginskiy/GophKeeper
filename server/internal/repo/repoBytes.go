@@ -39,3 +39,18 @@ func (r *RepoBytes) ReadRecord(bytes *model.Bytes) (*model.Bytes, error) {
 	}
 	return nil, errs.ErrDataNotFound
 }
+
+func (r *RepoBytes) ReadAllRecord(bytes *model.Bytes) ([]*model.Bytes, error) {
+	res := make([]*model.Bytes, 0, 10)
+
+	for _, record := range r.Store {
+		if record.Owner == bytes.Owner && record.Type == bytes.Type {
+			res = append(res, record)
+		}
+	}
+
+	if len(res) == 0 {
+		return nil, errs.ErrDataNotFound
+	}
+	return res, nil
+}

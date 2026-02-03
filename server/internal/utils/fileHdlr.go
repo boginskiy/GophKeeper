@@ -113,3 +113,11 @@ func (f *FileHdlr) TakeSizeFile(file *os.File) (int64, error) {
 	}
 	return stats.Size(), nil
 }
+
+func (f *FileHdlr) GetTypeFile(fileName string) string {
+	res := strings.Split(fileName, ".")
+	if len(res) > 1 {
+		return res[len(res)-1]
+	}
+	return ""
+}

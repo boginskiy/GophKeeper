@@ -6,34 +6,27 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
-	"github.com/boginskiy/GophKeeper/client/internal/utils"
 )
 
 type AuthService struct {
-	Cfg         config.Config
-	Logg        logg.Logger
-	FileHendler utils.FileHandler
-	Identity    Identifier
-	// DialogSrv   cli.ShowGetter
-	ServiceAPI api.ServiceAPI
+	Cfg          config.Config
+	Logg         logg.Logger
+	Identity     Identifier
+	RemoteAuther api.RemoteAuther
 }
 
 func NewAuthService(
 	config config.Config,
 	logger logg.Logger,
-	fileHdlr utils.FileHandler,
 	identity Identifier,
-	// dialog cli.ShowGetter,
-	serviceAPI api.ServiceAPI,
+	remoteAuther api.RemoteAuther,
 ) *AuthService {
 
 	return &AuthService{
-		Cfg:         config,
-		Logg:        logger,
-		FileHendler: fileHdlr,
-		Identity:    identity,
-		// DialogSrv:   dialog,
-		ServiceAPI: serviceAPI,
+		Cfg:          config,
+		Logg:         logger,
+		Identity:     identity,
+		RemoteAuther: remoteAuther,
 	}
 }
 
@@ -42,7 +35,7 @@ func (a *AuthService) Identification(user user.User) bool {
 }
 
 func (a *AuthService) Registration(user user.User, modUser *model.User) (string, error) {
-	token, err := a.ServiceAPI.Registration(*modUser)
+	token, err := a.RemoteAuther.Registration(*modUser)
 
 	// Обработка ошибок
 	ok, info := ErrorHandler(err)
@@ -56,7 +49,7 @@ func (a *AuthService) Registration(user user.User, modUser *model.User) (string,
 }
 
 func (a *AuthService) Authentication(user user.User, modUser *model.User) (string, error) {
-	token, err := a.ServiceAPI.Authentication(*modUser)
+	token, err := a.RemoteAuther.Authentication(*modUser)
 
 	// Обработка ошибок
 	ok, info := ErrorHandler(err)

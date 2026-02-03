@@ -43,16 +43,18 @@ func (a *App) Run() {
 	fileManage := manager.NewFileManage(fileHandler)
 
 	// Services
-	texterSrv := service.NewTexterService(a.Cfg, a.Logg, repoText)
-	byterSrv := service.NewByterService(a.Cfg, a.Logg, repoBytes, fileHandler, fileManage)
+	unloader := service.NewUnloadService(a.Cfg, a.Logg, fileHandler, repoBytes)
+
+	texter := service.NewTextService(a.Cfg, a.Logg, repoText)
+	byter := service.NewBytesService(a.Cfg, a.Logg, repoBytes, fileHandler, fileManage)
 
 	// Interceptor
 	interceptor := intercept.NewServIntercept(a.Cfg, a.Logg, authSrv)
 
 	// Handler
 	authHdlr := handler.NewAuthHandler(authSrv)
-	texterHdlr := handler.NewTexterHandler(texterSrv)
-	byterHdlr := handler.NewByterHandler(byterSrv)
+	texterHdlr := handler.NewTexterHandler(texter)
+	byterHdlr := handler.NewByterHandler(byter, unloader)
 
 	// Start server
 	server := server.NewServerGRPC(a.Cfg, a.Logg, interceptor)

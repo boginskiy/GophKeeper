@@ -25,14 +25,17 @@ type Bytes struct {
 func (b *Bytes) InsertValuesFromCtx(ctx context.Context) error {
 	size, errSize := manager.TakeClientValueFromCtx(ctx, "total_size", 0)
 	name, errName := manager.TakeClientValueFromCtx(ctx, "file_name", 0)
+	tp, errTp := manager.TakeClientValueFromCtx(ctx, "file_type", 0)
 	owner, errOwner := manager.TakeServerValueFromCtx(ctx, manager.EmailCtx)
 
-	if errSize != nil || errName != nil || errOwner != nil {
-		return utils.DefinErr(errSize, errName, errOwner)
+	if errSize != nil || errName != nil || errOwner != nil || errTp != nil {
+		return utils.DefinErr(errSize, errName, errOwner, errTp)
 	}
+
 	b.SentSize = size
-	b.Name = name
 	b.Owner = owner
+	b.Name = name
+	b.Type = tp
 	return nil
 }
 

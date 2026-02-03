@@ -10,7 +10,7 @@ import (
 
 var TESTFILE = "/home/ali/dev/GophKeeper/client/tests/store/test.txt"
 
-func testByterSrv(t *testing.T, srv service.ServicerByter, user user.User) {
+func testByterSrv(t *testing.T, srv service.BytesServicer, user user.User) {
 
 	any, err := srv.Upload(user, TESTFILE)
 

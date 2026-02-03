@@ -15,7 +15,7 @@ service TexterService {
 message TextResponse {
   string name = 1;
   string text = 2;
-  string updatedAt = 3;
+  string updated_at = 3;
 }
 
 message CreateRequest {
@@ -28,7 +28,7 @@ message CreateRequest {
 
 message CreateResponse {
   string status = 1;
-  string updatedAt = 2;
+  string updated_at = 2;
 }
 
 message ReadRequest {
@@ -40,7 +40,7 @@ message ReadResponse {
   string status = 1;
   string name = 2;
   string text = 3;
-  string updatedAt = 4;
+  string updated_at = 4;
 }
 
 message ReadAllRequest {

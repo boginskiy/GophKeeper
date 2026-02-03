@@ -2,15 +2,24 @@ package service
 
 import "context"
 
-type Servicer interface {
-	Create(context.Context, any) (any, error)
-	Read(context.Context, any) (any, error)
-	ReadAll(context.Context, any) (any, error)
-	Update(context.Context, any) (any, error)
-	Delete(context.Context, any) (any, error)
+type TextServicer[T any] interface {
+	Create(context.Context, any) (T, error)
+	Read(context.Context, any) (T, error)
+	ReadAll(context.Context, any) ([]T, error)
+	Update(context.Context, any) (T, error)
+	Delete(context.Context, any) (T, error)
 }
 
-type ServicerByter interface {
-	Upload(any) (any, error)
-	Unload(any) (any, error)
+type BytesServicer[T any] interface {
+	Read(context.Context, any) (T, error)
+	ReadAll(context.Context, any) ([]T, error)
+	Delete(context.Context, any) (T, error)
+
+	// Убрать в другой сервис
+	Upload(any) (T, error)
+}
+
+type LoadServicer[ST, M any] interface {
+	Prepar(stream ST) (model M, err error)
+	Load(stream ST, model M) error
 }

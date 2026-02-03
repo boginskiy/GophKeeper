@@ -48,5 +48,6 @@ func NewBytesFromFile(fileHdlr utils.FileHandler, pathToFile string) (*Bytes, er
 		Name:     name,
 		Descr:    descr,
 		SentSize: strconv.FormatInt(size, 10),
+		Type:     "bytes",
 	}, nil
 }

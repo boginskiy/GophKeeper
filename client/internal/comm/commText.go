@@ -14,13 +14,13 @@ import (
 
 type CommText struct {
 	DialogSrv cli.ShowGetter
-	Service   service.Servicer[model.Text]
+	Service   service.TextServicer[model.Text]
 	Tp        string
 }
 
 func NewCommText(
 	dialog cli.ShowGetter,
-	srv service.Servicer[model.Text]) *CommText {
+	srv service.TextServicer[model.Text]) *CommText {
 
 	return &CommText{
 		DialogSrv: dialog,

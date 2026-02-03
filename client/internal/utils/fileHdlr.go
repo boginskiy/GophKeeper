@@ -152,3 +152,7 @@ func (m *FileHdlr) CreateFileInStore(obj PathCreater) (file *os.File, path strin
 	}
 	return file, path, err
 }
+
+func (m *FileHdlr) DeleteFile(path string) error {
+	return os.Remove(path)
+}

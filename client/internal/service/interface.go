@@ -4,7 +4,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
-type Servicer[T any] interface { // ServicerTexter
+type TextServicer[T any] interface {
 	Create(user.User, T) (any, error)
 	Read(user.User, T) (any, error)
 	ReadAll(user.User, T) (any, error)
@@ -12,7 +12,10 @@ type Servicer[T any] interface { // ServicerTexter
 	Delete(user.User, T) (any, error)
 }
 
-type ServicerByter interface {
+type BytesServicer interface {
 	Upload(user.User, string) (any, error)
 	Unload(user.User, string) (any, error)
+	Read(user.User, string) (any, error)
+	ReadAll(user.User, string) (any, error)
+	Delete(user.User, string) (any, error)
 }

@@ -40,6 +40,7 @@ type FileHandler interface {
 	Pather
 
 	TakeSizeFile(*os.File) (int64, error)
+	GetTypeFile(string) string
 }
 
 type Checker interface {

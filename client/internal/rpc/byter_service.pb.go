@@ -21,6 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Upload
 type UploadBytesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Content       []byte                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
@@ -66,13 +67,13 @@ func (x *UploadBytesRequest) GetContent() []byte {
 }
 
 type UploadBytesResponse struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Status           string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
-	UpdatedAt        string                 `protobuf:"bytes,2,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
-	SentFileSize     string                 `protobuf:"bytes,3,opt,name=sent_file_size,json=sentFileSize,proto3" json:"sent_file_size,omitempty"`
-	ReceivedFileSize string                 `protobuf:"bytes,4,opt,name=received_file_size,json=receivedFileSize,proto3" json:"received_file_size,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	UpdatedAt     string                 `protobuf:"bytes,2,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	SentSize      string                 `protobuf:"bytes,3,opt,name=sent_size,json=sentSize,proto3" json:"sent_size,omitempty"`
+	ReceivedSize  string                 `protobuf:"bytes,4,opt,name=received_size,json=receivedSize,proto3" json:"received_size,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *UploadBytesResponse) Reset() {
@@ -119,20 +120,21 @@ func (x *UploadBytesResponse) GetUpdatedAt() string {
 	return ""
 }
 
-func (x *UploadBytesResponse) GetSentFileSize() string {
+func (x *UploadBytesResponse) GetSentSize() string {
 	if x != nil {
-		return x.SentFileSize
+		return x.SentSize
 	}
 	return ""
 }
 
-func (x *UploadBytesResponse) GetReceivedFileSize() string {
+func (x *UploadBytesResponse) GetReceivedSize() string {
 	if x != nil {
-		return x.ReceivedFileSize
+		return x.ReceivedSize
 	}
 	return ""
 }
 
+// Unload
 type UnloadBytesRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -213,24 +215,384 @@ func (x *UnloadBytesResponse) GetContent() []byte {
 	return nil
 }
 
+// ReadAll
+type BytesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	TotalSize     string                 `protobuf:"bytes,2,opt,name=total_size,json=totalSize,proto3" json:"total_size,omitempty"`
+	UpdatedAt     string                 `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BytesResponse) Reset() {
+	*x = BytesResponse{}
+	mi := &file_server_proto_byter_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BytesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BytesResponse) ProtoMessage() {}
+
+func (x *BytesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_byter_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BytesResponse.ProtoReflect.Descriptor instead.
+func (*BytesResponse) Descriptor() ([]byte, []int) {
+	return file_server_proto_byter_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *BytesResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *BytesResponse) GetTotalSize() string {
+	if x != nil {
+		return x.TotalSize
+	}
+	return ""
+}
+
+func (x *BytesResponse) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+type ReadAllBytesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadAllBytesRequest) Reset() {
+	*x = ReadAllBytesRequest{}
+	mi := &file_server_proto_byter_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadAllBytesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadAllBytesRequest) ProtoMessage() {}
+
+func (x *ReadAllBytesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_byter_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadAllBytesRequest.ProtoReflect.Descriptor instead.
+func (*ReadAllBytesRequest) Descriptor() ([]byte, []int) {
+	return file_server_proto_byter_service_proto_rawDescGZIP(), []int{5}
+}
+
+type ReadAllBytesResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Status         string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	BytesResponses []*BytesResponse       `protobuf:"bytes,2,rep,name=bytesResponses,proto3" json:"bytesResponses,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *ReadAllBytesResponse) Reset() {
+	*x = ReadAllBytesResponse{}
+	mi := &file_server_proto_byter_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadAllBytesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadAllBytesResponse) ProtoMessage() {}
+
+func (x *ReadAllBytesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_byter_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadAllBytesResponse.ProtoReflect.Descriptor instead.
+func (*ReadAllBytesResponse) Descriptor() ([]byte, []int) {
+	return file_server_proto_byter_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ReadAllBytesResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ReadAllBytesResponse) GetBytesResponses() []*BytesResponse {
+	if x != nil {
+		return x.BytesResponses
+	}
+	return nil
+}
+
+// Read
+type ReadBytesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadBytesRequest) Reset() {
+	*x = ReadBytesRequest{}
+	mi := &file_server_proto_byter_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadBytesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadBytesRequest) ProtoMessage() {}
+
+func (x *ReadBytesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_byter_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadBytesRequest.ProtoReflect.Descriptor instead.
+func (*ReadBytesRequest) Descriptor() ([]byte, []int) {
+	return file_server_proto_byter_service_proto_rawDescGZIP(), []int{7}
+}
+
+type ReadBytesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReadBytesResponse) Reset() {
+	*x = ReadBytesResponse{}
+	mi := &file_server_proto_byter_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReadBytesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReadBytesResponse) ProtoMessage() {}
+
+func (x *ReadBytesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_byter_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReadBytesResponse.ProtoReflect.Descriptor instead.
+func (*ReadBytesResponse) Descriptor() ([]byte, []int) {
+	return file_server_proto_byter_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ReadBytesResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *ReadBytesResponse) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *ReadBytesResponse) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+// Delete
+type DeleteBytesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBytesRequest) Reset() {
+	*x = DeleteBytesRequest{}
+	mi := &file_server_proto_byter_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBytesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBytesRequest) ProtoMessage() {}
+
+func (x *DeleteBytesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_byter_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBytesRequest.ProtoReflect.Descriptor instead.
+func (*DeleteBytesRequest) Descriptor() ([]byte, []int) {
+	return file_server_proto_byter_service_proto_rawDescGZIP(), []int{9}
+}
+
+type DeleteBytesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+	DeletedAt     string                 `protobuf:"bytes,2,opt,name=deleted_at,json=deletedAt,proto3" json:"deleted_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteBytesResponse) Reset() {
+	*x = DeleteBytesResponse{}
+	mi := &file_server_proto_byter_service_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteBytesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteBytesResponse) ProtoMessage() {}
+
+func (x *DeleteBytesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_server_proto_byter_service_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteBytesResponse.ProtoReflect.Descriptor instead.
+func (*DeleteBytesResponse) Descriptor() ([]byte, []int) {
+	return file_server_proto_byter_service_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DeleteBytesResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *DeleteBytesResponse) GetDeletedAt() string {
+	if x != nil {
+		return x.DeletedAt
+	}
+	return ""
+}
+
 var File_server_proto_byter_service_proto protoreflect.FileDescriptor
 
 const file_server_proto_byter_service_proto_rawDesc = "" +
 	"\n" +
 	" server/proto/byter_service.proto\x12\x17GophKeeper.server.proto\".\n" +
 	"\x12UploadBytesRequest\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\fR\acontent\"\x9f\x01\n" +
+	"\acontent\x18\x01 \x01(\fR\acontent\"\x8e\x01\n" +
 	"\x13UploadBytesResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1c\n" +
-	"\tupdatedAt\x18\x02 \x01(\tR\tupdatedAt\x12$\n" +
-	"\x0esent_file_size\x18\x03 \x01(\tR\fsentFileSize\x12,\n" +
-	"\x12received_file_size\x18\x04 \x01(\tR\x10receivedFileSize\"\x14\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\x02 \x01(\tR\tupdatedAt\x12\x1b\n" +
+	"\tsent_size\x18\x03 \x01(\tR\bsentSize\x12#\n" +
+	"\rreceived_size\x18\x04 \x01(\tR\freceivedSize\"\x14\n" +
 	"\x12UnloadBytesRequest\"/\n" +
 	"\x13UnloadBytesResponse\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\fR\acontent2\xdc\x01\n" +
+	"\acontent\x18\x01 \x01(\fR\acontent\"a\n" +
+	"\rBytesResponse\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
+	"\n" +
+	"total_size\x18\x02 \x01(\tR\ttotalSize\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\x03 \x01(\tR\tupdatedAt\"\x15\n" +
+	"\x13ReadAllBytesRequest\"~\n" +
+	"\x14ReadAllBytesResponse\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x12N\n" +
+	"\x0ebytesResponses\x18\x02 \x03(\v2&.GophKeeper.server.proto.BytesResponseR\x0ebytesResponses\"\x12\n" +
+	"\x10ReadBytesRequest\"^\n" +
+	"\x11ReadBytesResponse\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x12\x12\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x03 \x01(\tR\tcreatedAt\"\x14\n" +
+	"\x12DeleteBytesRequest\"L\n" +
+	"\x13DeleteBytesResponse\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1d\n" +
+	"\n" +
+	"deleted_at\x18\x02 \x01(\tR\tdeletedAt2\x88\x04\n" +
 	"\fByterService\x12e\n" +
 	"\x06Upload\x12+.GophKeeper.server.proto.UploadBytesRequest\x1a,.GophKeeper.server.proto.UploadBytesResponse(\x01\x12e\n" +
-	"\x06Unload\x12+.GophKeeper.server.proto.UnloadBytesRequest\x1a,.GophKeeper.server.proto.UnloadBytesResponse0\x01B5Z3github.com/boginskiy/GophKeeper/server/internal/rpcb\x06proto3"
+	"\x06Unload\x12+.GophKeeper.server.proto.UnloadBytesRequest\x1a,.GophKeeper.server.proto.UnloadBytesResponse0\x01\x12f\n" +
+	"\aReadAll\x12,.GophKeeper.server.proto.ReadAllBytesRequest\x1a-.GophKeeper.server.proto.ReadAllBytesResponse\x12]\n" +
+	"\x04Read\x12).GophKeeper.server.proto.ReadBytesRequest\x1a*.GophKeeper.server.proto.ReadBytesResponse\x12c\n" +
+	"\x06Delete\x12+.GophKeeper.server.proto.DeleteBytesRequest\x1a,.GophKeeper.server.proto.DeleteBytesResponseB5Z3github.com/boginskiy/GophKeeper/server/internal/rpcb\x06proto3"
 
 var (
 	file_server_proto_byter_service_proto_rawDescOnce sync.Once
@@ -244,23 +606,37 @@ func file_server_proto_byter_service_proto_rawDescGZIP() []byte {
 	return file_server_proto_byter_service_proto_rawDescData
 }
 
-var file_server_proto_byter_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_server_proto_byter_service_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_server_proto_byter_service_proto_goTypes = []any{
-	(*UploadBytesRequest)(nil),  // 0: GophKeeper.server.proto.UploadBytesRequest
-	(*UploadBytesResponse)(nil), // 1: GophKeeper.server.proto.UploadBytesResponse
-	(*UnloadBytesRequest)(nil),  // 2: GophKeeper.server.proto.UnloadBytesRequest
-	(*UnloadBytesResponse)(nil), // 3: GophKeeper.server.proto.UnloadBytesResponse
+	(*UploadBytesRequest)(nil),   // 0: GophKeeper.server.proto.UploadBytesRequest
+	(*UploadBytesResponse)(nil),  // 1: GophKeeper.server.proto.UploadBytesResponse
+	(*UnloadBytesRequest)(nil),   // 2: GophKeeper.server.proto.UnloadBytesRequest
+	(*UnloadBytesResponse)(nil),  // 3: GophKeeper.server.proto.UnloadBytesResponse
+	(*BytesResponse)(nil),        // 4: GophKeeper.server.proto.BytesResponse
+	(*ReadAllBytesRequest)(nil),  // 5: GophKeeper.server.proto.ReadAllBytesRequest
+	(*ReadAllBytesResponse)(nil), // 6: GophKeeper.server.proto.ReadAllBytesResponse
+	(*ReadBytesRequest)(nil),     // 7: GophKeeper.server.proto.ReadBytesRequest
+	(*ReadBytesResponse)(nil),    // 8: GophKeeper.server.proto.ReadBytesResponse
+	(*DeleteBytesRequest)(nil),   // 9: GophKeeper.server.proto.DeleteBytesRequest
+	(*DeleteBytesResponse)(nil),  // 10: GophKeeper.server.proto.DeleteBytesResponse
 }
 var file_server_proto_byter_service_proto_depIdxs = []int32{
-	0, // 0: GophKeeper.server.proto.ByterService.Upload:input_type -> GophKeeper.server.proto.UploadBytesRequest
-	2, // 1: GophKeeper.server.proto.ByterService.Unload:input_type -> GophKeeper.server.proto.UnloadBytesRequest
-	1, // 2: GophKeeper.server.proto.ByterService.Upload:output_type -> GophKeeper.server.proto.UploadBytesResponse
-	3, // 3: GophKeeper.server.proto.ByterService.Unload:output_type -> GophKeeper.server.proto.UnloadBytesResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	4,  // 0: GophKeeper.server.proto.ReadAllBytesResponse.bytesResponses:type_name -> GophKeeper.server.proto.BytesResponse
+	0,  // 1: GophKeeper.server.proto.ByterService.Upload:input_type -> GophKeeper.server.proto.UploadBytesRequest
+	2,  // 2: GophKeeper.server.proto.ByterService.Unload:input_type -> GophKeeper.server.proto.UnloadBytesRequest
+	5,  // 3: GophKeeper.server.proto.ByterService.ReadAll:input_type -> GophKeeper.server.proto.ReadAllBytesRequest
+	7,  // 4: GophKeeper.server.proto.ByterService.Read:input_type -> GophKeeper.server.proto.ReadBytesRequest
+	9,  // 5: GophKeeper.server.proto.ByterService.Delete:input_type -> GophKeeper.server.proto.DeleteBytesRequest
+	1,  // 6: GophKeeper.server.proto.ByterService.Upload:output_type -> GophKeeper.server.proto.UploadBytesResponse
+	3,  // 7: GophKeeper.server.proto.ByterService.Unload:output_type -> GophKeeper.server.proto.UnloadBytesResponse
+	6,  // 8: GophKeeper.server.proto.ByterService.ReadAll:output_type -> GophKeeper.server.proto.ReadAllBytesResponse
+	8,  // 9: GophKeeper.server.proto.ByterService.Read:output_type -> GophKeeper.server.proto.ReadBytesResponse
+	10, // 10: GophKeeper.server.proto.ByterService.Delete:output_type -> GophKeeper.server.proto.DeleteBytesResponse
+	6,  // [6:11] is the sub-list for method output_type
+	1,  // [1:6] is the sub-list for method input_type
+	1,  // [1:1] is the sub-list for extension type_name
+	1,  // [1:1] is the sub-list for extension extendee
+	0,  // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_server_proto_byter_service_proto_init() }
@@ -274,7 +650,7 @@ func file_server_proto_byter_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_server_proto_byter_service_proto_rawDesc), len(file_server_proto_byter_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

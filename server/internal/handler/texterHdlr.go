@@ -14,15 +14,15 @@ import (
 
 type TexterHandler struct {
 	rpc.UnimplementedTexterServiceServer
-	Service service.Servicer
+	Service service.TextServicer[*model.Text]
 }
 
-func NewTexterHandler(srv service.Servicer) *TexterHandler {
+func NewTexterHandler(srv service.TextServicer[*model.Text]) *TexterHandler {
 	return &TexterHandler{Service: srv}
 }
 
 func (k *TexterHandler) Create(ctx context.Context, req *rpc.CreateRequest) (*rpc.CreateResponse, error) {
-	obj, err := k.Service.Create(ctx, req)
+	modText, err := k.Service.Create(ctx, req)
 
 	// Тут надо сделать проверку на уникальность типа записи.
 	if err == errs.ErrEmailNotUnique {
@@ -34,19 +34,13 @@ func (k *TexterHandler) Create(ctx context.Context, req *rpc.CreateRequest) (*rp
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
 
-	// Conversion.
-	text, ok := obj.(*model.Text)
-	if !ok {
-		return nil, status.Errorf(codes.Internal, "%s", errs.ErrTypeConversion)
-	}
-
 	return &rpc.CreateResponse{
 		Status:    "created",
-		UpdatedAt: utils.ConvertDtStr(text.UpdatedAt)}, nil
+		UpdatedAt: utils.ConvertDtStr(modText.UpdatedAt)}, nil
 }
 
 func (k *TexterHandler) Read(ctx context.Context, req *rpc.ReadRequest) (*rpc.ReadResponse, error) {
-	obj, err := k.Service.Read(ctx, req)
+	modText, err := k.Service.Read(ctx, req)
 
 	// Данные не найдены.
 	if err == errs.ErrDataNotFound {
@@ -58,21 +52,15 @@ func (k *TexterHandler) Read(ctx context.Context, req *rpc.ReadRequest) (*rpc.Re
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
 
-	// Conversion.
-	text, ok := obj.(*model.Text)
-	if !ok {
-		return nil, status.Errorf(codes.Internal, "%s", errs.ErrTypeConversion)
-	}
-
 	return &rpc.ReadResponse{
 		Status:    "read",
-		Name:      text.Name,
-		Text:      text.Tx,
-		UpdatedAt: utils.ConvertDtStr(text.UpdatedAt)}, nil
+		Name:      modText.Name,
+		Text:      modText.Tx,
+		UpdatedAt: utils.ConvertDtStr(modText.UpdatedAt)}, nil
 }
 
 func (k *TexterHandler) ReadAll(ctx context.Context, req *rpc.ReadAllRequest) (*rpc.ReadAllResponse, error) {
-	objs, err := k.Service.ReadAll(ctx, req)
+	modTexts, err := k.Service.ReadAll(ctx, req)
 
 	if err == errs.ErrDataNotFound {
 		return nil, status.Errorf(codes.NotFound, "%s", err)
@@ -82,13 +70,8 @@ func (k *TexterHandler) ReadAll(ctx context.Context, req *rpc.ReadAllRequest) (*
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
 
-	texts, ok := objs.([]*model.Text)
-	if !ok {
-		return nil, status.Errorf(codes.Internal, "%s", errs.ErrTypeConversion)
-	}
-
-	textResponses := make([]*rpc.TextResponse, len(texts))
-	for i, text := range texts {
+	textResponses := make([]*rpc.TextResponse, len(modTexts))
+	for i, text := range modTexts {
 		textResponses[i] = &rpc.TextResponse{
 			Name:      text.Name,
 			Text:      text.Tx,
@@ -102,7 +85,7 @@ func (k *TexterHandler) ReadAll(ctx context.Context, req *rpc.ReadAllRequest) (*
 }
 
 func (k *TexterHandler) Update(ctx context.Context, req *rpc.CreateRequest) (*rpc.CreateResponse, error) {
-	obj, err := k.Service.Update(ctx, req)
+	modText, err := k.Service.Update(ctx, req)
 
 	if err == errs.ErrDataNotFound {
 		return nil, status.Errorf(codes.NotFound, "%s", err)
@@ -110,20 +93,15 @@ func (k *TexterHandler) Update(ctx context.Context, req *rpc.CreateRequest) (*rp
 
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "%s", err)
-	}
-
-	text, ok := obj.(*model.Text)
-	if !ok {
-		return nil, status.Errorf(codes.Internal, "%s", errs.ErrTypeConversion)
 	}
 
 	return &rpc.CreateResponse{
 		Status:    "update",
-		UpdatedAt: utils.ConvertDtStr(text.UpdatedAt)}, nil
+		UpdatedAt: utils.ConvertDtStr(modText.UpdatedAt)}, nil
 }
 
 func (k *TexterHandler) Delete(ctx context.Context, req *rpc.DeleteRequest) (*rpc.DeleteResponse, error) {
-	obj, err := k.Service.Delete(ctx, req)
+	modText, err := k.Service.Delete(ctx, req)
 
 	if err == errs.ErrDataNotFound {
 		return nil, status.Errorf(codes.NotFound, "%s", err)
@@ -133,10 +111,5 @@ func (k *TexterHandler) Delete(ctx context.Context, req *rpc.DeleteRequest) (*rp
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
 
-	text, ok := obj.(*model.Text)
-	if !ok {
-		return nil, status.Errorf(codes.Internal, "%s", errs.ErrTypeConversion)
-	}
-
-	return &rpc.DeleteResponse{Status: "delete", Name: text.Name}, nil
+	return &rpc.DeleteResponse{Status: "delete", Name: modText.Name}, nil
 }

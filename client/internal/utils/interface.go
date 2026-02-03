@@ -21,6 +21,7 @@ type Pather interface {
 	TakeDescrFromFile(string) (*os.File, error)
 	TransPathToAbs(string) (string, error)
 	TakeFileFromPath(string) string
+	DeleteFile(path string) error
 }
 
 type FileChecker interface {
