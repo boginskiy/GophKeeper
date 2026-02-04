@@ -68,15 +68,10 @@ func (a *App) Init() {
 	authSrv := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuthSrv)
 
 	// Commonds.
-	commVideo := comm.NewCommVideo(checker, dialogSrv, byterSrv)
-	commSound := comm.NewCommSound(checker, dialogSrv, byterSrv)
-	commBytes := comm.NewCommBytes(dialogSrv, byterSrv)
-
-	// Bytes, Sound, Video
-	commMedia := comm.NewCommMedia(checker, dialogSrv, byterSrv)
-
+	commMedia := comm.NewCommMedia(checker, dialogSrv, byterSrv) // Bytes, Sound, Video, Image
 	commText := comm.NewCommText(dialogSrv, texterSrv)
-	root := comm.NewRoot(dialogSrv, commText, commBytes, commVideo, commSound, commMedia)
+
+	root := comm.NewRoot(dialogSrv, commText, commMedia)
 
 	// Start.
 	NewRunner(

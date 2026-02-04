@@ -13,29 +13,18 @@ import (
 type Root struct {
 	DialogSrv infra.ShowGetter
 	CommText  Commander
-	CommBytes Commander
-	CommVideo Commander
-	CommSound Commander
-
-	// TODO
 	CommMedia Commander
 }
 
 func NewRoot(
 	dialog infra.ShowGetter,
 	commtext Commander,
-	commbytes Commander,
-	commvideo Commander,
-	commsound Commander,
 	commmedia Commander,
 ) *Root {
 
 	return &Root{
 		DialogSrv: dialog,
 		CommText:  commtext,
-		CommBytes: commbytes,
-		CommVideo: commvideo,
-		CommSound: commsound,
 		CommMedia: commmedia,
 	}
 }
@@ -55,21 +44,14 @@ authLoop:
 			break authLoop
 
 		case "bytes":
-			// r.CommBytes.Registration(user, "bytes")
 			r.CommMedia.Registration(user, "bytes")
-
 		case "text":
 			r.CommText.Registration(user, "text")
-
 		case "image":
 			r.CommMedia.Registration(user, "image")
-
 		case "sound":
-			// r.CommSound.Registration(user, "sound")
 			r.CommMedia.Registration(user, "sound")
-
 		case "video":
-			// r.CommVideo.Registration(user, "video")
 			r.CommMedia.Registration(user, "video")
 
 		default:
