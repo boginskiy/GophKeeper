@@ -3,8 +3,6 @@ package comm
 import (
 	"fmt"
 
-	"github.com/boginskiy/GophKeeper/client/cmd/client"
-	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
@@ -16,16 +14,16 @@ import (
 
 type CommSound struct {
 	Checker   infra.Checker
-	DialogSrv cli.ShowGetter
+	DialogSrv infra.ShowGetter
 	Service   service.BytesServicer
 	Tp        string
 }
 
-func NewCommSound(checker infra.Checker, dialog cli.ShowGetter, srv service.BytesServicer) *CommSound {
+func NewCommSound(checker infra.Checker, dialog infra.ShowGetter, srv service.BytesServicer) *CommSound {
 	return &CommSound{Checker: checker, DialogSrv: dialog, Service: srv, Tp: "sound"}
 }
 
-func (c *CommSound) Registration(client *client.ClientCLI, user *user.UserCLI) {
+func (c *CommSound) Registration(user user.User, dataType string) {
 authLoop:
 	for {
 		// Get command.

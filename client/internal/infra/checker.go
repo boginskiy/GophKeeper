@@ -6,7 +6,10 @@ import (
 )
 
 var (
+	IMAGE = map[string]struct{}{"jpg": {}, "jpeg": {}, "png": {}, "gif": {}, "bmp": {}, "webp": {}, "svg": {}, "tif": {}, "tiff": {}, "raw": {}, "ico": {}, "psd": {}}
+	VIDEO = map[string]struct{}{"mp4": {}, "avi": {}, "mov": {}, "wmv": {}, "mkv": {}, "webm": {}, "flv": {}}
 	SOUND = map[string]struct{}{"mp3": {}, "wav": {}, "flac": {}, "ogg": {}}
+	BYTES = map[string]struct{}{}
 )
 
 type Check struct {
@@ -25,9 +28,9 @@ func (d *Check) CheckPassword(userPassword, password string) bool {
 	return pkg.CompareHashAndPassword(userPassword, password)
 }
 
-func (d *Check) checkTypeOfSound(fileName string) bool {
+func (d *Check) checkTypeOfMedia(fileName string, listMedia map[string]struct{}) bool {
 	typeFile := d.FileHandler.GetTypeFile(fileName)
-	if _, ok := SOUND[typeFile]; ok {
+	if _, ok := listMedia[typeFile]; ok {
 		return ok
 	}
 	return false
@@ -37,7 +40,14 @@ func (d *Check) CheckTypeFile(filePath, typ string) bool {
 	fileName := d.FileHandler.TakeFileFromPath(filePath)
 	switch typ {
 	case "sound":
-		return d.checkTypeOfSound(fileName)
+		return d.checkTypeOfMedia(fileName, SOUND)
+	case "video":
+		return d.checkTypeOfMedia(fileName, VIDEO)
+	case "image":
+		return d.checkTypeOfMedia(fileName, IMAGE)
+	case "bytes":
+		return true
+		// return d.checkTypeOfMedia(fileName, BYTES)
 	}
 	return false
 }

@@ -4,8 +4,8 @@ import (
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
-	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/comm"
+	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
@@ -14,7 +14,7 @@ type Runner struct {
 	Cfg        config.Config
 	Logg       logg.Logger
 	Identifier auth.Identifier
-	DialogSrv  cli.ShowGetter
+	DialogSrv  infra.ShowGetter
 	AuthSrv    auth.Auth
 	Root       comm.Rooter
 }
@@ -23,7 +23,7 @@ func NewRunner(
 	cfg config.Config,
 	logger logg.Logger,
 	identity auth.Identifier,
-	dialog cli.ShowGetter,
+	dialog infra.ShowGetter,
 	authSrv auth.Auth,
 	root comm.Rooter) *Runner {
 

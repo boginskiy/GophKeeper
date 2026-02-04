@@ -5,25 +5,29 @@ import (
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
-	"github.com/boginskiy/GophKeeper/client/internal/cli"
+	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
 type Root struct {
-	DialogSrv cli.ShowGetter
+	DialogSrv infra.ShowGetter
 	CommText  Commander
 	CommBytes Commander
 	CommVideo Commander
 	CommSound Commander
+
+	// TODO
+	CommMedia Commander
 }
 
 func NewRoot(
-	dialog cli.ShowGetter,
+	dialog infra.ShowGetter,
 	commtext Commander,
 	commbytes Commander,
 	commvideo Commander,
 	commsound Commander,
+	commmedia Commander,
 ) *Root {
 
 	return &Root{
@@ -32,6 +36,7 @@ func NewRoot(
 		CommBytes: commbytes,
 		CommVideo: commvideo,
 		CommSound: commsound,
+		CommMedia: commmedia,
 	}
 }
 
@@ -42,21 +47,30 @@ authLoop:
 		comm, _ := r.DialogSrv.GetSomeThing(
 
 			fmt.Sprintf("%s\n\r%s",
-				"Enter the data type you want to work with: \n\r\t text \n\r\t bytes \n\r\t image \n\r\t sound",
+				"Enter the data type you want to work with: \n\r\t bytes \n\r\t text \n\r\t image  \n\r\t sound \n\r\t video",
 				"go out: exit, need help: help"))
 
 		switch comm {
 		case "exit", "help":
 			break authLoop
 
-		case "text":
-			r.CommText.Registration(client, user)
 		case "bytes":
-			r.CommBytes.Registration(client, user)
-		case "video":
-			r.CommVideo.Registration(client, user)
+			// r.CommBytes.Registration(user, "bytes")
+			r.CommMedia.Registration(user, "bytes")
+
+		case "text":
+			r.CommText.Registration(user, "text")
+
+		case "image":
+			r.CommMedia.Registration(user, "image")
+
 		case "sound":
-			r.CommSound.Registration(client, user)
+			// r.CommSound.Registration(user, "sound")
+			r.CommMedia.Registration(user, "sound")
+
+		case "video":
+			// r.CommVideo.Registration(user, "video")
+			r.CommMedia.Registration(user, "video")
 
 		default:
 			r.DialogSrv.ShowIt("Invalid command. Try again...")

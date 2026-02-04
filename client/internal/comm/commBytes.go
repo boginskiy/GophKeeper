@@ -3,8 +3,6 @@ package comm
 import (
 	"fmt"
 
-	"github.com/boginskiy/GophKeeper/client/cmd/client"
-	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
 	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
@@ -14,16 +12,15 @@ import (
 )
 
 type CommBytes struct {
-	DialogSrv cli.ShowGetter
+	DialogSrv infra.ShowGetter
 	Service   service.BytesServicer
-	Tp        string
 }
 
-func NewCommBytes(dialog cli.ShowGetter, srv service.BytesServicer) *CommBytes {
-	return &CommBytes{DialogSrv: dialog, Service: srv, Tp: "bytes"}
+func NewCommBytes(dialog infra.ShowGetter, srv service.BytesServicer) *CommBytes {
+	return &CommBytes{DialogSrv: dialog, Service: srv}
 }
 
-func (c *CommBytes) Registration(client *client.ClientCLI, user *user.UserCLI) {
+func (c *CommBytes) Registration(user user.User, dataType string) {
 authLoop:
 	for {
 		// Get command.
@@ -38,15 +35,15 @@ authLoop:
 			break authLoop
 
 		case "upload":
-			c.executeUpload(user)
+			c.executeUpload(user, dataType)
 		case "unload":
-			c.executeUnload(user)
+			c.executeUnload(user, dataType)
 		case "read":
-			c.executeRead(user)
+			c.executeRead(user, dataType)
 		case "read-all":
-			c.executeReadAll(user)
+			c.executeReadAll(user, dataType)
 		case "delete":
-			c.executeDelete(user)
+			c.executeDelete(user, dataType)
 
 		// case "update":
 		// 	c.executeUpdate(user)
@@ -57,11 +54,11 @@ authLoop:
 	}
 }
 
-func (c *CommBytes) executeUpload(user user.User) {
+func (c *CommBytes) executeUpload(user user.User, dataType string) {
 	pathToFile, _ := c.DialogSrv.GetSomeThing("Enter the abs path to file...")
 
 	// Call Service.
-	obj, err := c.Service.Upload(user, pathToFile, c.Tp)
+	obj, err := c.Service.Upload(user, pathToFile, dataType)
 
 	if err != nil {
 		c.DialogSrv.ShowErr(err)
@@ -81,7 +78,7 @@ func (c *CommBytes) executeUpload(user user.User) {
 			res.Status, res.UpdatedAt, res.SentSize, res.ReceivedSize))
 }
 
-func (c *CommBytes) executeUnload(user user.User) {
+func (c *CommBytes) executeUnload(user user.User, dataType string) {
 	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
 
 	// Call Service.
@@ -106,7 +103,7 @@ func (c *CommBytes) executeUnload(user user.User) {
 			infra.TakeValueFromHeader(*serverHeader, "received_size", 0)))
 }
 
-func (c *CommBytes) executeRead(user user.User) {
+func (c *CommBytes) executeRead(user user.User, dataType string) {
 	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
 
 	// Call Service.
@@ -128,9 +125,9 @@ func (c *CommBytes) executeRead(user user.User) {
 			nameFile, res.Type, res.CreatedAt))
 }
 
-func (c *CommBytes) executeReadAll(user user.User) {
+func (c *CommBytes) executeReadAll(user user.User, dataType string) {
 	// Call Service.
-	obj, err := c.Service.ReadAll(user, c.Tp)
+	obj, err := c.Service.ReadAll(user, dataType)
 
 	if err != nil {
 		c.DialogSrv.ShowErr(err)
@@ -150,7 +147,7 @@ func (c *CommBytes) executeReadAll(user user.User) {
 
 }
 
-func (c *CommBytes) executeDelete(user user.User) {
+func (c *CommBytes) executeDelete(user user.User, dataType string) {
 	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
 
 	// Call Service.

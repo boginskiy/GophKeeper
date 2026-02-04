@@ -12,5 +12,5 @@ type Rooter interface {
 }
 
 type Commander interface {
-	Registration(*client.ClientCLI, *user.UserCLI)
+	Registration(user.User, string)
 }
