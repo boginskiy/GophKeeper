@@ -1,0 +1,44 @@
+package tests
+
+import (
+	"context"
+
+	"github.com/boginskiy/GophKeeper/client/cmd/client"
+	"github.com/boginskiy/GophKeeper/client/cmd/config"
+	"github.com/boginskiy/GophKeeper/client/internal/api"
+	"github.com/boginskiy/GophKeeper/client/internal/auth"
+	"github.com/boginskiy/GophKeeper/client/internal/logg"
+	"github.com/boginskiy/GophKeeper/client/internal/model"
+	"github.com/boginskiy/GophKeeper/client/internal/user"
+	"github.com/boginskiy/GophKeeper/client/internal/utils"
+)
+
+var (
+	logger   = logg.NewLogg("test.log", "INFO")
+	cfg      = config.NewConf(logger, port, attempts, waitTimeRes, retryReq, APPNAME, DESC, VERS, CONFIG)
+	fileHdlr = utils.NewFileHdlr()
+)
+
+func InitServiceAPI(cfg *config.Conf, logg *logg.Logg) *api.RemoteService {
+	clientGRPC := client.NewClientGRPC(cfg, logg)
+	remoteSrv := api.NewRemoteService(context.TODO(), cfg, logg, clientGRPC)
+	return remoteSrv
+}
+
+func InitUserCLI(logg *logg.Logg) *user.UserCLI {
+	userCLI := user.NewUserCLI(logg)
+	userCLI.Name = "USER"
+	userCLI.User = model.NewUser("Tester", "tester@mail.ru", "89109109910", "1234")
+	return userCLI
+}
+
+func InitAuthSrv(
+	cfg config.Config,
+	logger logg.Logger,
+	fileHdlr utils.FileHandler,
+	api api.ServiceAPI,
+	identy auth.Identifier,
+
+) *auth.AuthService {
+	return auth.NewAuthService(cfg, logger, fileHdlr, identy, api)
+}
