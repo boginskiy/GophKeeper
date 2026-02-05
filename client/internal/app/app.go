@@ -38,7 +38,11 @@ func (a *App) Init() {
 	remoteLogg := logg.NewLogg("remote.log", "INFO")
 
 	// Utils.
-	fileHandler := utils.NewFileHdlr()
+	pathHandler := utils.NewPathProc()
+	fileHandler := utils.NewFileProc(pathHandler)
+
+	//
+	fileManager := infra.NewFileManage(fileHandler, pathHandler)
 
 	// User.
 	userCLI := user.NewUserCLI(a.Logg)
@@ -46,36 +50,35 @@ func (a *App) Init() {
 	// Interceptor.
 	interceptor := intercept.NewClientIntercept(a.Cfg, a.Logg, userCLI)
 
-	// Clients.
+	// Clients & User.
 	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg, interceptor)
 	clientCLI := client.NewClientCLI(a.Logg)
 
 	// Infra Services.
 	checker := infra.NewCheck(fileHandler)
-	dialogSrv := infra.NewDialogService(a.Cfg, a.Logg, checker, clientCLI, userCLI)
+	dialoger := infra.NewDialog(a.Cfg, a.Logg, checker, clientCLI, userCLI)
 
 	// Remote Services.
-	remoteAuthSrv := api.NewRemoteAuthService(a.Cfg, remoteLogg, clientGRPC)
-	remoteTextSrv := api.NewRemoteTextService(a.Cfg, remoteLogg, clientGRPC)
-	remoteBytesSrv := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC)
+	remoteAuther := api.NewRemoteAuthService(a.Cfg, remoteLogg, clientGRPC)
+	remoteTexter := api.NewRemoteTextService(a.Cfg, remoteLogg, clientGRPC)
+	remoteByter := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC)
 
 	// Business Services.
-	byterSrv := service.NewBytesService(a.Cfg, a.Logg, fileHandler, remoteBytesSrv)
-	texterSrv := service.NewTextService(a.Cfg, a.Logg, remoteTextSrv)
+	bytesService := service.NewBytesService(a.Cfg, a.Logg, fileHandler, pathHandler, remoteByter, fileManager)
+	textService := service.NewTextService(a.Cfg, a.Logg, remoteTexter)
 
 	// Auth.
-	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler)
-	authSrv := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuthSrv)
+	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler, pathHandler)
+	authSrv := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuther)
 
 	// Commonds.
-	commMedia := comm.NewCommMedia(checker, dialogSrv, byterSrv) // Bytes, Sound, Video, Image
-	commText := comm.NewCommText(dialogSrv, texterSrv)
-
-	root := comm.NewRoot(dialogSrv, commText, commMedia)
+	commMedia := comm.NewCommMedia(checker, dialoger, bytesService) // Bytes, Sound, Video, Image
+	commText := comm.NewCommText(dialoger, textService)
+	root := comm.NewRoot(dialoger, commText, commMedia)
 
 	// Start.
 	NewRunner(
-		a.Cfg, a.Logg, identity, dialogSrv, authSrv, root).Run(clientCLI, userCLI)
+		a.Cfg, a.Logg, identity, dialoger, authSrv, root).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()
 	defer a.Logg.Close()

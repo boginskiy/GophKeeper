@@ -29,8 +29,7 @@ func NewBytesService(
 	logger logg.Logger,
 	repo repo.Repository[*model.Bytes],
 	fileHdler utils.FileHandler,
-	fileManager infra.FileManager,
-) *BytesService {
+	fileManager infra.FileManager) *BytesService {
 
 	return &BytesService{
 		Cfg:         config,
@@ -70,7 +69,7 @@ func (b *BytesService) Upload(stream any) (*model.Bytes, error) {
 	}
 
 	modBytes.ReceivedSize = strconv.FormatInt(cnt, 10)
-	return b.Repo.CreateRecord(modBytes)
+	return b.Repo.CreateRecord(Stm.Context(), modBytes)
 }
 
 func (b *BytesService) uploadStream(stream rpc.ByterService_UploadServer, modBytes *model.Bytes) (int64, error) {
@@ -110,12 +109,12 @@ func (b *BytesService) Read(ctx context.Context, req any) (*model.Bytes, error) 
 	if err != nil {
 		return nil, err
 	}
-	owner, err := infra.TakeServerValueFromCtx(ctx, infra.EmailCtx)
+	owner, err := infra.TakeServerValStrFromCtx(ctx, infra.EmailCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	return b.Repo.ReadRecord(&model.Bytes{Name: fileName, Owner: owner})
+	return b.Repo.ReadRecord(ctx, &model.Bytes{Name: fileName, Owner: owner})
 }
 
 func (b *BytesService) ReadAll(ctx context.Context, req any) ([]*model.Bytes, error) {
@@ -124,12 +123,12 @@ func (b *BytesService) ReadAll(ctx context.Context, req any) ([]*model.Bytes, er
 	if err != nil {
 		return nil, err
 	}
-	owner, err := infra.TakeServerValueFromCtx(ctx, infra.EmailCtx)
+	owner, err := infra.TakeServerValStrFromCtx(ctx, infra.EmailCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	return b.Repo.ReadAllRecord(&model.Bytes{Type: fileType, Owner: owner})
+	return b.Repo.ReadAllRecord(ctx, &model.Bytes{Type: fileType, Owner: owner})
 }
 
 func (b *BytesService) Delete(ctx context.Context, req any) (*model.Bytes, error) {
@@ -138,10 +137,10 @@ func (b *BytesService) Delete(ctx context.Context, req any) (*model.Bytes, error
 	if err != nil {
 		return nil, err
 	}
-	owner, err := infra.TakeServerValueFromCtx(ctx, infra.EmailCtx)
+	owner, err := infra.TakeServerValStrFromCtx(ctx, infra.EmailCtx)
 	if err != nil {
 		return nil, err
 	}
 
-	return b.Repo.DeleteRecord(&model.Bytes{Name: fileName, Owner: owner})
+	return b.Repo.DeleteRecord(ctx, &model.Bytes{Name: fileName, Owner: owner})
 }

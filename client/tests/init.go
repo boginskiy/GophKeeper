@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	logger   = logg.NewLogg("test.log", "INFO")
-	cfg      = config.NewConf(logger, port, attempts, waitTimeRes, retryReq, APPNAME, DESC, VERS, CONFIG)
-	fileHdlr = utils.NewFileHdlr()
+	logger      = logg.NewLogg("test.log", "INFO")
+	cfg         = config.NewArgsCLI(logger, port, attempts, waitTimeRes, retryReq, APPNAME, DESC, VERS, CONFIG)
+	fileHandler = utils.NewFileProc()
 )
 
 func InitServiceAPI(cfg *config.Conf, logg *logg.Logg) *api.RemoteService {
@@ -35,10 +35,10 @@ func InitUserCLI(logg *logg.Logg) *user.UserCLI {
 func InitAuthSrv(
 	cfg config.Config,
 	logger logg.Logger,
-	fileHdlr utils.FileHandler,
-	api api.ServiceAPI,
+	fileHandler utils.FileHandler,
+	api api.RemoteAuther,
 	identy auth.Identifier,
 
 ) *auth.AuthService {
-	return auth.NewAuthService(cfg, logger, fileHdlr, identy, api)
+	return auth.NewAuthService(cfg, logger, fileHandler, identy, api)
 }

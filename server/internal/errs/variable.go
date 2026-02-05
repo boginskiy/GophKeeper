@@ -33,4 +33,7 @@ var (
 
 	ErrReadFileToBuff = NewErrWrapper("error reading the file into the buffer")
 	ErrSendChankFile  = NewErrWrapper("error sending the part of file to server")
+
+	// DB
+	ErrPingDataBase = errors.New("bad database ping")
 )

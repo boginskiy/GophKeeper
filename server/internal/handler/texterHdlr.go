@@ -55,7 +55,7 @@ func (k *TexterHandler) Read(ctx context.Context, req *rpc.ReadRequest) (*rpc.Re
 	return &rpc.ReadResponse{
 		Status:    "read",
 		Name:      modText.Name,
-		Text:      modText.Tx,
+		Text:      modText.Content,
 		UpdatedAt: utils.ConvertDtStr(modText.UpdatedAt)}, nil
 }
 
@@ -74,7 +74,7 @@ func (k *TexterHandler) ReadAll(ctx context.Context, req *rpc.ReadAllRequest) (*
 	for i, text := range modTexts {
 		textResponses[i] = &rpc.TextResponse{
 			Name:      text.Name,
-			Text:      text.Tx,
+			Text:      text.Content,
 			UpdatedAt: utils.ConvertDtStr(text.UpdatedAt),
 		}
 	}

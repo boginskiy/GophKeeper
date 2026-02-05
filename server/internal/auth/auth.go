@@ -44,7 +44,7 @@ func NewUser(name, email, password, phone string) (*model.User, error) {
 
 func (a *Auth) Authentication(ctx context.Context, req *rpc.AuthUserRequest) (token string, err error) {
 	// Check user in DB.
-	user, err := a.Repo.ReadRecord(&model.User{Email: req.Email})
+	record, err := a.Repo.ReadRecord(context.Background(), &model.User{Email: req.Email})
 	if err != nil {
 		// TODO!
 		// Пользователь по введенному email не найден в БД.
@@ -55,14 +55,14 @@ func (a *Auth) Authentication(ctx context.Context, req *rpc.AuthUserRequest) (to
 	}
 
 	// Check password
-	if !pkg.CompareHashAndPassword(user.Password, req.Password) {
+	if !pkg.CompareHashAndPassword(record.Password, req.Password) {
 		// TODO!
 		// Предусмотреть альтернативы для восстановления учетки.
 		return "", errs.ErrUserPassword
 	}
 
 	// Create new token
-	infoToken := NewExtraInfoToken(user.Email, user.PhoneNumber)
+	infoToken := NewExtraInfoToken(record.ID, record.Email, record.PhoneNumber)
 	token, err = a.JWTService.CreateJWT(infoToken)
 	if err != nil {
 		return "", errs.ErrCreateToken.Wrap(err)
@@ -79,13 +79,13 @@ func (a *Auth) Registration(ctx context.Context, req *rpc.RegistUserRequest) (to
 	}
 
 	// Create new record with user.
-	_, err = a.Repo.CreateRecord(newUser)
+	record, err := a.Repo.CreateRecord(context.Background(), newUser)
 	if err != nil {
 		return "", err
 	}
 
 	// Create token
-	infoToken := NewExtraInfoToken(newUser.Email, newUser.PhoneNumber)
+	infoToken := NewExtraInfoToken(record.ID, record.Email, record.PhoneNumber)
 
 	token, err = a.JWTService.CreateJWT(infoToken)
 	if err != nil {

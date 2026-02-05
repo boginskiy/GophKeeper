@@ -41,13 +41,13 @@ func (s *UnloadService) Prepar(stream rpc.ByterService_UnloadServer) (*model.Byt
 		return nil, err
 	}
 
-	owner, err := infra.TakeServerValueFromCtx(stream.Context(), infra.EmailCtx)
+	owner, err := infra.TakeServerValStrFromCtx(stream.Context(), infra.EmailCtx)
 	if err != nil {
 		return nil, err
 	}
 
 	// Take record from DataBase.
-	modBytes, err := s.Repo.ReadRecord(&model.Bytes{Name: fileName, Owner: owner})
+	modBytes, err := s.Repo.ReadRecord(stream.Context(), &model.Bytes{Name: fileName, Owner: owner})
 	if err != nil {
 		return nil, err
 	}

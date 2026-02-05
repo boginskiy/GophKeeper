@@ -36,7 +36,7 @@ func (a *RemoteTextService) Create(user user.User, text model.Text) (any, error)
 	req := &rpc.CreateRequest{
 		Name:         text.Name,
 		Type:         text.Type,
-		Text:         text.Tx,
+		Text:         text.Content,
 		Owner:        text.Owner,
 		ListActivate: text.ListActivate,
 	}
@@ -63,7 +63,7 @@ func (a *RemoteTextService) Update(user user.User, text model.Text) (any, error)
 
 	req := &rpc.CreateRequest{
 		Name:  text.Name,
-		Text:  text.Tx,
+		Text:  text.Content,
 		Owner: text.Owner,
 	}
 

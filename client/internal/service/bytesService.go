@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
+	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
@@ -13,31 +14,36 @@ type BytesService struct {
 	Cfg         config.Config
 	Logg        logg.Logger
 	FileHandler utils.FileHandler
+	PathHandler utils.PathHandler
 	RemoteByter api.RemoteByter[model.Bytes]
+	FileManager infra.FileManager
 }
 
 func NewBytesService(
 	cfg config.Config,
 	logger logg.Logger,
-	fileHdlr utils.FileHandler,
+	fileHandler utils.FileHandler,
+	pathHandler utils.PathHandler,
 	remoteByter api.RemoteByter[model.Bytes],
+	fileManager infra.FileManager,
 ) *BytesService {
 
 	return &BytesService{
 		Cfg:         cfg,
 		Logg:        logger,
-		FileHandler: fileHdlr,
+		FileHandler: fileHandler,
+		PathHandler: pathHandler,
 		RemoteByter: remoteByter,
+		FileManager: fileManager,
 	}
 }
 
 func (t *BytesService) Upload(user user.User, pathToFile string, tp string) (any, error) {
-	bytes, err := model.NewBytesFromFile(t.FileHandler, pathToFile, tp)
+	bytes, err := t.FileManager.GetModelBytesFromFile(pathToFile, tp)
 	if err != nil {
 		return nil, err
 	}
 	defer bytes.Descr.Close()
-
 	return t.RemoteByter.Upload(user, *bytes)
 }
 

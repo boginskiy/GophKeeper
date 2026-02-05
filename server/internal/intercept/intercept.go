@@ -41,6 +41,7 @@ func (i *ServIntercept) ServAuth(ctx context.Context, req interface{}, info *grp
 	// Good identification.
 	ctx = context.WithValue(ctx, infra.PhoneCtx, infoToken.PhoneNumber)
 	ctx = context.WithValue(ctx, infra.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.IDCtx, infoToken.ID)
 
 	return handler(ctx, req)
 }
@@ -57,13 +58,14 @@ func (i *ServIntercept) StreamServAuth(srv interface{}, ss grpc.ServerStream, in
 	}
 
 	// New context.
-	newCtx := context.WithValue(ctx, infra.PhoneCtx, infoToken.PhoneNumber)
-	newCtx = context.WithValue(newCtx, infra.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.PhoneCtx, infoToken.PhoneNumber)
+	ctx = context.WithValue(ctx, infra.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.IDCtx, infoToken.ID)
 
 	// Оболочка ServerStream с новым контекстом
 	wrapSS := &WrapServerStream{
 		ServerStream: ss,
-		Ctx:          newCtx,
+		Ctx:          ctx,
 	}
 
 	return handler(srv, wrapSS)

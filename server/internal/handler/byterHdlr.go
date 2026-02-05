@@ -16,17 +16,17 @@ import (
 
 type ByterHandler struct {
 	rpc.UnimplementedByterServiceServer
-	FileHdler utils.FileHandler
-	BytesSrv  service.BytesServicer[*model.Bytes]
-	UnloadSrv service.LoadServicer[rpc.ByterService_UnloadServer, *model.Bytes]
+	FileHandler utils.FileHandler
+	BytesSrv    service.BytesServicer[*model.Bytes]
+	UnloadSrv   service.LoadServicer[rpc.ByterService_UnloadServer, *model.Bytes]
 }
 
 func NewByterHandler(
-	fileHdler utils.FileHandler,
+	fileHandler utils.FileHandler,
 	bytesSrv service.BytesServicer[*model.Bytes],
 	unloadSrv service.LoadServicer[rpc.ByterService_UnloadServer, *model.Bytes]) *ByterHandler {
 
-	return &ByterHandler{FileHdler: fileHdler, BytesSrv: bytesSrv, UnloadSrv: unloadSrv}
+	return &ByterHandler{FileHandler: fileHandler, BytesSrv: bytesSrv, UnloadSrv: unloadSrv}
 }
 
 func (b *ByterHandler) Upload(stream rpc.ByterService_UploadServer) error {
@@ -99,7 +99,7 @@ func (b *ByterHandler) Read(ctx context.Context, req *rpc.ReadBytesRequest) (*rp
 
 	return &rpc.ReadBytesResponse{
 		Status:    "read",
-		Type:      b.FileHdler.GetTypeFile(modBytes.Name),
+		Type:      b.FileHandler.GetTypeFile(modBytes.Name),
 		CreatedAt: utils.ConvertDtStr(modBytes.CreatedAt)}, nil
 }
 

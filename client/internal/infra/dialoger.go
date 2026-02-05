@@ -11,7 +11,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/pkg"
 )
 
-type DialogService struct {
+type Dialog struct {
 	Cfg     config.Config
 	Logg    logg.Logger
 	Checker Checker
@@ -19,15 +19,15 @@ type DialogService struct {
 	User    user.User
 }
 
-func NewDialogService(
+func NewDialog(
 	cfg config.Config,
 	logger logg.Logger,
 	ch Checker,
 	cl client.Client,
 	us user.User,
-) *DialogService {
+) *Dialog {
 
-	return &DialogService{
+	return &Dialog{
 		Cfg:     cfg,
 		Logg:    logger,
 		Checker: ch,
@@ -36,27 +36,27 @@ func NewDialogService(
 	}
 }
 
-func (d *DialogService) ShowIt(it string) {
+func (d *Dialog) ShowIt(it string) {
 	d.Client.SendMess(it)
 }
 
-func (d *DialogService) ShowErr(err error) {
+func (d *Dialog) ShowErr(err error) {
 	d.Client.SendMess(err.Error())
 }
 
 // GetSomeThing
-func (d *DialogService) GetSomeThing(mess string) (string, error) {
+func (d *Dialog) GetSomeThing(mess string) (string, error) {
 	d.Client.SendMess(mess)
 	return d.User.ReceiveMess()
 }
 
 // GetEnterIt gives us everything we ask for.
-func (d *DialogService) GetEnterIt(it string) (string, error) {
+func (d *Dialog) GetEnterIt(it string) (string, error) {
 	d.Client.SendMess(fmt.Sprintf("Enter the %s...", it))
 	return d.User.ReceiveMess()
 }
 
-func (d *DialogService) GetDataAction(action string) string {
+func (d *Dialog) GetDataAction(action string) string {
 	question := fmt.Sprintf(
 		"%s to %s %s",
 		"What type of text data do you want", action, "\n\r\t info \n\r\t phone \n\r\t card \n\r\t other")
@@ -66,7 +66,7 @@ func (d *DialogService) GetDataAction(action string) string {
 	return result
 }
 
-func (d *DialogService) VerifyEnterIt(needToTake, needToCompare string, quantity int) (string, error) {
+func (d *Dialog) VerifyEnterIt(needToTake, needToCompare string, quantity int) (string, error) {
 	for q := 0; q < quantity; q++ {
 		result, err := d.GetEnterIt(needToTake)
 		if err == nil && d.Checker.CheckTwoString(needToCompare, result) {
@@ -77,7 +77,7 @@ func (d *DialogService) VerifyEnterIt(needToTake, needToCompare string, quantity
 	return "", errs.ErrUncorrectCredentials
 }
 
-func (d *DialogService) VerifyEnterPassword(needToTake, needToCompare string, quantity int) (string, error) {
+func (d *Dialog) VerifyEnterPassword(needToTake, needToCompare string, quantity int) (string, error) {
 	for q := 0; q < quantity; q++ {
 		result, err := d.GetEnterIt(needToTake)
 
@@ -89,7 +89,7 @@ func (d *DialogService) VerifyEnterPassword(needToTake, needToCompare string, qu
 	return "", errs.ErrUncorrectCredentials
 }
 
-func (d *DialogService) GetDataRegister() (userName, email, phone, password string) {
+func (d *Dialog) GetDataRegister() (userName, email, phone, password string) {
 	d.ShowIt("You need to register...")
 
 	userName, err := d.GetEnterIt("user name")
@@ -107,7 +107,7 @@ func (d *DialogService) GetDataRegister() (userName, email, phone, password stri
 	return userName, email, phone, password
 }
 
-func (d *DialogService) VerifyDataAuth(user user.User) (email, password string, err error) {
+func (d *Dialog) VerifyDataAuth(user user.User) (email, password string, err error) {
 	d.ShowIt("You need log in")
 
 	email, err = d.VerifyEnterIt("email", user.GetModelUser().Email, d.Cfg.GetMaxRetries())
@@ -123,7 +123,7 @@ func (d *DialogService) VerifyDataAuth(user user.User) (email, password string, 
 	return email, password, nil
 }
 
-func (d *DialogService) CallWindows(input string) (string, error) {
+func (d *Dialog) CallWindows(input string) (string, error) {
 	// Вызываем окно для получения пути к загружаемому файлу
 	pathToFile, err := pkg.Selector("selector.py")
 

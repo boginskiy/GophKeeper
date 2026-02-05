@@ -30,6 +30,11 @@ func NewClientIntercept(config config.Config, logger logg.Logger, user user.User
 }
 
 func (i *ClientIntercept) SingleAuth(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
+	// If there is no registration
+	if i.User.GetModelUser() == nil {
+		return invoker(ctx, method, req, reply, cc, opts...)
+	}
+
 	md, ok := metadata.FromOutgoingContext(ctx)
 	if !ok {
 		md = metadata.Pairs()

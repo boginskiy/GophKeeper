@@ -1,22 +1,33 @@
 package infra
 
-import "github.com/boginskiy/GophKeeper/client/internal/user"
+import (
+	"os"
 
-// Checker for Check
+	"github.com/boginskiy/GophKeeper/client/internal/model"
+	"github.com/boginskiy/GophKeeper/client/internal/user"
+)
+
+// Checker
 type Checker interface {
 	CheckTwoString(oneStr, twoStr string) bool
 	CheckPassword(userPassword, password string) bool
 	CheckTypeFile(pathToFile, typ string) bool
 }
 
-// ShowGetter for DialogService
-type ShowGetter interface {
+// Dialoger
+type Dialoger interface {
 	DataGetter
 	Verifer
 	Getter
 	Shower
 
 	CallWindows(string) (string, error)
+}
+
+// FileManager
+type FileManager interface {
+	CreateFileInStore(*model.Bytes) (file *os.File, path string, err error)
+	GetModelBytesFromFile(pathToFile string, typ string) (*model.Bytes, error)
 }
 
 type Getter interface {

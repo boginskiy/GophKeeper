@@ -30,7 +30,8 @@ func (t *TextService) Create(ctx context.Context, req any) (*model.Text, error) 
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-	return t.Repo.CreateRecord(model.NewText(Req))
+	// userID is in ctx
+	return t.Repo.CreateRecord(ctx, model.NewText(Req))
 }
 
 func (t *TextService) Read(ctx context.Context, req any) (*model.Text, error) {
@@ -38,7 +39,7 @@ func (t *TextService) Read(ctx context.Context, req any) (*model.Text, error) {
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-	return t.Repo.ReadRecord(&model.Text{Name: Req.Name, Owner: Req.Owner})
+	return t.Repo.ReadRecord(ctx, &model.Text{Name: Req.Name, Owner: Req.Owner})
 }
 
 func (t *TextService) ReadAll(ctx context.Context, req any) ([]*model.Text, error) {
@@ -46,7 +47,7 @@ func (t *TextService) ReadAll(ctx context.Context, req any) ([]*model.Text, erro
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-	return t.Repo.ReadAllRecord(&model.Text{Type: Req.Type, Owner: Req.Owner})
+	return t.Repo.ReadAllRecord(ctx, &model.Text{Type: Req.Type, Owner: Req.Owner})
 }
 
 func (t *TextService) Update(ctx context.Context, req any) (*model.Text, error) {
@@ -54,7 +55,7 @@ func (t *TextService) Update(ctx context.Context, req any) (*model.Text, error) 
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-	return t.Repo.UpdateRecord(&model.Text{Name: Req.Name, Tx: Req.Text, Owner: Req.Owner})
+	return t.Repo.UpdateRecord(ctx, &model.Text{Name: Req.Name, Content: Req.Text, Owner: Req.Owner})
 }
 
 func (t *TextService) Delete(ctx context.Context, req any) (*model.Text, error) {
@@ -62,5 +63,5 @@ func (t *TextService) Delete(ctx context.Context, req any) (*model.Text, error) 
 	if !ok {
 		return nil, errs.ErrTypeConversion
 	}
-	return t.Repo.DeleteRecord(&model.Text{Name: Req.Name, Owner: Req.Owner})
+	return t.Repo.DeleteRecord(ctx, &model.Text{Name: Req.Name, Owner: Req.Owner})
 }

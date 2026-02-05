@@ -16,8 +16,8 @@ type Check struct {
 	FileHandler utils.FileHandler
 }
 
-func NewCheck(fileHdlr utils.FileHandler) *Check {
-	return &Check{FileHandler: fileHdlr}
+func NewCheck(fileHandler utils.FileHandler) *Check {
+	return &Check{FileHandler: fileHandler}
 }
 
 func (d *Check) CheckTwoString(oneStr, twoStr string) bool {
@@ -37,7 +37,7 @@ func (d *Check) checkTypeOfMedia(fileName string, listMedia map[string]struct{})
 }
 
 func (d *Check) CheckTypeFile(filePath, typ string) bool {
-	fileName := d.FileHandler.TakeFileFromPath(filePath)
+	fileName := d.FileHandler.GetFileFromPath(filePath)
 	switch typ {
 	case "sound":
 		return d.checkTypeOfMedia(fileName, SOUND)

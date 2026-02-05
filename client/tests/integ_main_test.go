@@ -20,10 +20,10 @@ var (
 func TestClient(t *testing.T) {
 	UserCLI := InitUserCLI(logger)
 	ServiceAPI := InitServiceAPI(cfg, logger)
-	Identy := auth.NewIdentity(cfg, logger, fileHdlr)
+	Identy := auth.NewIdentity(cfg, logger, fileHandler)
 
-	ServiceAuth := InitAuthSrv(cfg, logger, fileHdlr, ServiceAPI, Identy)
-	ServiceByter := service.NewByterService(cfg, logger, fileHdlr, ServiceAPI)
+	ServiceAuth := InitAuthSrv(cfg, logger, fileHandler, ServiceAPI, Identy)
+	ServiceByter := service.NewBytesService(cfg, logger, fileHandler, ServiceAPI)
 
 	Authentication(t, ServiceAuth, UserCLI)
 

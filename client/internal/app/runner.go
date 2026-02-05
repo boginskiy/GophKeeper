@@ -14,7 +14,7 @@ type Runner struct {
 	Cfg        config.Config
 	Logg       logg.Logger
 	Identifier auth.Identifier
-	DialogSrv  infra.ShowGetter
+	Dialoger   infra.Dialoger
 	AuthSrv    auth.Auth
 	Root       comm.Rooter
 }
@@ -23,7 +23,7 @@ func NewRunner(
 	cfg config.Config,
 	logger logg.Logger,
 	identity auth.Identifier,
-	dialog infra.ShowGetter,
+	dialoger infra.Dialoger,
 	authSrv auth.Auth,
 	root comm.Rooter) *Runner {
 
@@ -31,19 +31,19 @@ func NewRunner(
 		Cfg:        cfg,
 		Logg:       logger,
 		Identifier: identity,
-		DialogSrv:  dialog,
+		Dialoger:   dialoger,
 		AuthSrv:    authSrv,
 		Root:       root,
 	}
 }
 
 func (d *Runner) Run(client *client.ClientCLI, user *user.UserCLI) {
-	d.DialogSrv.ShowIt("Hello, Man!")
+	d.Dialoger.ShowIt("Hello, Man!")
 
 	ok := d.Root.ExecuteAuth(d.AuthSrv, user)
 	d.Root.ExecuteComm(ok, client, user)
 
-	d.DialogSrv.ShowIt("Session is over. Goodbye")
+	d.Dialoger.ShowIt("Session is over. Goodbye")
 
 	// Save data current user in config.file for feature.
 	defer d.Identifier.SaveCurrentUser(user)

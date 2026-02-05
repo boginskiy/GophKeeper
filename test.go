@@ -10,7 +10,7 @@ func main() {
 
 	filePath := "file.txt"
 
-	d := utils.NewFileHdlr()
+	d := utils.NewFileProc()
 	fileName := d.FileHandler.TakeFileFromPath(filePath)
 
 	fmt.Println(fileName)

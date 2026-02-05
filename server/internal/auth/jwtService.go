@@ -11,12 +11,13 @@ import (
 )
 
 type ExtraInfoToken struct {
+	ID          int64
 	Email       string
 	PhoneNumber string
 }
 
-func NewExtraInfoToken(email, phone string) *ExtraInfoToken {
-	return &ExtraInfoToken{Email: email, PhoneNumber: phone}
+func NewExtraInfoToken(id int64, email, phone string) *ExtraInfoToken {
+	return &ExtraInfoToken{ID: id, Email: email, PhoneNumber: phone}
 }
 
 // Claims - own statement.

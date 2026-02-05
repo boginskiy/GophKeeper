@@ -12,27 +12,27 @@ import (
 )
 
 type CommMedia struct {
-	Checker   infra.Checker
-	DialogSrv infra.ShowGetter
-	Service   service.BytesServicer
+	Checker  infra.Checker
+	Dialoger infra.Dialoger
+	Service  service.BytesServicer
 }
 
 func NewCommMedia(
 	checker infra.Checker,
-	dialog infra.ShowGetter,
+	dialoger infra.Dialoger,
 	srv service.BytesServicer) *CommMedia {
 
 	return &CommMedia{
-		Checker:   checker,
-		DialogSrv: dialog,
-		Service:   srv}
+		Checker:  checker,
+		Dialoger: dialoger,
+		Service:  srv}
 }
 
 func (c *CommMedia) Registration(user user.User, dataType string) {
 authLoop:
 	for {
 		// Get command.
-		comm, _ := c.DialogSrv.GetSomeThing(
+		comm, _ := c.Dialoger.GetSomeThing(
 
 			fmt.Sprintf("%s\n\r%s",
 				"What do you want to do with the media: \n\r\t upload \n\r\t unload \n\r\t read \n\r\t read-all \n\r\t delete",
@@ -57,61 +57,61 @@ authLoop:
 		// 	c.executeUpdate(user)
 
 		default:
-			c.DialogSrv.ShowIt("Invalid command. Try again...")
+			c.Dialoger.ShowIt("Invalid command. Try again...")
 		}
 	}
 }
 
 func (c *CommMedia) executeUpload(user user.User, dataType string) {
 	// Call window.
-	pathToFile, err := c.DialogSrv.CallWindows("Enter the abs path to file...")
+	pathToFile, err := c.Dialoger.CallWindows("Enter the abs path to file...")
 	if err != nil {
-		c.DialogSrv.ShowErr(err)
+		c.Dialoger.ShowErr(err)
 		return
 	}
 
 	// Check file.
 	ok := c.Checker.CheckTypeFile(pathToFile, dataType)
 	if !ok {
-		c.DialogSrv.ShowIt("Invalid file type")
+		c.Dialoger.ShowIt("Invalid file type")
 		return
 	}
 
 	// Call Service.
 	obj, err := c.Service.Upload(user, pathToFile, dataType)
 	if err != nil {
-		c.DialogSrv.ShowErr(err)
+		c.Dialoger.ShowErr(err)
 		return
 	}
 
 	res, ok := obj.(*rpc.UploadBytesResponse)
 	if !ok {
-		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		c.Dialoger.ShowErr(errs.ErrTypeConversion)
 		return
 	}
 
-	c.DialogSrv.ShowIt(
+	c.Dialoger.ShowIt(
 		fmt.Sprintf("%s %s  sent size: %s received: %s\n\r",
 			res.Status, res.UpdatedAt, res.SentSize, res.ReceivedSize))
 }
 
 func (c *CommMedia) executeUnload(user user.User, _ string) {
-	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
+	nameFile, _ := c.Dialoger.GetSomeThing("Enter the name file...")
 
 	// Call Service.
 	obj, err := c.Service.Unload(user, nameFile)
 	if err != nil {
-		c.DialogSrv.ShowErr(err)
+		c.Dialoger.ShowErr(err)
 		return
 	}
 
 	serverHeader, ok := obj.(*metadata.MD)
 	if !ok {
-		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		c.Dialoger.ShowErr(errs.ErrTypeConversion)
 		return
 	}
 
-	c.DialogSrv.ShowIt(
+	c.Dialoger.ShowIt(
 		fmt.Sprintf("%s %s  sent size: %s received: %s\n\r",
 			"unloaded",
 			infra.TakeValueFromHeader(*serverHeader, "updated_at", 0),
@@ -120,22 +120,22 @@ func (c *CommMedia) executeUnload(user user.User, _ string) {
 }
 
 func (c *CommMedia) executeRead(user user.User, _ string) {
-	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
+	nameFile, _ := c.Dialoger.GetSomeThing("Enter the name file...")
 
 	// Call Service.
 	obj, err := c.Service.Read(user, nameFile)
 	if err != nil {
-		c.DialogSrv.ShowErr(err)
+		c.Dialoger.ShowErr(err)
 		return
 	}
 
 	res, ok := obj.(*rpc.ReadBytesResponse)
 	if !ok {
-		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		c.Dialoger.ShowErr(errs.ErrTypeConversion)
 		return
 	}
 
-	c.DialogSrv.ShowIt(
+	c.Dialoger.ShowIt(
 		fmt.Sprintf("%s   type: %s   created: %s\n\r", nameFile, res.Type, res.CreatedAt))
 }
 
@@ -143,37 +143,37 @@ func (c *CommMedia) executeReadAll(user user.User, dataType string) {
 	// Call Service.
 	obj, err := c.Service.ReadAll(user, dataType)
 	if err != nil {
-		c.DialogSrv.ShowErr(err)
+		c.Dialoger.ShowErr(err)
 		return
 	}
 
 	res, ok := obj.(*rpc.ReadAllBytesResponse)
 	if !ok {
-		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		c.Dialoger.ShowErr(errs.ErrTypeConversion)
 		return
 	}
 
 	for _, bytes := range res.BytesResponses {
-		c.DialogSrv.ShowIt(fmt.Sprintf("%s   total size: %s   last update: %s", bytes.Name, bytes.TotalSize, bytes.UpdatedAt))
+		c.Dialoger.ShowIt(fmt.Sprintf("%s   total size: %s   last update: %s", bytes.Name, bytes.TotalSize, bytes.UpdatedAt))
 	}
 	fmt.Println()
 }
 
 func (c *CommMedia) executeDelete(user user.User, _ string) {
-	nameFile, _ := c.DialogSrv.GetSomeThing("Enter the name file...")
+	nameFile, _ := c.Dialoger.GetSomeThing("Enter the name file...")
 
 	// Call Service.
 	obj, err := c.Service.Delete(user, nameFile)
 	if err != nil {
-		c.DialogSrv.ShowErr(err)
+		c.Dialoger.ShowErr(err)
 		return
 	}
 
 	res, ok := obj.(*rpc.DeleteBytesResponse)
 	if !ok {
-		c.DialogSrv.ShowErr(errs.ErrTypeConversion)
+		c.Dialoger.ShowErr(errs.ErrTypeConversion)
 		return
 	}
 
-	c.DialogSrv.ShowIt(fmt.Sprintf("%s %s\n\r", res.Status, nameFile))
+	c.Dialoger.ShowIt(fmt.Sprintf("%s %s\n\r", res.Status, nameFile))
 }
