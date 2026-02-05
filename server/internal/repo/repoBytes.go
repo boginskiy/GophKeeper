@@ -76,7 +76,7 @@ func (r *RepoBytes) ReadRecord(ctx context.Context, bytes *model.Bytes) (*model.
 		&bytes.Name,
 		&bytes.ReceivedSize,
 		&bytes.Type,
-		&bytes.UpdatedAt,
+		&bytes.CreatedAt,
 	)
 
 	if err == sql.ErrNoRows { // Нет данных
@@ -85,45 +85,68 @@ func (r *RepoBytes) ReadRecord(ctx context.Context, bytes *model.Bytes) (*model.
 	if err != nil { // Иные ошибки
 		return nil, err
 	}
-
 	return bytes, nil
 }
 
 func (r *RepoBytes) ReadAllRecord(ctx context.Context, bytes *model.Bytes) ([]*model.Bytes, error) {
-	// res := make([]*model.Bytes, 0, 10)
+	userID, err := infra.TakeServerValInt64FromCtx(ctx, infra.IDCtx)
+	if err != nil {
+		return nil, err
+	}
 
-	// for _, record := range r.Store {
-	// 	if record.Owner == bytes.Owner && record.Type == bytes.Type {
-	// 		res = append(res, record)
-	// 	}
-	// }
+	rows, err := r.SqlDB.QueryContext(ctx,
+		`SELECT name, received_size, updated_at 
+ 		 FROM bytes
+		 WHERE user_id = $1 AND type = $2;`,
+		userID, bytes.Type)
 
-	// if len(res) == 0 {
-	// 	return nil, errs.ErrDataNotFound
-	// }
-	return nil, nil
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Читаем данные
+	records := make([]*model.Bytes, 0, 10)
+
+	for rows.Next() {
+		record := model.Bytes{}
+		err := rows.Scan(&record.Name, &record.ReceivedSize, &record.UpdatedAt)
+		if err != nil {
+			continue
+		}
+		records = append(records, &record)
+	}
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+	if len(records) == 0 {
+		return nil, errs.ErrDataNotFound
+	}
+	return records, nil
 }
 
-// CREATE TABLE bytes (
-//     id SERIAL PRIMARY KEY,
-//     name TEXT NOT NULL,
-//     path TEXT NOT NULL,
-//     sent_size BIGINT,
-//     received_size BIGINT,
-//     type VARCHAR(15) NOT NULL,
-//     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
-// );
+func (r *RepoBytes) DeleteRecord(ctx context.Context, bytes *model.Bytes) (*model.Bytes, error) {
+	userID, err := infra.TakeServerValInt64FromCtx(ctx, infra.IDCtx)
+	if err != nil {
+		return nil, err
+	}
 
-func (r *RepoBytes) DeleteRecord(ctx context.Context, text *model.Bytes) (*model.Bytes, error) {
-	// for k, record := range r.Store {
-	// 	if record.Owner == text.Owner && record.Name == text.Name {
-	// 		delete(r.Store, k)
-	// 		return record, nil
-	// 	}
-	// }
-	return nil, errs.ErrDataNotFound
+	deletedAt := time.Now()
+
+	result, err := r.SqlDB.ExecContext(ctx,
+		`DELETE
+		 FROM bytes
+		 WHERE user_id = $1 AND name = $2;`,
+		userID, bytes.Name)
+
+	// Проверка количеств затронутых изменений.
+	cntChange, err := result.RowsAffected()
+	if err != nil && cntChange == 0 {
+		return nil, errs.ErrDataNotFound
+	}
+
+	bytes.UpdatedAt = deletedAt
+	return bytes, nil
 }
 
 func (r *RepoBytes) UpdateRecord(ctx context.Context, text *model.Bytes) (*model.Bytes, error) {
