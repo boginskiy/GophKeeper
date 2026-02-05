@@ -1,5 +1,7 @@
 package infra
 
+// ManageContext
+
 import (
 	"context"
 	"errors"
@@ -8,14 +10,15 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// ManageContext
+type Email struct{}
+type Phone struct{}
+type ID struct{}
+
+var EmailCtx Email
+var PhoneCtx Phone
+var IDCtx ID
 
 var (
-	// Keys for context for request.
-	EmailCtx = keycontext{}
-	PhoneCtx = keycontext{}
-	IDCtx    = keycontext{}
-
 	// Error.
 	ErrOwnerData = errors.New("owner of the data is not defined")
 	ErrMetaData  = errors.New("metadata not found")
@@ -24,7 +27,7 @@ var (
 // keycontext - is type of key for values for context request.
 type keycontext struct{}
 
-func TakeServerValStrFromCtx(ctx context.Context, key keycontext) (string, error) {
+func TakeServerValStrFromCtx(ctx context.Context, key Email) (string, error) {
 	value, ok := ctx.Value(key).(string)
 	if !ok {
 		return "", ErrOwnerData
@@ -32,7 +35,7 @@ func TakeServerValStrFromCtx(ctx context.Context, key keycontext) (string, error
 	return value, nil
 }
 
-func TakeServerValInt64FromCtx(ctx context.Context, key keycontext) (int64, error) {
+func TakeServerValInt64FromCtx(ctx context.Context, key ID) (int64, error) {
 	value, ok := ctx.Value(key).(int64)
 	if !ok {
 		return 0, ErrOwnerData

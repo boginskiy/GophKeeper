@@ -50,7 +50,7 @@ func (t *BytesService) Upload(user user.User, pathToFile string, tp string) (any
 func (t *BytesService) Unload(user user.User, fileName string) (any, error) {
 	modBytes := &model.Bytes{Name: fileName, Type: t.FileHandler.GetTypeFile(fileName)}
 
-	file, path, err := t.FileHandler.CreateFileInStore(modBytes)
+	file, path, err := t.FileManager.CreateFileInStore(modBytes)
 	if err != nil {
 		return nil, err
 	}

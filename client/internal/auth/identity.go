@@ -1,8 +1,11 @@
 package auth
 
 import (
+	"context"
 	"io"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
@@ -41,6 +44,23 @@ func NewIdentity(
 	}
 
 	return tmp
+}
+
+func (i *Identity) Shutdown(done <-chan struct{}, user user.User) {
+	//  Registration interruption.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+
+	go func() {
+		defer stop()
+
+		select {
+		case <-ctx.Done():
+			i.SaveCurrentUser(user)
+			return
+		case <-done:
+			return
+		}
+	}()
 }
 
 func (i *Identity) Identification(user user.User) bool {

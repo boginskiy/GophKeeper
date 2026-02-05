@@ -52,7 +52,6 @@ func (r *RepoText) CreateRecord(ctx context.Context, text *model.Text) (*model.T
 	text.CreatedAt = updatedAt
 	text.UpdatedAt = updatedAt
 	return text, nil
-
 }
 
 func (r *RepoText) ReadRecord(ctx context.Context, text *model.Text) (*model.Text, error) {
@@ -66,14 +65,20 @@ func (r *RepoText) ReadRecord(ctx context.Context, text *model.Text) (*model.Tex
 		 WHERE user_id = $1 AND name = $2;`,
 		userID, text.Name)
 
-	if err := row.Scan(
+	err = row.Scan(
 		&text.Type,
 		&text.Content,
 		&text.CreatedAt,
 		&text.UpdatedAt,
-	); err != nil {
+	)
+
+	if err == sql.ErrNoRows { // Нет данных
+		return nil, errs.ErrDataNotFound
+	}
+	if err != nil { // Остальные ошибки
 		return nil, err
 	}
+
 	return text, nil
 }
 

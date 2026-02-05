@@ -17,6 +17,7 @@ type Runner struct {
 	Dialoger   infra.Dialoger
 	AuthSrv    auth.Auth
 	Root       comm.Rooter
+	done       chan struct{}
 }
 
 func NewRunner(
@@ -34,10 +35,13 @@ func NewRunner(
 		Dialoger:   dialoger,
 		AuthSrv:    authSrv,
 		Root:       root,
+		done:       make(chan struct{}),
 	}
 }
 
 func (d *Runner) Run(client *client.ClientCLI, user *user.UserCLI) {
+	d.Identifier.Shutdown(d.done, user)
+
 	d.Dialoger.ShowIt("Hello, Man!")
 
 	ok := d.Root.ExecuteAuth(d.AuthSrv, user)
@@ -47,4 +51,5 @@ func (d *Runner) Run(client *client.ClientCLI, user *user.UserCLI) {
 
 	// Save data current user in config.file for feature.
 	defer d.Identifier.SaveCurrentUser(user)
+	defer close(d.done)
 }
