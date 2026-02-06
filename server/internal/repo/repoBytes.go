@@ -67,13 +67,14 @@ func (r *RepoBytes) ReadRecord(ctx context.Context, bytes *model.Bytes) (*model.
 		return nil, err
 	}
 	row := r.SqlDB.QueryRowContext(ctx,
-		`SELECT name, received_size, type, updated_at
+		`SELECT name, path, received_size, type, updated_at
 		 FROM bytes 
 		 WHERE user_id = $1 AND name = $2`,
 		userID, bytes.Name)
 
 	err = row.Scan(
 		&bytes.Name,
+		&bytes.Path,
 		&bytes.ReceivedSize,
 		&bytes.Type,
 		&bytes.CreatedAt,

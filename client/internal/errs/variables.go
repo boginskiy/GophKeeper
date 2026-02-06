@@ -13,4 +13,7 @@ var (
 	ErrStartStream    = NewErrWrapper("start stream error")
 	ErrReadFileToBuff = NewErrWrapper("error reading the file into the buffer")
 	ErrSendChankFile  = NewErrWrapper("error sending the part of file to server")
+
+	ErrPassword = errors.New("password is incorrect")
+	ErrEmail    = errors.New("email is incorrect")
 )

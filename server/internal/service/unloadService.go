@@ -14,23 +14,23 @@ import (
 )
 
 type UnloadService struct {
-	Cfg       config.Config
-	Logg      logg.Logger
-	FileHdler utils.FileHandler
-	Repo      repo.CreateReader[*model.Bytes]
+	Cfg         config.Config
+	Logg        logg.Logger
+	FileHandler utils.FileHandler
+	Repo        repo.CreateReader[*model.Bytes]
 }
 
 func NewUnloadService(
 	config config.Config,
 	logger logg.Logger,
-	fileHdler utils.FileHandler,
+	fileHandler utils.FileHandler,
 	repo repo.CreateReader[*model.Bytes]) *UnloadService {
 
 	return &UnloadService{
-		Cfg:       config,
-		Logg:      logger,
-		FileHdler: fileHdler,
-		Repo:      repo,
+		Cfg:         config,
+		Logg:        logger,
+		FileHandler: fileHandler,
+		Repo:        repo,
 	}
 }
 
@@ -57,11 +57,11 @@ func (s *UnloadService) Prepar(stream rpc.ByterService_UnloadServer) (*model.Byt
 
 func (s *UnloadService) Load(stream rpc.ByterService_UnloadServer, modBytes *model.Bytes) error {
 	// Check and Read file
-	if !s.FileHdler.CheckOfFile(modBytes.Path) {
+	if !s.FileHandler.CheckOfFile(modBytes.Path) {
 		return errs.ErrFileNotFound
 	}
 
-	file, err := s.FileHdler.ReadOrCreateFile(modBytes.Path, infra.MOD)
+	file, err := s.FileHandler.ReadOrCreateFile(modBytes.Path, infra.MOD)
 	if err != nil {
 		return err
 	}

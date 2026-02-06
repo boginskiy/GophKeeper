@@ -20,7 +20,7 @@ type BytesService struct {
 	Cfg         config.Config
 	Logg        logg.Logger
 	Repo        repo.Repository[*model.Bytes]
-	FileHdler   utils.FileHandler
+	FileHandler utils.FileHandler
 	FileManager infra.FileManager
 }
 
@@ -28,14 +28,14 @@ func NewBytesService(
 	config config.Config,
 	logger logg.Logger,
 	repo repo.Repository[*model.Bytes],
-	fileHdler utils.FileHandler,
+	fileHandler utils.FileHandler,
 	fileManager infra.FileManager) *BytesService {
 
 	return &BytesService{
 		Cfg:         config,
 		Logg:        logger,
 		Repo:        repo,
-		FileHdler:   fileHdler,
+		FileHandler: fileHandler,
 		FileManager: fileManager,
 	}
 }

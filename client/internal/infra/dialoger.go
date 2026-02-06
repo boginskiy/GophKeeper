@@ -74,7 +74,7 @@ func (d *Dialog) VerifyEnterIt(needToTake, needToCompare string, quantity int) (
 		}
 		d.Client.SendMess("Uncorrected credentials. Try again...")
 	}
-	return "", errs.ErrUncorrectCredentials
+	return "", errs.ErrEmail
 }
 
 func (d *Dialog) VerifyEnterPassword(needToTake, needToCompare string, quantity int) (string, error) {
@@ -86,7 +86,7 @@ func (d *Dialog) VerifyEnterPassword(needToTake, needToCompare string, quantity 
 		}
 		d.Client.SendMess("Uncorrected credentials. Try again...")
 	}
-	return "", errs.ErrUncorrectCredentials
+	return "", errs.ErrPassword
 }
 
 func (d *Dialog) GetDataRegister() (userName, email, phone, password string) {
