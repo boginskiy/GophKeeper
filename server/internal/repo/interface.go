@@ -1,13 +1,15 @@
 package repo
 
+import "context"
+
 type CreateReader[T any] interface {
-	CreateRecord(obj T) (T, error)
-	ReadRecord(obj T) (T, error)
+	CreateRecord(ctx context.Context, obj T) (T, error)
+	ReadRecord(ctx context.Context, obj T) (T, error)
 }
 
 type Repository[T any] interface {
 	CreateReader[T]
-	ReadAllRecord(obj T) ([]T, error)
-	UpdateRecord(obj T) (T, error)
-	DeleteRecord(obj T) (T, error)
+	ReadAllRecord(ctx context.Context, obj T) ([]T, error)
+	UpdateRecord(ctx context.Context, obj T) (T, error)
+	DeleteRecord(ctx context.Context, obj T) (T, error)
 }

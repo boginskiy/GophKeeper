@@ -12,6 +12,7 @@ const (
 	CONFIG  = "config.json"
 	APPNAME = "gophclient"
 	VERS    = "1.1.01"
+	STORE   = "store"
 )
 
 type ArgsCLI struct {

@@ -5,8 +5,8 @@ import (
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
-	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/comm"
+	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/intercept"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/service"
@@ -38,8 +38,11 @@ func (a *App) Init() {
 	remoteLogg := logg.NewLogg("remote.log", "INFO")
 
 	// Utils.
-	fileHandler := utils.NewFileHdlr()
-	checker := utils.NewCheck()
+	pathHandler := utils.NewPathProc()
+	fileHandler := utils.NewFileProc(pathHandler)
+
+	//
+	fileManager := infra.NewFileManage(fileHandler, pathHandler)
 
 	// User.
 	userCLI := user.NewUserCLI(a.Logg)
@@ -47,36 +50,35 @@ func (a *App) Init() {
 	// Interceptor.
 	interceptor := intercept.NewClientIntercept(a.Cfg, a.Logg, userCLI)
 
-	// Clients.
+	// Clients & User.
 	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg, interceptor)
 	clientCLI := client.NewClientCLI(a.Logg)
 
 	// Infra Services.
-	dialogSrv := cli.NewDialogService(a.Cfg, a.Logg, checker, clientCLI, userCLI)
+	checker := infra.NewCheck(fileHandler)
+	dialoger := infra.NewDialog(a.Cfg, a.Logg, checker, clientCLI, userCLI)
 
 	// Remote Services.
-	remoteAuthSrv := api.NewRemoteAuthService(a.Cfg, remoteLogg, clientGRPC)
-	remoteTextSrv := api.NewRemoteTextService(a.Cfg, remoteLogg, clientGRPC)
-	remoteBytesSrv := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC)
+	remoteAuther := api.NewRemoteAuthService(a.Cfg, remoteLogg, clientGRPC)
+	remoteTexter := api.NewRemoteTextService(a.Cfg, remoteLogg, clientGRPC)
+	remoteByter := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC)
 
 	// Business Services.
-	byterSrv := service.NewBytesService(a.Cfg, a.Logg, fileHandler, remoteBytesSrv)
-	texterSrv := service.NewTextService(a.Cfg, a.Logg, remoteTextSrv)
+	bytesService := service.NewBytesService(a.Cfg, a.Logg, fileHandler, pathHandler, remoteByter, fileManager)
+	textService := service.NewTextService(a.Cfg, a.Logg, remoteTexter)
 
 	// Auth.
-	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler)
-	authSrv := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuthSrv)
+	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler, pathHandler)
+	authSrv := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuther)
 
 	// Commonds.
-	commImage := comm.NewCommImage(dialogSrv)
-	commSound := comm.NewCommSound(dialogSrv)
-	commBytes := comm.NewCommBytes(dialogSrv, byterSrv)
-	commText := comm.NewCommText(dialogSrv, texterSrv)
-	root := comm.NewRoot(dialogSrv, commText, commBytes, commImage, commSound)
+	commMedia := comm.NewCommMedia(checker, dialoger, bytesService) // Bytes, Sound, Video, Image
+	commText := comm.NewCommText(dialoger, textService)
+	root := comm.NewRoot(dialoger, commText, commMedia)
 
 	// Start.
 	NewRunner(
-		a.Cfg, a.Logg, identity, dialogSrv, authSrv, root).Run(clientCLI, userCLI)
+		a.Cfg, a.Logg, identity, dialoger, authSrv, root).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()
 	defer a.Logg.Close()

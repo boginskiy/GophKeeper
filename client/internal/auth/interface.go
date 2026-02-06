@@ -14,4 +14,5 @@ type Auth interface {
 type Identifier interface {
 	Identification(user.User) bool
 	SaveCurrentUser(user.User)
+	Shutdown(<-chan struct{}, user.User)
 }

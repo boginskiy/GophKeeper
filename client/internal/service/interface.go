@@ -13,8 +13,9 @@ type TextServicer[T any] interface {
 }
 
 type BytesServicer interface {
-	Upload(user.User, string) (any, error)
+	Upload(user.User, string, string) (any, error)
 	Unload(user.User, string) (any, error)
+
 	Read(user.User, string) (any, error)
 	ReadAll(user.User, string) (any, error)
 	Delete(user.User, string) (any, error)

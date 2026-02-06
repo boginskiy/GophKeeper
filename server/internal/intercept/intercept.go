@@ -5,8 +5,8 @@ import (
 
 	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"github.com/boginskiy/GophKeeper/server/internal/auth"
+	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
-	"github.com/boginskiy/GophKeeper/server/internal/manager"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -39,8 +39,9 @@ func (i *ServIntercept) ServAuth(ctx context.Context, req interface{}, info *grp
 		return handler(ctx, req)
 	}
 	// Good identification.
-	ctx = context.WithValue(ctx, manager.PhoneCtx, infoToken.PhoneNumber)
-	ctx = context.WithValue(ctx, manager.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.PhoneCtx, infoToken.PhoneNumber)
+	ctx = context.WithValue(ctx, infra.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.IDCtx, infoToken.ID)
 
 	return handler(ctx, req)
 }
@@ -57,13 +58,14 @@ func (i *ServIntercept) StreamServAuth(srv interface{}, ss grpc.ServerStream, in
 	}
 
 	// New context.
-	newCtx := context.WithValue(ctx, manager.PhoneCtx, infoToken.PhoneNumber)
-	newCtx = context.WithValue(newCtx, manager.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.PhoneCtx, infoToken.PhoneNumber)
+	ctx = context.WithValue(ctx, infra.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.IDCtx, infoToken.ID)
 
 	// Оболочка ServerStream с новым контекстом
 	wrapSS := &WrapServerStream{
 		ServerStream: ss,
-		Ctx:          newCtx,
+		Ctx:          ctx,
 	}
 
 	return handler(srv, wrapSS)

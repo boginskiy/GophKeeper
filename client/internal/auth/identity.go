@@ -1,8 +1,11 @@
 package auth
 
 import (
+	"context"
 	"io"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/errs"
@@ -16,25 +19,48 @@ type Identity struct {
 	Cfg          config.Config
 	Logger       logg.Logger
 	FileHendler  utils.FileHandler
+	PathHandler  utils.PathHandler
 	PathToConfig string
 }
 
-func NewIdentity(cfg config.Config, logger logg.Logger, fileHndl utils.FileHandler) *Identity {
+func NewIdentity(
+	cfg config.Config,
+	logger logg.Logger,
+	fileHandler utils.FileHandler,
+	pathHandler utils.PathHandler) *Identity {
+
 	// Path to config file.
-	path, err := fileHndl.CreatePathToConfig(config.APPNAME, config.CONFIG)
+	path, err := pathHandler.CreatePathToConfig(config.APPNAME, config.CONFIG)
 	logger.CheckWithFatal(err, "error in creating path to config file")
 
 	// Create folder for config file.
-	err = fileHndl.CreateFolder(path, 0755)
+	err = fileHandler.CreateFolder(path, 0755)
 	logger.CheckWithFatal(err, "error in creating path to config file")
 
 	tmp := &Identity{
 		Logger:       logger,
-		FileHendler:  fileHndl,
+		FileHendler:  fileHandler,
 		PathToConfig: path,
 	}
 
 	return tmp
+}
+
+func (i *Identity) Shutdown(done <-chan struct{}, user user.User) {
+	//  Registration interruption.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+
+	go func() {
+		defer stop()
+
+		select {
+		case <-ctx.Done():
+			i.SaveCurrentUser(user)
+			return
+		case <-done:
+			return
+		}
+	}()
 }
 
 func (i *Identity) Identification(user user.User) bool {
@@ -60,7 +86,7 @@ func (i *Identity) SaveCurrentUser(user user.User) {
 		return
 	}
 
-	dataByte, err := i.FileHendler.Serialization(user.GetModelUser())
+	dataByte, err := utils.Serialization(user.GetModelUser())
 	if err != nil {
 		i.Logger.RaiseError(err, "error in serialization config file", nil)
 		return
@@ -100,7 +126,7 @@ func (i *Identity) takePreviosUser() (*model.User, error) {
 
 	// Deserialization.
 	previosUser := &model.User{}
-	err = i.FileHendler.Deserialization(dataByte, previosUser)
+	err = utils.Deserialization(dataByte, previosUser)
 	if err != nil {
 		i.Logger.RaiseError(err, "error deserialization info from config file", nil)
 		return nil, err
