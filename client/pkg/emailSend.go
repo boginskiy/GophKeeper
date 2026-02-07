@@ -6,7 +6,7 @@ import (
 )
 
 type EmailSender interface {
-	SendEmail() error
+	SendEmail(to, subject, body string) error
 }
 
 type EmailSend struct {

@@ -1,6 +1,9 @@
 package app
 
 import (
+	"context"
+	"time"
+
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/api"
@@ -37,11 +40,14 @@ func (a *App) Init() {
 	// Logger.
 	remoteLogg := logg.NewLogg("remote.log", "INFO")
 
+	ctxT, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctxC, cancel := context.WithCancel(context.Background())
+	codeChan := make(chan string, 1)
+	mailChan := make(chan string, 1)
+
 	// Utils.
 	pathHandler := utils.NewPathProc()
 	fileHandler := utils.NewFileProc(pathHandler)
-
-	//
 	fileManager := infra.NewFileManage(fileHandler, pathHandler)
 
 	// User.
@@ -70,16 +76,20 @@ func (a *App) Init() {
 	// Auth.
 	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler, pathHandler)
 	authSrv := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuther)
+	auth.NewRecovery(ctxC, a.Cfg, a.Logg, mailChan, codeChan)
 
 	// Commonds.
 	commMedia := comm.NewCommMedia(checker, dialoger, bytesService) // Bytes, Sound, Video, Image
 	commText := comm.NewCommText(dialoger, textService)
-	root := comm.NewRoot(dialoger, commText, commMedia)
+	root := comm.NewRoot(ctxT, dialoger, commText, commMedia, mailChan, codeChan)
 
 	// Start.
 	NewRunner(
 		a.Cfg, a.Logg, identity, dialoger, authSrv, root).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()
+	defer close(codeChan)
+	defer close(mailChan)
 	defer a.Logg.Close()
+	defer cancel()
 }

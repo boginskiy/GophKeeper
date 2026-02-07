@@ -60,3 +60,17 @@ func (a *AuthService) Authentication(user user.User, modUser *model.User) (strin
 	user.GetModelUser().Token = token
 	return token, nil
 }
+
+func (a *AuthService) RecoveryPassword(user user.User, modUser *model.User) (string, error) {
+	token, err := a.RemoteAuther.RecoveryPassword(*modUser)
+
+	// Обработка ошибок
+	ok, info := ErrorHandler(err)
+	if ok {
+		return info, err
+	}
+
+	user.SaveLocalUser(modUser)
+	user.GetModelUser().Token = token
+	return token, nil
+}

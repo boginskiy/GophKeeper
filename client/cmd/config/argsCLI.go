@@ -42,12 +42,12 @@ func (a *ArgsCLI) ParseFlags() {
 	// -m 1
 	// -r 3
 
-	flag.IntVar(&a.MaxRetries, "m", 3, "Maximum number of attempts to enter data through the CLI terminal")
+	flag.IntVar(&a.MaxRetries, "m", 1, "Maximum number of attempts to enter data through the CLI terminal")
 	flag.IntVar(&a.ResTimeout, "t", 500, "Waiting time for a response from the remote server")
 	flag.StringVar(&a.ServerGrpc, "p", "localhost:8080", "Port for the gRPC server")
 	flag.IntVar(&a.ReqRetries, "r", 3, "Number of attempts to reject requests")
 	flag.StringVar(&a.EmailFrom, "c", "gophkeeper@gmail.com", "")
-	flag.StringVar(&a.AppPassword, "d", "", "")
+	flag.StringVar(&a.AppPassword, "d", "upiplnvviujgnevc", "")
 	flag.StringVar(&a.SMTPHost, "a", "smtp.gmail.com", "")
 	flag.StringVar(&a.SMTPPort, "b", "587", "")
 

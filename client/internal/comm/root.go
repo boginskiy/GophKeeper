@@ -1,6 +1,7 @@
 package comm
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
@@ -12,21 +13,33 @@ import (
 )
 
 type Root struct {
-	Dialoger  infra.Dialoger
+	Ctx      context.Context
+	Dialoger infra.Dialoger
+	// DataRecover infra.DataRecover
 	CommText  Commander
 	CommMedia Commander
+	MailChan  chan<- string
+	CodeChan  <-chan string
 }
 
 func NewRoot(
+	ctx context.Context,
 	dialoger infra.Dialoger,
+	// dataRecover infra.DataRecover,
 	commtext Commander,
 	commmedia Commander,
+	mailChan chan<- string,
+	codeChan <-chan string,
 ) *Root {
 
 	return &Root{
-		Dialoger:  dialoger,
+		Ctx:      ctx,
+		Dialoger: dialoger,
+		// DataRecover: dataRecover,
 		CommText:  commtext,
 		CommMedia: commmedia,
+		MailChan:  mailChan,
+		CodeChan:  codeChan,
 	}
 }
 
@@ -69,6 +82,7 @@ func (r *Root) ExecuteAuth(authSrv auth.Auth, user user.User) bool {
 
 		// Authentication.
 		email, password, err := r.Dialoger.VerifyDataAuth(user)
+
 		if err == nil {
 			checkUser := &model.User{Email: email, Password: password}
 			info, err = authSrv.Authentication(user, checkUser)
@@ -76,22 +90,54 @@ func (r *Root) ExecuteAuth(authSrv auth.Auth, user user.User) bool {
 				r.Dialoger.ShowIt("Authentication is successful")
 				return true
 			}
+			r.Dialoger.ShowIt(info)
 		}
 
-		// Пользователь забыл password. Идем восстанавливать.
+		// Recovery Password.
 		if err == errs.ErrPassword {
+			comm, _ := r.Dialoger.GetSomeThing(
+				fmt.Sprintf("%s\n\r%s",
+					"Do you want to recover your password? \n\r\t yes \n\r\t no",
+					"go out: exit, need help: help"))
 
-		}
+			if comm == "yes" {
+				// Отправляем на обработку в сервис восстановления пароля.
+				r.MailChan <- email
 
-		// Пользователь забыл email. Идем восстанавливать.
-		if err == errs.ErrEmail {
+				codeUser, _ := r.Dialoger.GetSomeThing(
+					fmt.Sprintf("%s",
+						"Enter code to recover from your mail..."))
 
+				select {
+				case <-r.Ctx.Done():
+					r.Dialoger.ShowIt("Some problems with data recovery")
+
+				case codeGener := <-r.CodeChan:
+					// Check user's code with generation code
+					if codeUser != codeGener {
+						r.Dialoger.ShowIt("Invalid code to recover")
+
+					} else {
+						newPassword, _ := r.Dialoger.GetSomeThing(
+							fmt.Sprintf("%s",
+								"Enter a new password..."))
+
+						updateUser := &model.User{Password: newPassword}
+						info, err := authSrv.RecoveryPassword(user, updateUser)
+
+						if err == nil {
+							r.Dialoger.ShowIt("Recovery password is successful")
+							return true
+						}
+						r.Dialoger.ShowIt(info)
+						return false
+					}
+				}
+			}
 		}
 	}
 
 	// Registration.
-	r.Dialoger.ShowIt(info)
-
 	newUser := model.NewUser(r.Dialoger.GetDataRegister())
 	info, err := authSrv.Registration(user, newUser)
 	if err == nil {
@@ -101,3 +147,6 @@ func (r *Root) ExecuteAuth(authSrv auth.Auth, user user.User) bool {
 	r.Dialoger.ShowIt(info)
 	return false
 }
+
+// TODO можно сделать отдельной страницей как
+// Media ?

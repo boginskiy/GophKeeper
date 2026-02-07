@@ -7,6 +7,12 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
+// DataRecover
+type DataRecover interface {
+	RecoveryPassword(email string) bool
+	GetRandomNumber() string
+}
+
 // Checker
 type Checker interface {
 	CheckTwoString(oneStr, twoStr string) bool

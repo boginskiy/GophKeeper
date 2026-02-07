@@ -7,6 +7,7 @@ option go_package = "github.com/boginskiy/GophKeeper/server/internal/rpc";
 service AuthService {
   rpc RegistUser (RegistUserRequest) returns (RegistUserResponse);
   rpc AuthUser (AuthUserRequest) returns (AuthUserResponse);
+  rpc RecoverUser (RecoverUserRequest) returns (RecoverUserResponse);
 }
 
 message RegistUserRequest {
@@ -17,6 +18,14 @@ message RegistUserRequest {
 }
 
 message RegistUserResponse {
+    string status = 1;
+}
+
+message RecoverUserRequest {
+  string password = 1;
+}
+
+message RecoverUserResponse {
     string status = 1;
 }
 

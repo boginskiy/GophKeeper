@@ -63,3 +63,20 @@ func (a *RemoteAuthService) Authentication(user model.User) (token string, err e
 
 	return token, err
 }
+
+func (a *RemoteAuthService) RecoveryPassword(user model.User) (token string, err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.Cfg.GetResTimeout()))
+	defer cancel()
+
+	// Request.
+	req := &rpc.RecoverUserRequest{
+		Password: user.Password}
+
+	// Header.
+	var serverHeader metadata.MD
+
+	_, err = a.ClientGRPC.AuthService.RecoverUser(ctx, req, grpc.Header(&serverHeader))
+	token = infra.TakeValueFromHeader(serverHeader, "authorization", 0)
+
+	return token, err
+}

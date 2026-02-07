@@ -117,7 +117,7 @@ func (d *Dialog) VerifyDataAuth(user user.User) (email, password string, err err
 
 	password, err = d.VerifyEnterPassword("password", user.GetModelUser().Password, d.Cfg.GetMaxRetries())
 	if err != nil {
-		return "", "", err
+		return email, "", err
 	}
 
 	return email, password, nil
