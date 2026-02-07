@@ -15,8 +15,8 @@ type Runner struct {
 	Logg       logg.Logger
 	Identifier auth.Identifier
 	Dialoger   infra.Dialoger
-	AuthSrv    auth.Auth
 	Root       comm.Rooter
+	RootAuth   comm.Rooter
 	done       chan struct{}
 }
 
@@ -25,27 +25,27 @@ func NewRunner(
 	logger logg.Logger,
 	identity auth.Identifier,
 	dialoger infra.Dialoger,
-	authSrv auth.Auth,
-	root comm.Rooter) *Runner {
+	root comm.Rooter,
+	rootAuth comm.Rooter) *Runner {
 
 	return &Runner{
 		Cfg:        cfg,
 		Logg:       logger,
 		Identifier: identity,
 		Dialoger:   dialoger,
-		AuthSrv:    authSrv,
 		Root:       root,
+		RootAuth:   rootAuth,
 		done:       make(chan struct{}),
 	}
 }
 
-func (d *Runner) Run(client *client.ClientCLI, user *user.UserCLI) {
+func (d *Runner) Run(client *client.ClientCLI, user user.User) {
 	d.Identifier.Shutdown(d.done, user)
 
 	d.Dialoger.ShowIt("Hello, Man!")
 
-	ok := d.Root.ExecuteAuth(d.AuthSrv, user)
-	d.Root.ExecuteComm(ok, client, user)
+	ok := d.RootAuth.ExecuteComm(true, user)
+	d.Root.ExecuteComm(ok, user)
 
 	d.Dialoger.ShowIt("Session is over. Goodbye")
 

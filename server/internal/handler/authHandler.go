@@ -74,7 +74,7 @@ func (k *AuthHandler) AuthUser(ctx context.Context, req *rpc.AuthUserRequest) (*
 	return &rpc.AuthUserResponse{Status: "ok"}, nil
 }
 
-func (k *AuthHandler) Recovery(ctx context.Context, req *rpc.RecoverUserRequest) (*rpc.RecoverUserResponse, error) {
+func (k *AuthHandler) RecoverUser(ctx context.Context, req *rpc.RecoverUserRequest) (*rpc.RecoverUserResponse, error) {
 	token, err := k.Auth.Recovery(ctx, req)
 
 	// Ошибка. Пользователь с таким email не найден.
@@ -95,3 +95,5 @@ func (k *AuthHandler) Recovery(ctx context.Context, req *rpc.RecoverUserRequest)
 
 	return &rpc.RecoverUserResponse{Status: "ok"}, nil
 }
+
+// $2a$10$EomCxN0Lq.fG9ZeEoRRF4uUAVBEWp4BwkXOzRdOmCzS0yJyyGOvwS

@@ -44,10 +44,15 @@ func NewUser(name, email, password, phone string) (*model.User, error) {
 }
 
 func (a *Auth) Recovery(ctx context.Context, req *rpc.RecoverUserRequest) (token string, err error) {
-	// Check user in DB.
-	record, err := a.Repo.UpdateRecord(context.Background(), &model.User{Email: req.Email, Password: req.Password})
+	updateUser, err := NewUser("", req.Email, req.Password, "")
 	if err != nil {
-		return "", err
+		return "", errs.ErrCreateUser.Wrap(err)
+	}
+
+	// Check user in DB.
+	record, err := a.Repo.UpdateRecord(context.Background(), updateUser)
+	if err != nil {
+		return "", errs.ErrUpdateUser.Wrap(err)
 	}
 
 	// Create new token

@@ -16,8 +16,7 @@ const (
 	LONGNUM = 6
 )
 
-type Recovery struct {
-	// Ctx          context.Context
+type RecoveryService struct {
 	Cfg          config.Config
 	Logg         logg.Logger
 	MailChan     <-chan string
@@ -26,13 +25,13 @@ type Recovery struct {
 	RandomNumber string
 }
 
-func NewRecovery(
+func NewRecoveryService(
 	ctx context.Context,
 	cfg config.Config,
 	logger logg.Logger,
 	mailch <-chan string,
 	codeChan chan<- string,
-) *Recovery {
+) *RecoveryService {
 
 	emailSender := pkg.NewEmailSend(
 		cfg.GetSMTPHost(),
@@ -40,8 +39,7 @@ func NewRecovery(
 		cfg.GetEmailFrom(),
 		cfg.GetAppPassword())
 
-	tmp := &Recovery{
-		// Ctx:         ctx,
+	tmp := &RecoveryService{
 		Cfg:         cfg,
 		Logg:        logger,
 		MailChan:    mailch,
@@ -54,7 +52,7 @@ func NewRecovery(
 	return tmp
 }
 
-func (d *Recovery) ReceiveMail(ctx context.Context) {
+func (d *RecoveryService) ReceiveMail(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -67,11 +65,11 @@ func (d *Recovery) ReceiveMail(ctx context.Context) {
 	}
 }
 
-func (d *Recovery) GetRandomNumber() string {
+func (d *RecoveryService) GetRandomNumber() string {
 	return d.RandomNumber
 }
 
-func (d *Recovery) generatingRandomNumber(long int) string {
+func (d *RecoveryService) generatingRandomNumber(long int) string {
 	// Создаем источник случайности на основе текущего времени
 	source := rand.NewSource(time.Now().UnixNano())
 	rand := rand.New(source)
@@ -85,7 +83,7 @@ func (d *Recovery) generatingRandomNumber(long int) string {
 	return result
 }
 
-func (d *Recovery) RecoveryPassword(email string) bool {
+func (d *RecoveryService) RecoveryPassword(email string) bool {
 	// Генерация случайного числа
 	d.generatingRandomNumber(LONGNUM)
 

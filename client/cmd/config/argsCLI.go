@@ -47,7 +47,7 @@ func (a *ArgsCLI) ParseFlags() {
 	flag.StringVar(&a.ServerGrpc, "p", "localhost:8080", "Port for the gRPC server")
 	flag.IntVar(&a.ReqRetries, "r", 3, "Number of attempts to reject requests")
 	flag.StringVar(&a.EmailFrom, "c", "gophkeeper@gmail.com", "")
-	flag.StringVar(&a.AppPassword, "d", "upiplnvviujgnevc", "")
+	flag.StringVar(&a.AppPassword, "d", "", "")
 	flag.StringVar(&a.SMTPHost, "a", "smtp.gmail.com", "")
 	flag.StringVar(&a.SMTPPort, "b", "587", "")
 

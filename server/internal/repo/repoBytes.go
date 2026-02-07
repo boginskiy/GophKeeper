@@ -77,7 +77,7 @@ func (r *RepoBytes) ReadRecord(ctx context.Context, bytes *model.Bytes) (*model.
 		&bytes.Path,
 		&bytes.ReceivedSize,
 		&bytes.Type,
-		&bytes.CreatedAt,
+		&bytes.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows { // Нет данных
