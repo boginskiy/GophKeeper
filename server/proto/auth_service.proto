@@ -22,7 +22,8 @@ message RegistUserResponse {
 }
 
 message RecoverUserRequest {
-  string password = 1;
+  string email = 1;
+  string password = 2;
 }
 
 message RecoverUserResponse {

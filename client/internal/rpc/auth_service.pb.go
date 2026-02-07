@@ -135,7 +135,8 @@ func (x *RegistUserResponse) GetStatus() string {
 
 type RecoverUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Password      string                 `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`
+	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -168,6 +169,13 @@ func (x *RecoverUserRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use RecoverUserRequest.ProtoReflect.Descriptor instead.
 func (*RecoverUserRequest) Descriptor() ([]byte, []int) {
 	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RecoverUserRequest) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
 }
 
 func (x *RecoverUserRequest) GetPassword() string {
@@ -328,9 +336,10 @@ const file_server_proto_auth_service_proto_rawDesc = "" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12 \n" +
 	"\vphonenumber\x18\x04 \x01(\tR\vphonenumber\",\n" +
 	"\x12RegistUserResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\"0\n" +
-	"\x12RecoverUserRequest\x12\x1a\n" +
-	"\bpassword\x18\x01 \x01(\tR\bpassword\"-\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\"F\n" +
+	"\x12RecoverUserRequest\x12\x14\n" +
+	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"-\n" +
 	"\x13RecoverUserResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\"C\n" +
 	"\x0fAuthUserRequest\x12\x14\n" +

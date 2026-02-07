@@ -64,13 +64,15 @@ func (a *RemoteAuthService) Authentication(user model.User) (token string, err e
 	return token, err
 }
 
-func (a *RemoteAuthService) RecoveryPassword(user model.User) (token string, err error) {
+func (a *RemoteAuthService) Recovery(user model.User) (token string, err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.Cfg.GetResTimeout()))
 	defer cancel()
 
 	// Request.
 	req := &rpc.RecoverUserRequest{
-		Password: user.Password}
+		Password: user.Password,
+		Email:    user.Email,
+	}
 
 	// Header.
 	var serverHeader metadata.MD

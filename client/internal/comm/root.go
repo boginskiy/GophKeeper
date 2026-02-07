@@ -122,8 +122,8 @@ func (r *Root) ExecuteAuth(authSrv auth.Auth, user user.User) bool {
 							fmt.Sprintf("%s",
 								"Enter a new password..."))
 
-						updateUser := &model.User{Password: newPassword}
-						info, err := authSrv.RecoveryPassword(user, updateUser)
+						updateUser := &model.User{Password: newPassword, Email: email}
+						info, err := authSrv.Recovery(user, updateUser)
 
 						if err == nil {
 							r.Dialoger.ShowIt("Recovery password is successful")

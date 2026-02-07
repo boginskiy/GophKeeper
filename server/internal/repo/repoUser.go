@@ -28,6 +28,17 @@ func NewRepoUser(cfg config.Config, logger logg.Logger, db db.DataBase[*sql.DB])
 	}
 }
 
+func (u *RepoUser) UpdateRecord(ctx context.Context, user *model.User) (*model.User, error) {
+	row := u.SqlDB.QueryRowContext(ctx,
+		`UPDATE users
+		 SET password = $1
+		 WHERE email = $2
+		 RETURNING id, phone_number;`,
+		user.Password, user.Email)
+
+	return user, row.Scan(&user.ID, &user.PhoneNumber)
+}
+
 func (u *RepoUser) CreateRecord(ctx context.Context, user *model.User) (*model.User, error) {
 	row := u.SqlDB.QueryRowContext(ctx,
 		`INSERT INTO users (name, email, phone_number, password)

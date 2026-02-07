@@ -25,6 +25,7 @@ var (
 
 	// Errors with wrap.
 	ErrCreateUser           = NewErrWrapper("user creation error")
+	ErrUpdateUser           = NewErrWrapper("user update error")
 	ErrCreateToken          = NewErrWrapper("token creation error")
 	ErrCreatePathToStore    = NewErrWrapper("store path creation error")
 	ErrCreateFoldersToStore = NewErrWrapper("store folder creation error")

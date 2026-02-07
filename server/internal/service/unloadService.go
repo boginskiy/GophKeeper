@@ -17,14 +17,14 @@ type UnloadService struct {
 	Cfg         config.Config
 	Logg        logg.Logger
 	FileHandler utils.FileHandler
-	Repo        repo.CreateReader[*model.Bytes]
+	Repo        repo.RepoCreateReader[*model.Bytes]
 }
 
 func NewUnloadService(
 	config config.Config,
 	logger logg.Logger,
 	fileHandler utils.FileHandler,
-	repo repo.CreateReader[*model.Bytes]) *UnloadService {
+	repo repo.RepoCreateReader[*model.Bytes]) *UnloadService {
 
 	return &UnloadService{
 		Cfg:         config,

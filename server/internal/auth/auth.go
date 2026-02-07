@@ -17,14 +17,15 @@ type Auth struct {
 	Cfg        config.Config
 	Logg       logg.Logger
 	JWTService JWTer
-	Repo       repo.CreateReader[*model.User]
+	Repo       repo.RepoCreateReadUpdater[*model.User]
 }
 
 func NewAuth(
 	config config.Config,
 	logger logg.Logger,
 	jwtSrv JWTer,
-	repo repo.CreateReader[*model.User]) *Auth {
+	repo repo.RepoCreateReadUpdater[*model.User]) *Auth {
+
 	return &Auth{Cfg: config, Logg: logger, JWTService: jwtSrv, Repo: repo}
 }
 
@@ -42,22 +43,32 @@ func NewUser(name, email, password, phone string) (*model.User, error) {
 	}, nil
 }
 
+func (a *Auth) Recovery(ctx context.Context, req *rpc.RecoverUserRequest) (token string, err error) {
+	// Check user in DB.
+	record, err := a.Repo.UpdateRecord(context.Background(), &model.User{Email: req.Email, Password: req.Password})
+	if err != nil {
+		return "", err
+	}
+
+	// Create new token
+	infoToken := NewExtraInfoToken(record.ID, record.Email, record.PhoneNumber)
+	token, err = a.JWTService.CreateJWT(infoToken)
+	if err != nil {
+		return "", errs.ErrCreateToken.Wrap(err)
+	}
+
+	return token, nil
+}
+
 func (a *Auth) Authentication(ctx context.Context, req *rpc.AuthUserRequest) (token string, err error) {
 	// Check user in DB.
 	record, err := a.Repo.ReadRecord(context.Background(), &model.User{Email: req.Email})
 	if err != nil {
-		// TODO!
-		// Пользователь по введенному email не найден в БД.
-		// Тут можно как-то обыграть ситуацию. предложить альтернативные варианты.
-		// Восстановить доступ. Например телефон и т.п.
-		// Базовое поведение. Отсутствуешь в системе? Иди на регистрацию...
 		return "", err
 	}
 
 	// Check password
 	if !pkg.CompareHashAndPassword(record.Password, req.Password) {
-		// TODO!
-		// Предусмотреть альтернативы для восстановления учетки.
 		return "", errs.ErrUserPassword
 	}
 
@@ -81,7 +92,7 @@ func (a *Auth) Registration(ctx context.Context, req *rpc.RegistUserRequest) (to
 	// Create new record with user.
 	record, err := a.Repo.CreateRecord(context.Background(), newUser)
 	if err != nil {
-		return "", err
+		return "", errs.ErrCreateUser.Wrap(err)
 	}
 
 	// Create token
@@ -105,6 +116,11 @@ func (a *Auth) Identification(ctx context.Context, req any) (*ExtraInfoToken, bo
 		return nil, true
 	}
 
+	// Check, if client go to Recovery.
+	if a.CheckPathToRec(ctx, req) {
+		return nil, true
+	}
+
 	token := infra.TakeDataFromCtx(ctx, "authorization")
 
 	// Try Authentication.
@@ -125,5 +141,11 @@ func (a *Auth) CheckPathToReg(ctx context.Context, req any) bool {
 // CheckPathToAuth check, if client go to Authentication.
 func (a *Auth) CheckPathToAuth(ctx context.Context, req any) bool {
 	_, ok := req.(*rpc.AuthUserRequest)
+	return ok
+}
+
+// CheckPathToRec check, if client go to Recovery.
+func (a *Auth) CheckPathToRec(ctx context.Context, req any) bool {
+	_, ok := req.(*rpc.RecoverUserRequest)
 	return ok
 }

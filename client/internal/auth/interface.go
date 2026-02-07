@@ -6,9 +6,9 @@ import (
 )
 
 type Auth interface {
-	RecoveryPassword(user.User, *model.User) (string, error)
 	Authentication(user.User, *model.User) (string, error)
 	Registration(user.User, *model.User) (string, error)
+	Recovery(user.User, *model.User) (string, error)
 	Identification(user.User) bool
 }
 

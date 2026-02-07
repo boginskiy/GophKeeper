@@ -17,4 +17,5 @@ type Auther interface {
 	Identification(context.Context, any) (*ExtraInfoToken, bool)
 	Registration(context.Context, *rpc.RegistUserRequest) (string, error)
 	Authentication(context.Context, *rpc.AuthUserRequest) (string, error)
+	Recovery(context.Context, *rpc.RecoverUserRequest) (string, error)
 }

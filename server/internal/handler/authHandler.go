@@ -73,3 +73,25 @@ func (k *AuthHandler) AuthUser(ctx context.Context, req *rpc.AuthUserRequest) (*
 
 	return &rpc.AuthUserResponse{Status: "ok"}, nil
 }
+
+func (k *AuthHandler) Recovery(ctx context.Context, req *rpc.RecoverUserRequest) (*rpc.RecoverUserResponse, error) {
+	token, err := k.Auth.Recovery(ctx, req)
+
+	// Ошибка. Пользователь с таким email не найден.
+	if err == errs.ErrUpdateUser {
+		return nil, status.Errorf(codes.NotFound, "%s", err)
+	}
+
+	// Ошибки сервера.
+	if err == errs.ErrCreateToken || err != nil {
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	// Кладем токен в заголовок
+	err = infra.PutDataToCtx(ctx, "authorization", token)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "%s", err)
+	}
+
+	return &rpc.RecoverUserResponse{Status: "ok"}, nil
+}

@@ -61,8 +61,8 @@ func (a *AuthService) Authentication(user user.User, modUser *model.User) (strin
 	return token, nil
 }
 
-func (a *AuthService) RecoveryPassword(user user.User, modUser *model.User) (string, error) {
-	token, err := a.RemoteAuther.RecoveryPassword(*modUser)
+func (a *AuthService) Recovery(user user.User, modUser *model.User) (string, error) {
+	token, err := a.RemoteAuther.Recovery(*modUser)
 
 	// Обработка ошибок
 	ok, info := ErrorHandler(err)
