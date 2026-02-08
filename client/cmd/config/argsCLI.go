@@ -18,15 +18,15 @@ const (
 type ArgsCLI struct {
 	Logg logg.Logger
 
-	ServerGrpc  string // Port for the gRPC server.
-	SMTPHost    string // Email host for recover account.
-	SMTPPort    string // Email port for recover account.
-	EmailFrom   string // Sender name email.
-	AppPassword string // Password for email appl.
-	MaxRetries  int    // Maximum number of attempts to enter data through the CLI terminal.
-	ResTimeout  int    // Waiting time for a response from the remote server.
-	ReqRetries  int    // RetryReq // Number of attempts to reject requests.
-
+	ServerGrpc      string // Port for the gRPC server.
+	SMTPHost        string // Email host for recover account.
+	SMTPPort        string // Email port for recover account.
+	EmailFrom       string // Sender name email.
+	AppPassword     string // Password for email appl.
+	CryptoSignature string // Kye for Signature messages client-server.
+	MaxRetries      int    // Maximum number of attempts to enter data through the CLI terminal.
+	ResTimeout      int    // Waiting time for a response from the remote server.
+	ReqRetries      int    // Number of attempts to reject requests.
 }
 
 func NewArgsCLI(logger logg.Logger) *ArgsCLI {
@@ -47,8 +47,9 @@ func (a *ArgsCLI) ParseFlags() {
 	flag.StringVar(&a.ServerGrpc, "p", "localhost:8080", "Port for the gRPC server")
 	flag.IntVar(&a.ReqRetries, "r", 3, "Number of attempts to reject requests")
 	flag.StringVar(&a.EmailFrom, "c", "gophkeeper@gmail.com", "")
-	flag.StringVar(&a.AppPassword, "d", "", "")
+	flag.StringVar(&a.CryptoSignature, "s", "CryptoKey", "")
 	flag.StringVar(&a.SMTPHost, "a", "smtp.gmail.com", "")
+	flag.StringVar(&a.AppPassword, "d", "", "")
 	flag.StringVar(&a.SMTPPort, "b", "587", "")
 
 	flag.Parse()
@@ -84,4 +85,8 @@ func (a *ArgsCLI) GetSMTPHost() string {
 
 func (a *ArgsCLI) GetSMTPPort() string {
 	return a.SMTPPort
+}
+
+func (a *ArgsCLI) GerCryptoSignature() []byte {
+	return []byte(a.CryptoSignature)
 }

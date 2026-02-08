@@ -14,14 +14,16 @@ import (
 	"github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"github.com/boginskiy/GophKeeper/server/internal/utils"
+	"github.com/boginskiy/GophKeeper/server/pkg"
 )
 
 type BytesService struct {
-	Cfg         config.Config
-	Logg        logg.Logger
-	Repo        repo.Repository[*model.Bytes]
-	FileHandler utils.FileHandler
-	FileManager infra.FileManager
+	Cfg           config.Config
+	Logg          logg.Logger
+	Repo          repo.Repository[*model.Bytes]
+	FileHandler   utils.FileHandler
+	FileManager   infra.FileManager
+	CryptoService *pkg.CryptoService // Переведи на интерфейс!!!
 }
 
 func NewBytesService(
@@ -29,15 +31,21 @@ func NewBytesService(
 	logger logg.Logger,
 	repo repo.Repository[*model.Bytes],
 	fileHandler utils.FileHandler,
-	fileManager infra.FileManager) *BytesService {
+	fileManager infra.FileManager,
+	cryptoService *pkg.CryptoService) *BytesService {
 
-	return &BytesService{
-		Cfg:         config,
-		Logg:        logger,
-		Repo:        repo,
-		FileHandler: fileHandler,
-		FileManager: fileManager,
+	tmp := &BytesService{
+		Cfg:           config,
+		Logg:          logger,
+		Repo:          repo,
+		FileHandler:   fileHandler,
+		FileManager:   fileManager,
+		CryptoService: cryptoService,
 	}
+
+	// Start CryptoService.
+	tmp.CryptoService.Start([]byte("CryptoKey"))
+	return tmp
 }
 
 func (b *BytesService) Upload(stream any) (*model.Bytes, error) {
@@ -75,6 +83,9 @@ func (b *BytesService) Upload(stream any) (*model.Bytes, error) {
 func (b *BytesService) uploadStream(stream rpc.ByterService_UploadServer, modBytes *model.Bytes) (int64, error) {
 	// Writer
 	writer := bufio.NewWriter(modBytes.Descr)
+	b.CryptoService.HMAC.Reset()
+
+	var ClientSignature []byte
 	var CNT int64
 
 	for {
@@ -84,20 +95,34 @@ func (b *BytesService) uploadStream(stream rpc.ByterService_UploadServer, modByt
 			break
 		}
 		if err != nil {
-			return CNT, err
+			return 0, err
 		}
 
+		// Check of Crypto signature.
+		if len(req.CryptoSignature) > 0 {
+			ClientSignature = req.CryptoSignature
+		}
+
+		// Content loading to file.
 		nn, err := writer.Write(req.Content)
+		b.CryptoService.Write(req.Content)
+
 		if err != nil {
-			return CNT, err
+			return 0, err
 		}
 
 		CNT += int64(nn)
 	}
 
+	// Провека цифровой подписи.
+	ok := b.CryptoService.CheckSignature(ClientSignature)
+	if !ok {
+		return 0, pkg.ErrCheckCryptoSignature
+	}
+
 	err := writer.Flush()
 	if err != nil {
-		return CNT, err
+		return 0, err
 	}
 
 	return CNT, nil

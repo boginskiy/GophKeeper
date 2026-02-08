@@ -12,6 +12,7 @@ import (
 	"github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/service"
 	"github.com/boginskiy/GophKeeper/server/internal/utils"
+	"github.com/boginskiy/GophKeeper/server/pkg"
 )
 
 type App struct {
@@ -44,11 +45,14 @@ func (a *App) Run() {
 	jwtService := auth.NewJWTService(a.Cfg)
 	authService := auth.NewAuth(a.Cfg, a.Logg, jwtService, repoUser)
 
+	// CryptoService
+	cryptoService := pkg.NewCryptoService()
+
 	// Services
 	unloaderSrv := service.NewUnloadService(a.Cfg, a.Logg, fileHandler, repoBytes)
 
 	textService := service.NewTextService(a.Cfg, a.Logg, repoText)
-	bytesService := service.NewBytesService(a.Cfg, a.Logg, repoBytes, fileHandler, fileManager)
+	bytesService := service.NewBytesService(a.Cfg, a.Logg, repoBytes, fileHandler, fileManager, cryptoService)
 
 	// Interceptor
 	interceptor := intercept.NewServIntercept(a.Cfg, a.Logg, authService)

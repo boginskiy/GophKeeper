@@ -14,6 +14,7 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/service"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 	"github.com/boginskiy/GophKeeper/client/internal/utils"
+	"github.com/boginskiy/GophKeeper/client/pkg"
 )
 
 type App struct {
@@ -62,11 +63,12 @@ func (a *App) Init() {
 	// Infra Services.
 	checker := infra.NewCheck(fileHandler)
 	dialoger := infra.NewDialog(a.Cfg, a.Logg, checker, clientCLI, userCLI)
+	cryptoService := pkg.NewCryptoService()
 
 	// Remote Services.
 	remoteAuther := api.NewRemoteAuthService(a.Cfg, remoteLogg, clientGRPC)
 	remoteTexter := api.NewRemoteTextService(a.Cfg, remoteLogg, clientGRPC)
-	remoteByter := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC)
+	remoteByter := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC, cryptoService)
 
 	// Business Services.
 	bytesService := service.NewBytesService(a.Cfg, a.Logg, fileHandler, pathHandler, remoteByter, fileManager)

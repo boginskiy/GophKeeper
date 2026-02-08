@@ -13,25 +13,33 @@ import (
 	"github.com/boginskiy/GophKeeper/client/internal/model"
 	"github.com/boginskiy/GophKeeper/client/internal/rpc"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
+	"github.com/boginskiy/GophKeeper/client/pkg"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
 type RemoteBytesService struct {
-	Cfg        config.Config
-	Logg       logg.Logger
-	ClientGRPC *client.ClientGRPC
+	Cfg           config.Config
+	Logg          logg.Logger
+	ClientGRPC    *client.ClientGRPC
+	CryptoService pkg.Crypter
 }
 
 func NewRemoteBytesService(
 	config config.Config,
 	logger logg.Logger,
-	clientgrpc *client.ClientGRPC) *RemoteBytesService {
+	clientgrpc *client.ClientGRPC,
+	cryptoService pkg.Crypter) *RemoteBytesService {
 
-	return &RemoteBytesService{
-		Cfg:        config,
-		Logg:       logger,
-		ClientGRPC: clientgrpc}
+	tmp := &RemoteBytesService{
+		Cfg:           config,
+		Logg:          logger,
+		ClientGRPC:    clientgrpc,
+		CryptoService: cryptoService}
+
+	// Start CryptoService
+	tmp.CryptoService.Start(config.GerCryptoSignature())
+	return tmp
 }
 
 func (a *RemoteBytesService) Upload(user user.User, modBytes model.Bytes) (any, error) {
@@ -57,18 +65,28 @@ func (a *RemoteBytesService) Upload(user user.User, modBytes model.Bytes) (any, 
 func (a *RemoteBytesService) streamUpload(
 	stream rpc.ByterService_UploadClient, modBytes *model.Bytes) (*rpc.UploadBytesResponse, error) {
 	// Buffer 1KB.
-	buffer := make([]byte, 1024)
+	buffer := make([]byte, 1<<10)
+	a.CryptoService.Reset()
+
 	// Run stream.
 	for {
 		n, err := modBytes.Descr.Read(buffer)
 		if err != nil && err != io.EOF {
 			return nil, errs.ErrReadFileToBuff.Wrap(err)
 		}
+
 		if n == 0 {
+			// В конце подписываем данные отправителем для гарантированной доставки файлов.
+			chunk := &rpc.UploadBytesRequest{CryptoSignature: a.CryptoService.Sum(nil)}
+			if err := stream.Send(chunk); err != nil {
+				return nil, pkg.ErrCryptoSignature
+			}
 			break
 		}
+
 		// Part of request.
 		chunk := &rpc.UploadBytesRequest{Content: buffer[:n]}
+		a.CryptoService.Write(buffer[:n])
 
 		// Send part of request.
 		if err := stream.Send(chunk); err != nil {

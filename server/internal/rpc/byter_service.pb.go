@@ -23,10 +23,11 @@ const (
 
 // Upload
 type UploadBytesRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Content       []byte                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Content         []byte                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
+	CryptoSignature []byte                 `protobuf:"bytes,2,opt,name=crypto_signature,json=cryptoSignature,proto3" json:"crypto_signature,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UploadBytesRequest) Reset() {
@@ -62,6 +63,13 @@ func (*UploadBytesRequest) Descriptor() ([]byte, []int) {
 func (x *UploadBytesRequest) GetContent() []byte {
 	if x != nil {
 		return x.Content
+	}
+	return nil
+}
+
+func (x *UploadBytesRequest) GetCryptoSignature() []byte {
+	if x != nil {
+		return x.CryptoSignature
 	}
 	return nil
 }
@@ -172,10 +180,11 @@ func (*UnloadBytesRequest) Descriptor() ([]byte, []int) {
 }
 
 type UnloadBytesResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Content       []byte                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Content         []byte                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
+	CryptoSignature []byte                 `protobuf:"bytes,2,opt,name=crypto_signature,json=cryptoSignature,proto3" json:"crypto_signature,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UnloadBytesResponse) Reset() {
@@ -211,6 +220,13 @@ func (*UnloadBytesResponse) Descriptor() ([]byte, []int) {
 func (x *UnloadBytesResponse) GetContent() []byte {
 	if x != nil {
 		return x.Content
+	}
+	return nil
+}
+
+func (x *UnloadBytesResponse) GetCryptoSignature() []byte {
+	if x != nil {
+		return x.CryptoSignature
 	}
 	return nil
 }
@@ -554,18 +570,20 @@ var File_server_proto_byter_service_proto protoreflect.FileDescriptor
 
 const file_server_proto_byter_service_proto_rawDesc = "" +
 	"\n" +
-	" server/proto/byter_service.proto\x12\x17GophKeeper.server.proto\".\n" +
+	" server/proto/byter_service.proto\x12\x17GophKeeper.server.proto\"Y\n" +
 	"\x12UploadBytesRequest\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\fR\acontent\"\x8e\x01\n" +
+	"\acontent\x18\x01 \x01(\fR\acontent\x12)\n" +
+	"\x10crypto_signature\x18\x02 \x01(\fR\x0fcryptoSignature\"\x8e\x01\n" +
 	"\x13UploadBytesResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1d\n" +
 	"\n" +
 	"updated_at\x18\x02 \x01(\tR\tupdatedAt\x12\x1b\n" +
 	"\tsent_size\x18\x03 \x01(\tR\bsentSize\x12#\n" +
 	"\rreceived_size\x18\x04 \x01(\tR\freceivedSize\"\x14\n" +
-	"\x12UnloadBytesRequest\"/\n" +
+	"\x12UnloadBytesRequest\"Z\n" +
 	"\x13UnloadBytesResponse\x12\x18\n" +
-	"\acontent\x18\x01 \x01(\fR\acontent\"a\n" +
+	"\acontent\x18\x01 \x01(\fR\acontent\x12)\n" +
+	"\x10crypto_signature\x18\x02 \x01(\fR\x0fcryptoSignature\"a\n" +
 	"\rBytesResponse\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1d\n" +
 	"\n" +

@@ -79,7 +79,7 @@ func (s *UnloadService) Load(stream rpc.ByterService_UnloadServer, modBytes *mod
 
 func (s *UnloadService) unloadStream(stream rpc.ByterService_UnloadServer, modBytes *model.Bytes) error {
 	// Buffer 1KB.
-	buffer := make([]byte, 1024)
+	buffer := make([]byte, 1<<10)
 
 	// Run stream.
 	for {

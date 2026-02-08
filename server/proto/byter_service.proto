@@ -15,6 +15,7 @@ service ByterService {
 // Upload
 message UploadBytesRequest {
   bytes content = 1;
+  bytes crypto_signature = 2;
 }
 message UploadBytesResponse {
   string status = 1;
@@ -28,6 +29,7 @@ message UnloadBytesRequest {
 }
 message UnloadBytesResponse {
   bytes content = 1;
+  bytes crypto_signature = 2;
 }
 
 // ReadAll

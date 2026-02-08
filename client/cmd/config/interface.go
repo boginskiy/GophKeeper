@@ -1,5 +1,9 @@
 package config
 
+type Crypter interface {
+	GerCryptoSignature() []byte
+}
+
 type SenderEmailConfig interface {
 	GetEmailFrom() string
 	GetAppPassword() string
@@ -14,4 +18,5 @@ type Config interface {
 	GetMaxRetries() int
 
 	SenderEmailConfig
+	Crypter
 }
