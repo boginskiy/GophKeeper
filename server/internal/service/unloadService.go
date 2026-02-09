@@ -55,15 +55,15 @@ func (s *UnloadService) Prepar(stream rpc.ByterService_UnloadServer) (*model.Byt
 	return modBytes, nil
 }
 
-func (s *UnloadService) Load(stream rpc.ByterService_UnloadServer, modBytes *model.Bytes) error {
+func (s *UnloadService) Load(stream rpc.ByterService_UnloadServer, modBytes *model.Bytes) (*model.Bytes, error) {
 	// Check and Read file
 	if !s.FileHandler.CheckOfFile(modBytes.Path) {
-		return errs.ErrFileNotFound
+		return nil, errs.ErrFileNotFound
 	}
 
 	file, err := s.FileHandler.ReadOrCreateFile(modBytes.Path, infra.MOD)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer modBytes.Descr.Close()
@@ -71,10 +71,9 @@ func (s *UnloadService) Load(stream rpc.ByterService_UnloadServer, modBytes *mod
 
 	err = s.unloadStream(stream, modBytes)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	return nil
+	return nil, nil
 }
 
 func (s *UnloadService) unloadStream(stream rpc.ByterService_UnloadServer, modBytes *model.Bytes) error {

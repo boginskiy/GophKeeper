@@ -16,24 +16,34 @@ import (
 
 type ByterHandler struct {
 	rpc.UnimplementedByterServiceServer
-	FileHandler utils.FileHandler
-	BytesSrv    service.BytesServicer[*model.Bytes]
-	UnloadSrv   service.LoadServicer[rpc.ByterService_UnloadServer, *model.Bytes]
+	FileHandler   utils.FileHandler
+	BytesService  service.BytesServicer[*model.Bytes]
+	UnloadService service.LoadServicer[rpc.ByterService_UnloadServer, *model.Bytes]
+	UploadService service.LoadServicer[rpc.ByterService_UploadServer, *model.Bytes]
 }
 
 func NewByterHandler(
 	fileHandler utils.FileHandler,
-	bytesSrv service.BytesServicer[*model.Bytes],
-	unloadSrv service.LoadServicer[rpc.ByterService_UnloadServer, *model.Bytes]) *ByterHandler {
+	bytesService service.BytesServicer[*model.Bytes],
+	unloadService service.LoadServicer[rpc.ByterService_UnloadServer, *model.Bytes],
+	uploadService service.LoadServicer[rpc.ByterService_UploadServer, *model.Bytes],
+) *ByterHandler {
 
-	return &ByterHandler{FileHandler: fileHandler, BytesSrv: bytesSrv, UnloadSrv: unloadSrv}
+	return &ByterHandler{
+		FileHandler:   fileHandler,
+		BytesService:  bytesService,
+		UnloadService: unloadService,
+		UploadService: uploadService}
 }
 
 func (b *ByterHandler) Upload(stream rpc.ByterService_UploadServer) error {
-	modBytes, err := b.BytesSrv.Upload(stream)
-
+	modBytes, err := b.UploadService.Prepar(stream)
 	if err != nil {
-		// Какие нибудь спец ошибки ? Internal cлишком просто //
+		return status.Errorf(codes.Internal, "%s", err)
+	}
+
+	modBytes, err = b.UploadService.Load(stream, modBytes)
+	if err != nil {
 		return status.Errorf(codes.Internal, "%s", err)
 	}
 
@@ -53,7 +63,7 @@ func (b *ByterHandler) Upload(stream rpc.ByterService_UploadServer) error {
 
 func (b *ByterHandler) Unload(req *rpc.UnloadBytesRequest, stream rpc.ByterService_UnloadServer) error {
 	// Получаем данные по файлу из БД.
-	modBytes, err := b.UnloadSrv.Prepar(stream)
+	modBytes, err := b.UnloadService.Prepar(stream)
 
 	// Запрашиваемые данные не найдены в БД
 	if err == errs.ErrDataNotFound {
@@ -73,7 +83,7 @@ func (b *ByterHandler) Unload(req *rpc.UnloadBytesRequest, stream rpc.ByterServi
 		return status.Errorf(codes.Internal, "%s", utils.DefinErr(errUp, errSz, errFn))
 	}
 
-	err = b.UnloadSrv.Load(stream, modBytes)
+	_, err = b.UnloadService.Load(stream, modBytes)
 	if err != nil {
 		return status.Errorf(codes.Internal, "%s", err)
 	}
@@ -82,7 +92,7 @@ func (b *ByterHandler) Unload(req *rpc.UnloadBytesRequest, stream rpc.ByterServi
 }
 
 func (b *ByterHandler) Read(ctx context.Context, req *rpc.ReadBytesRequest) (*rpc.ReadBytesResponse, error) {
-	modBytes, err := b.BytesSrv.Read(ctx, req)
+	modBytes, err := b.BytesService.Read(ctx, req)
 
 	if err == errs.ErrDataNotFound {
 		return nil, status.Errorf(codes.NotFound, "%s", err)
@@ -92,11 +102,6 @@ func (b *ByterHandler) Read(ctx context.Context, req *rpc.ReadBytesRequest) (*rp
 		return nil, status.Errorf(codes.Internal, "%s", err)
 	}
 
-	// TODO ...
-	// Немного костыля :))
-	// Сейчас в типе modBytes.Type храниться не тип файла, а идентификатор того, что это данные вида "bytes"
-	// Поэтому преобразовываем имя в тип файла, отдаем в response.
-
 	return &rpc.ReadBytesResponse{
 		Status:    "read",
 		Type:      b.FileHandler.GetTypeFile(modBytes.Name),
@@ -104,7 +109,7 @@ func (b *ByterHandler) Read(ctx context.Context, req *rpc.ReadBytesRequest) (*rp
 }
 
 func (b *ByterHandler) ReadAll(ctx context.Context, req *rpc.ReadAllBytesRequest) (*rpc.ReadAllBytesResponse, error) {
-	modBytes, err := b.BytesSrv.ReadAll(ctx, req)
+	modBytes, err := b.BytesService.ReadAll(ctx, req)
 
 	if err == errs.ErrDataNotFound {
 		return nil, status.Errorf(codes.NotFound, "%s", err)
@@ -129,7 +134,7 @@ func (b *ByterHandler) ReadAll(ctx context.Context, req *rpc.ReadAllBytesRequest
 }
 
 func (b *ByterHandler) Delete(ctx context.Context, req *rpc.DeleteBytesRequest) (*rpc.DeleteBytesResponse, error) {
-	_, err := b.BytesSrv.Delete(ctx, req)
+	_, err := b.BytesService.Delete(ctx, req)
 
 	if err == errs.ErrDataNotFound {
 		return nil, status.Errorf(codes.NotFound, "%s", err)

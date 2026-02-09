@@ -22,14 +22,14 @@ func TestClient(t *testing.T) {
 	ServiceAPI := InitServiceAPI(cfg, logger)
 	Identy := auth.NewIdentity(cfg, logger, fileHandler)
 
-	ServiceAuth := InitAuthSrv(cfg, logger, fileHandler, ServiceAPI, Identy)
+	ServiceAuth := InitAuthService(cfg, logger, fileHandler, ServiceAPI, Identy)
 	ServiceByter := service.NewBytesService(cfg, logger, fileHandler, ServiceAPI)
 
 	Authentication(t, ServiceAuth, UserCLI)
 
 	// Testing
-	// testAuthSrv(t, ServiceAuth, UserCLI)
-	testByterSrv(t, ServiceByter, UserCLI)
+	// testAuthService(t, ServiceAuth, UserCLI)
+	testByterService(t, ServiceByter, UserCLI)
 
 	//
 	defer Identy.SaveCurrentUser(UserCLI)

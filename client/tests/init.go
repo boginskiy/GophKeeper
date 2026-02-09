@@ -21,8 +21,8 @@ var (
 
 func InitServiceAPI(cfg *config.Conf, logg *logg.Logg) *api.RemoteService {
 	clientGRPC := client.NewClientGRPC(cfg, logg)
-	remoteSrv := api.NewRemoteService(context.TODO(), cfg, logg, clientGRPC)
-	return remoteSrv
+	remoteService := api.NewRemoteService(context.TODO(), cfg, logg, clientGRPC)
+	return remoteService
 }
 
 func InitUserCLI(logg *logg.Logg) *user.UserCLI {
@@ -32,7 +32,7 @@ func InitUserCLI(logg *logg.Logg) *user.UserCLI {
 	return userCLI
 }
 
-func InitAuthSrv(
+func InitAuthService(
 	cfg config.Config,
 	logger logg.Logger,
 	fileHandler utils.FileHandler,

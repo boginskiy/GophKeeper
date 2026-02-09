@@ -21,5 +21,5 @@ type BytesServicer[T any] interface {
 
 type LoadServicer[ST, M any] interface {
 	Prepar(stream ST) (model M, err error)
-	Load(stream ST, model M) error
+	Load(stream ST, model M) (M, error)
 }

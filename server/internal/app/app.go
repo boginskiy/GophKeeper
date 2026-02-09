@@ -34,6 +34,7 @@ func (a *App) Run() {
 
 	// Infra services
 	fileManager := infra.NewFileManage(fileHandler, pathHandler)
+	cryptoService := pkg.NewCryptoService()
 
 	// Repository
 	database := db.NewStoreDB(a.Cfg, a.Logg)
@@ -45,14 +46,11 @@ func (a *App) Run() {
 	jwtService := auth.NewJWTService(a.Cfg)
 	authService := auth.NewAuth(a.Cfg, a.Logg, jwtService, repoUser)
 
-	// CryptoService
-	cryptoService := pkg.NewCryptoService()
-
 	// Services
-	unloaderSrv := service.NewUnloadService(a.Cfg, a.Logg, fileHandler, repoBytes)
-
+	uploadService := service.NewUploadService(a.Cfg, a.Logg, fileHandler, fileManager, cryptoService, repoBytes)
+	bytesService := service.NewBytesService(a.Cfg, a.Logg, repoBytes, fileHandler, fileManager)
+	unloadService := service.NewUnloadService(a.Cfg, a.Logg, fileHandler, repoBytes)
 	textService := service.NewTextService(a.Cfg, a.Logg, repoText)
-	bytesService := service.NewBytesService(a.Cfg, a.Logg, repoBytes, fileHandler, fileManager, cryptoService)
 
 	// Interceptor
 	interceptor := intercept.NewServIntercept(a.Cfg, a.Logg, authService)
@@ -60,7 +58,7 @@ func (a *App) Run() {
 	// Handler
 	authHandler := handler.NewAuthHandler(authService)
 	texterHandler := handler.NewTexterHandler(textService)
-	byterHandler := handler.NewByterHandler(fileHandler, bytesService, unloaderSrv)
+	byterHandler := handler.NewByterHandler(fileHandler, bytesService, unloadService, uploadService)
 
 	// Start server
 	server := server.NewServerGRPC(a.Cfg, a.Logg, interceptor)

@@ -23,10 +23,10 @@ type Auth struct {
 func NewAuth(
 	config config.Config,
 	logger logg.Logger,
-	jwtSrv JWTer,
+	jwtService JWTer,
 	repo repo.RepoCreateReadUpdater[*model.User]) *Auth {
 
-	return &Auth{Cfg: config, Logg: logger, JWTService: jwtSrv, Repo: repo}
+	return &Auth{Cfg: config, Logg: logger, JWTService: jwtService, Repo: repo}
 }
 
 func NewUser(name, email, password, phone string) (*model.User, error) {
