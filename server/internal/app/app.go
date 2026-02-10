@@ -52,8 +52,8 @@ func (a *App) Run() {
 
 	// Services
 	uploadService := service.NewUploadService(a.Cfg, a.Logger, fileHandler, fileService, cryptoService, repoBytes)
+	unloadService := service.NewUnloadService(a.Cfg, a.Logger, fileHandler, cryptoService, repoBytes)
 	bytesService := service.NewBytesService(a.Cfg, a.Logger, repoBytes, fileHandler, fileService)
-	unloadService := service.NewUnloadService(a.Cfg, a.Logger, fileHandler, repoBytes)
 	textService := service.NewTextService(a.Cfg, a.Logger, repoText)
 
 	// Interceptor

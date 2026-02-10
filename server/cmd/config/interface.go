@@ -1,8 +1,9 @@
 package config
 
 type Config interface {
-	GetConnDB() string
-	GetServerGrpc() string
+	GetCryptoSignature() []byte
 	GetTokenSecretKey() string
+	GetServerGrpc() string
 	GetTokenLifetime() int
+	GetConnDB() string
 }

@@ -43,7 +43,7 @@ func NewUploadService(
 	}
 
 	// Start CryptoService.
-	tmp.CryptoService.Start([]byte("CryptoKey"))
+	tmp.CryptoService.Start(config.GetCryptoSignature())
 	return tmp
 }
 

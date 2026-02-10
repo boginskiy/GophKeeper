@@ -21,10 +21,11 @@ const (
 type ArgsCLI struct {
 	Logger logg.Logger
 
-	ServerGrpc     string // Port for the gRPC server.
-	TokenSecretKey string // Token secret key.
-	TokenLifetime  int    // Token lifetime.
-	ConnDB         string // The database connection string.
+	ServerGrpc      string // Port for the gRPC server.
+	TokenSecretKey  string // Token secret key.
+	TokenLifetime   int    // Token lifetime.
+	ConnDB          string // The database connection string.
+	CryptoSignature string // Key for crypto signature.
 }
 
 func NewArgsCLI(logger logg.Logger) *ArgsCLI {
@@ -44,6 +45,7 @@ func (a *ArgsCLI) ParseFlags() {
 	flag.StringVar(&a.ServerGrpc, "p", "localhost:8080", "Port for the gRPC server")
 	flag.StringVar(&a.TokenSecretKey, "s", "Ld5pS4Gw", "Token lifetime")
 	flag.IntVar(&a.TokenLifetime, "t", 36000, "Token lifetime")
+	flag.StringVar(&a.CryptoSignature, "s", "CryptoKey", "")
 
 	flag.Parse()
 }
@@ -62,4 +64,8 @@ func (a *ArgsCLI) GetTokenSecretKey() string {
 
 func (a *ArgsCLI) GetTokenLifetime() int {
 	return a.TokenLifetime * int(time.Second)
+}
+
+func (a *ArgsCLI) GetCryptoSignature() []byte {
+	return []byte(a.CryptoSignature)
 }

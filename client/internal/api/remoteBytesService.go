@@ -124,10 +124,13 @@ func (a *RemoteBytesService) Unload(user user.User, modBytes model.Bytes) (any, 
 func (a *RemoteBytesService) unloadStream(stream rpc.ByterService_UnloadClient, modBytes *model.Bytes) (int64, error) {
 	// Writer
 	writer := bufio.NewWriter(modBytes.Descr)
+	// Crypto
+	var ClientSignature []byte
+	a.CryptoService.Reset()
+
 	var CNT int64
 
 	for {
-		// Обработка запроса.
 		req, err := stream.Recv()
 		if err == io.EOF {
 			break
@@ -136,12 +139,25 @@ func (a *RemoteBytesService) unloadStream(stream rpc.ByterService_UnloadClient, 
 			return CNT, err
 		}
 
+		// Take crypto signature from stream.
+		if len(req.CryptoSignature) > 0 {
+			ClientSignature = req.CryptoSignature
+		}
+
 		nn, err := writer.Write(req.Content)
+		a.CryptoService.Write(req.Content)
+
 		if err != nil {
 			return CNT, err
 		}
 
 		CNT += int64(nn)
+	}
+
+	// Check signature.
+	ok := a.CryptoService.CheckSignature(ClientSignature)
+	if !ok {
+		return 0, pkg.ErrCheckCryptoSignature
 	}
 
 	err := writer.Flush()

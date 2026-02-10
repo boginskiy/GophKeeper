@@ -12,27 +12,36 @@ import (
 	"github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"github.com/boginskiy/GophKeeper/server/internal/utils"
+	"github.com/boginskiy/GophKeeper/server/pkg"
 )
 
 type UnloadService struct {
-	Cfg         config.Config
-	Logger      logg.Logger
-	FileHandler utils.FileHandler
-	Repo        repo.RepoCreateReader[*model.Bytes]
+	Cfg           config.Config
+	Logger        logg.Logger
+	FileHandler   utils.FileHandler
+	CryptoService pkg.Crypter
+	Repo          repo.RepoCreateReader[*model.Bytes]
 }
 
 func NewUnloadService(
 	config config.Config,
 	logger logg.Logger,
 	fileHandler utils.FileHandler,
+	cryptoService pkg.Crypter,
 	repo repo.RepoCreateReader[*model.Bytes]) *UnloadService {
 
-	return &UnloadService{
-		Cfg:         config,
-		Logger:      logger,
-		FileHandler: fileHandler,
-		Repo:        repo,
+	tmp := &UnloadService{
+		Cfg:           config,
+		Logger:        logger,
+		FileHandler:   fileHandler,
+		CryptoService: cryptoService,
+		Repo:          repo,
 	}
+
+	// Start CryptoService.
+	tmp.CryptoService.Start(config.GetCryptoSignature())
+
+	return tmp
 }
 
 func (s *UnloadService) Load(stream rpc.ByterService_UnloadServer, modBytes *model.Bytes) (*model.Bytes, error) {
@@ -68,6 +77,7 @@ func (s *UnloadService) Load(stream rpc.ByterService_UnloadServer, modBytes *mod
 func (s *UnloadService) unloadStream(stream rpc.ByterService_UnloadServer, modBytes *model.Bytes) error {
 	// Buffer 1KB.
 	buffer := make([]byte, 1<<10)
+	s.CryptoService.Reset()
 
 	// Run stream.
 	for {
@@ -76,11 +86,19 @@ func (s *UnloadService) unloadStream(stream rpc.ByterService_UnloadServer, modBy
 		if err != nil && err != io.EOF {
 			return errs.ErrReadFileToBuff.Wrap(err)
 		}
+
 		if n == 0 {
+			// В конце подписываем данные отправителем для гарантированной доставки файлов.
+			chunk := &rpc.UnloadBytesResponse{CryptoSignature: s.CryptoService.Sum(nil)}
+			if err := stream.Send(chunk); err != nil {
+				return pkg.ErrCryptoSignature
+			}
 			break
 		}
+
 		// Part of request.
 		chunk := &rpc.UnloadBytesResponse{Content: buffer[:n]}
+		s.CryptoService.Write(buffer[:n])
 
 		// Send part of request.
 		if err := stream.Send(chunk); err != nil {
