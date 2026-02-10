@@ -5,7 +5,7 @@ import (
 
 	"github.com/boginskiy/GophKeeper/server/internal/codec"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
-	"github.com/boginskiy/GophKeeper/server/internal/handler2"
+	"github.com/boginskiy/GophKeeper/server/internal/handler"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"github.com/boginskiy/GophKeeper/server/internal/service"
@@ -15,7 +15,7 @@ type ByteFacade struct {
 	rpc.UnimplementedByterServiceServer
 	ErrMapper     errs.ErrMapper
 	ByteCoder     codec.ByteGRPCCoder[*model.Bytes]
-	ByteHandler   handler2.ByteHandler[*model.Bytes]
+	ByteHandler   handler.ByteHandler[*model.Bytes]
 	UploadService service.LoadServicer[rpc.ByterService_UploadServer, *model.Bytes]
 	UnloadService service.LoadServicer[rpc.ByterService_UnloadServer, *model.Bytes]
 }
@@ -23,7 +23,7 @@ type ByteFacade struct {
 func NewByteFacade(
 	errMapper errs.ErrMapper,
 	byteCoder codec.ByteGRPCCoder[*model.Bytes],
-	byteHandler handler2.ByteHandler[*model.Bytes],
+	byteHandler handler.ByteHandler[*model.Bytes],
 	uploadService service.LoadServicer[rpc.ByterService_UploadServer, *model.Bytes],
 	unloadService service.LoadServicer[rpc.ByterService_UnloadServer, *model.Bytes],
 ) *ByteFacade {

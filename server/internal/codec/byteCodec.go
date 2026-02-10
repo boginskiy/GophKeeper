@@ -48,12 +48,12 @@ func (b *ByteDecoderEncoder) DecoderUploadStreamCtx(stream rpc.ByterService_Uplo
 }
 
 // EncodeUploadBytesResponse
-func (a *ByteDecoderEncoder) EncodeUploadBytesResponse(res *model.Bytes) (*rpc.UploadBytesResponse, error) {
+func (a *ByteDecoderEncoder) EncodeUploadBytesResponse(mod *model.Bytes) (*rpc.UploadBytesResponse, error) {
 	return &rpc.UploadBytesResponse{
 		Status:       "uploaded",
-		UpdatedAt:    utils.ConvertDtStr(res.UpdatedAt),
-		SentSize:     res.SentSize,
-		ReceivedSize: res.ReceivedSize,
+		UpdatedAt:    utils.ConvertDtStr(mod.UpdatedAt),
+		SentSize:     mod.SentSize,
+		ReceivedSize: mod.ReceivedSize,
 	}, nil
 }
 
@@ -80,19 +80,19 @@ func (b *ByteDecoderEncoder) DecoderUnloadStreamCtx(stream rpc.ByterService_Unlo
 }
 
 // EncodeUploadBytesResponse
-func (a *ByteDecoderEncoder) EncodeReadBytesResponse(res *model.Bytes) (*rpc.ReadBytesResponse, error) {
+func (a *ByteDecoderEncoder) EncodeReadBytesResponse(mod *model.Bytes) (*rpc.ReadBytesResponse, error) {
 	return &rpc.ReadBytesResponse{
 		Status:    "read",
-		Type:      a.FileHandler.GetTypeFile(res.Name),
-		CreatedAt: utils.ConvertDtStr(res.CreatedAt),
+		Type:      a.FileHandler.GetTypeFile(mod.Name),
+		CreatedAt: utils.ConvertDtStr(mod.CreatedAt),
 	}, nil
 }
 
 // EncodeReadAllBytesResponse
-func (a *ByteDecoderEncoder) EncodeReadAllBytesResponse(ress []*model.Bytes) (*rpc.ReadAllBytesResponse, error) {
-	bytesResponses := make([]*rpc.BytesResponse, len(ress))
+func (a *ByteDecoderEncoder) EncodeReadAllBytesResponse(mods []*model.Bytes) (*rpc.ReadAllBytesResponse, error) {
+	bytesResponses := make([]*rpc.BytesResponse, len(mods))
 
-	for i, bytes := range ress {
+	for i, bytes := range mods {
 		bytesResponses[i] = &rpc.BytesResponse{
 			UpdatedAt: utils.ConvertDtStr(bytes.UpdatedAt),
 			TotalSize: bytes.ReceivedSize,

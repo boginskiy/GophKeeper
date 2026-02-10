@@ -37,7 +37,7 @@ func NewBytesService(
 	return tmp
 }
 
-func (b *BytesService) Read(ctx context.Context, _ any) (*model.Bytes, error) {
+func (b *BytesService) Read(ctx context.Context, mod *model.Bytes) (*model.Bytes, error) {
 	// Info from context.
 	fileName, err := infra.TakeClientValueFromCtx(ctx, "file_name", 0)
 	if err != nil {
@@ -51,7 +51,7 @@ func (b *BytesService) Read(ctx context.Context, _ any) (*model.Bytes, error) {
 	return b.Repo.ReadRecord(ctx, &model.Bytes{Name: fileName, Owner: owner})
 }
 
-func (b *BytesService) ReadAll(ctx context.Context, req any) ([]*model.Bytes, error) {
+func (b *BytesService) ReadAll(ctx context.Context, mod *model.Bytes) ([]*model.Bytes, error) {
 	// Info from context.
 	fileType, err := infra.TakeClientValueFromCtx(ctx, "file_type", 0)
 	if err != nil {
@@ -65,7 +65,7 @@ func (b *BytesService) ReadAll(ctx context.Context, req any) ([]*model.Bytes, er
 	return b.Repo.ReadAllRecord(ctx, &model.Bytes{Type: fileType, Owner: owner})
 }
 
-func (b *BytesService) Delete(ctx context.Context, req any) (*model.Bytes, error) {
+func (b *BytesService) Delete(ctx context.Context, mod *model.Bytes) (*model.Bytes, error) {
 	// Info from context.
 	fileName, err := infra.TakeClientValueFromCtx(ctx, "file_name", 0)
 	if err != nil {

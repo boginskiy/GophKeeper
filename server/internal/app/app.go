@@ -9,7 +9,6 @@ import (
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
 	"github.com/boginskiy/GophKeeper/server/internal/facade"
 	"github.com/boginskiy/GophKeeper/server/internal/handler"
-	"github.com/boginskiy/GophKeeper/server/internal/handler2"
 	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/intercept"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
@@ -43,9 +42,9 @@ func (a *App) Run() {
 
 	// Repository
 	database := db.NewStoreDB(a.Cfg, a.Logger)
+	repoBytes := repo.NewRepoBytes(a.Cfg, a.Logger, database)
 	repoUser := repo.NewRepoUser(a.Cfg, a.Logger, database)
 	repoText := repo.NewRepoText(a.Cfg, a.Logger, database)
-	repoBytes := repo.NewRepoBytes(a.Cfg, a.Logger, database)
 
 	// Auth
 	jwtService := auth.NewJWTService(a.Cfg)
@@ -63,29 +62,22 @@ func (a *App) Run() {
 	// Codec
 	byteCoder := codec.NewByteDecoderEncoder(fileService, fileHandler, repoBytes)
 	authDecoder := codec.NewAuthDecoderEncoder()
+	textCoder := codec.NewTextDecoderEncoder()
 
 	// Handler
-	// authHandler := handler.NewAuthHandler(authService)
-	texterHandler := handler.NewTexterHandler(textService)
-	// byterHandler := handler.NewByterHandler(fileHandler, bytesService, unloadService, uploadService)
-
-	// Handler 2
-	authHandler := handler2.NewAuthHandle(authService)
-	// textHandler := handler2.NewTexterHandler(textService)
-	byteHandler := handler2.NewByteHandle(fileHandler, bytesService)
+	byteHandler := handler.NewByteHandle(fileHandler, bytesService)
+	authHandler := handler.NewAuthHandle(authService)
+	textHandler := handler.NewTextHandle(textService)
 
 	// Facades
-	authFacade := facade.NewAuthFacade(errMapper, authHandler, authDecoder)
 	byteFacade := facade.NewByteFacade(errMapper, byteCoder, byteHandler, uploadService, unloadService)
+	authFacade := facade.NewAuthFacade(errMapper, authHandler, authDecoder)
+	textFacade := facade.NewTextFacade(errMapper, textCoder, textHandler)
 
 	// Start server
 	server := server.NewServerGRPC(a.Cfg, a.Logger, interceptor)
-	server.Registration(authFacade, texterHandler, byteFacade)
+	server.Registration(authFacade, textFacade, byteFacade)
 	server.Run()
 
 	defer database.CloseDB()
 }
-
-// ErrMapper     errs.ErrMapper
-// 	ByteCoder     codec.ByteGRPCCoder[*model.Bytes]
-// 	UploadService service.LoadServicer[rpc.ByterService_UploadServer, *model.Bytes]

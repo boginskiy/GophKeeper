@@ -5,7 +5,7 @@ import (
 
 	"github.com/boginskiy/GophKeeper/server/internal/codec"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
-	"github.com/boginskiy/GophKeeper/server/internal/handler2"
+	"github.com/boginskiy/GophKeeper/server/internal/handler"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 )
@@ -13,13 +13,13 @@ import (
 type AuthFacade struct {
 	rpc.UnimplementedAuthServiceServer
 	ErrMapper   errs.ErrMapper
-	AuthHandler handler2.AuthHandler[*model.User]
+	AuthHandler handler.AuthHandler[*model.User]
 	AuthDecoder codec.AuthGRPCDecoder[*model.User]
 }
 
 func NewAuthFacade(
 	errMapper errs.ErrMapper,
-	authHandler handler2.AuthHandler[*model.User],
+	authHandler handler.AuthHandler[*model.User],
 	authDecoder codec.AuthGRPCDecoder[*model.User],
 ) *AuthFacade {
 
