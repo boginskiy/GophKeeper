@@ -2,8 +2,6 @@ package auth
 
 import (
 	"context"
-
-	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 )
 
 // JWTer for a work of JWT authentication.
@@ -12,10 +10,10 @@ type JWTer interface {
 	CreateJWT(*ExtraInfoToken) (string, error)
 }
 
-// Auther .
-type Auther interface {
+// Auther
+type Auther[T any] interface {
 	Identification(context.Context, any) (*ExtraInfoToken, bool)
-	Registration(context.Context, *rpc.RegistUserRequest) (string, error)
-	Authentication(context.Context, *rpc.AuthUserRequest) (string, error)
-	Recovery(context.Context, *rpc.RecoverUserRequest) (string, error)
+	Registration(context.Context, T) (string, error)
+	Authentication(context.Context, T) (string, error)
+	Recovery(context.Context, T) (string, error)
 }

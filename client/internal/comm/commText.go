@@ -18,11 +18,11 @@ type CommText struct {
 
 func NewCommText(
 	dialoger infra.Dialoger,
-	srv service.TextServicer[model.Text]) *CommText {
+	service service.TextServicer[model.Text]) *CommText {
 
 	return &CommText{
 		Dialoger: dialoger,
-		Service:  srv}
+		Service:  service}
 }
 
 func (c *CommText) Registration(user user.User, dataType string) {

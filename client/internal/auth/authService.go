@@ -10,7 +10,7 @@ import (
 
 type AuthService struct {
 	Cfg          config.Config
-	Logg         logg.Logger
+	Logger       logg.Logger
 	Identity     Identifier
 	RemoteAuther api.RemoteAuther
 }
@@ -24,7 +24,7 @@ func NewAuthService(
 
 	return &AuthService{
 		Cfg:          config,
-		Logg:         logger,
+		Logger:       logger,
 		Identity:     identity,
 		RemoteAuther: remoteAuther,
 	}

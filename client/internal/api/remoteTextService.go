@@ -15,7 +15,7 @@ import (
 
 type RemoteTextService struct {
 	Cfg        config.Config
-	Logg       logg.Logger
+	Logger     logg.Logger
 	ClientGRPC *client.ClientGRPC
 }
 
@@ -26,7 +26,7 @@ func NewRemoteTextService(
 
 	return &RemoteTextService{
 		Cfg:        config,
-		Logg:       logger,
+		Logger:     logger,
 		ClientGRPC: clientgrpc}
 }
 

@@ -12,7 +12,7 @@ import (
 
 type RepoUser struct {
 	Cfg    config.Config
-	Logg   logg.Logger
+	Logger logg.Logger
 	Store  db.DataBase[*sql.DB]
 	SqlDB  *sql.DB
 	NameTb string
@@ -21,7 +21,7 @@ type RepoUser struct {
 func NewRepoUser(cfg config.Config, logger logg.Logger, db db.DataBase[*sql.DB]) *RepoUser {
 	return &RepoUser{
 		Cfg:    cfg,
-		Logg:   logger,
+		Logger: logger,
 		Store:  db,
 		SqlDB:  db.GetDB(),
 		NameTb: "users",

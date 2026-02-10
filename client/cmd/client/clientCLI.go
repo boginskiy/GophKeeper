@@ -11,14 +11,14 @@ import (
 const NAME = "CLIENT"
 
 type ClientCLI struct {
-	Logg logg.Logger
-	Name string
+	Logger logg.Logger
+	Name   string
 }
 
 func NewClientCLI(logger logg.Logger) *ClientCLI {
 	return &ClientCLI{
-		Name: NAME,
-		Logg: logger,
+		Name:   NAME,
+		Logger: logger,
 	}
 }
 

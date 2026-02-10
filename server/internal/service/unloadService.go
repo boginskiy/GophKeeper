@@ -2,6 +2,7 @@ package service
 
 import (
 	"io"
+	"time"
 
 	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
@@ -15,7 +16,7 @@ import (
 
 type UnloadService struct {
 	Cfg         config.Config
-	Logg        logg.Logger
+	Logger      logg.Logger
 	FileHandler utils.FileHandler
 	Repo        repo.RepoCreateReader[*model.Bytes]
 }
@@ -28,34 +29,22 @@ func NewUnloadService(
 
 	return &UnloadService{
 		Cfg:         config,
-		Logg:        logger,
+		Logger:      logger,
 		FileHandler: fileHandler,
 		Repo:        repo,
 	}
 }
 
-func (s *UnloadService) Prepar(stream rpc.ByterService_UnloadServer) (*model.Bytes, error) {
-	// Info from context.
-	fileName, err := infra.TakeClientValueFromCtx(stream.Context(), "file_name", 0)
-	if err != nil {
-		return nil, err
-	}
-
-	owner, err := infra.TakeServerValStrFromCtx(stream.Context(), infra.EmailCtx)
-	if err != nil {
-		return nil, err
-	}
-
-	// Take record from DataBase.
-	modBytes, err := s.Repo.ReadRecord(stream.Context(), &model.Bytes{Name: fileName, Owner: owner})
-	if err != nil {
-		return nil, err
-	}
-
-	return modBytes, nil
-}
-
 func (s *UnloadService) Load(stream rpc.ByterService_UnloadServer, modBytes *model.Bytes) (*model.Bytes, error) {
+	// Кладем данные в заголовок для клиента
+	errUp := infra.PutDataToCtx(stream.Context(), "updated_at", utils.ConvertDtStr(utils.ConversDtToTableView(time.Now())))
+	errSz := infra.PutDataToCtx(stream.Context(), "sent_size", modBytes.ReceivedSize)
+	errFn := infra.PutDataToCtx(stream.Context(), "file_name", modBytes.Name)
+
+	if errUp != nil || errSz != nil || errFn != nil {
+		return nil, utils.DefinErr(errUp, errSz, errFn)
+	}
+
 	// Check and Read file
 	if !s.FileHandler.CheckOfFile(modBytes.Path) {
 		return nil, errs.ErrFileNotFound

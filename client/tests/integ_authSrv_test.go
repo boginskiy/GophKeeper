@@ -11,9 +11,9 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func testAuthService(t *testing.T, srv auth.Auth, user user.User) {
-	testRegistration(t, srv, user)
-	testAuthentication(t, srv, user)
+func testAuthService(t *testing.T, service auth.Auth, user user.User) {
+	testRegistration(t, service, user)
+	testAuthentication(t, service, user)
 }
 
 func testRegistration(t *testing.T, service auth.Auth, user user.User) {

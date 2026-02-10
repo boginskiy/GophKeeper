@@ -8,14 +8,14 @@ import (
 	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
-	repo "github.com/boginskiy/GophKeeper/server/internal/repo"
+	"github.com/boginskiy/GophKeeper/server/internal/repo"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"github.com/boginskiy/GophKeeper/server/pkg"
 )
 
 type Auth struct {
 	Cfg        config.Config
-	Logg       logg.Logger
+	Logger     logg.Logger
 	JWTService JWTer
 	Repo       repo.RepoCreateReadUpdater[*model.User]
 }
@@ -26,54 +26,35 @@ func NewAuth(
 	jwtService JWTer,
 	repo repo.RepoCreateReadUpdater[*model.User]) *Auth {
 
-	return &Auth{Cfg: config, Logg: logger, JWTService: jwtService, Repo: repo}
+	return &Auth{Cfg: config, Logger: logger, JWTService: jwtService, Repo: repo}
 }
 
-func NewUser(name, email, password, phone string) (*model.User, error) {
-	hash, err := pkg.GenerateHash(password)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.User{
-		UserName:    name,
-		Email:       email,
-		Password:    hash,
-		PhoneNumber: phone,
-	}, nil
-}
-
-func (a *Auth) Recovery(ctx context.Context, req *rpc.RecoverUserRequest) (token string, err error) {
-	updateUser, err := NewUser("", req.Email, req.Password, "")
-	if err != nil {
-		return "", errs.ErrCreateUser.Wrap(err)
-	}
-
+func (a *Auth) Recovery(ctx context.Context, mod *model.User) (token string, err error) {
 	// Check user in DB.
-	record, err := a.Repo.UpdateRecord(context.Background(), updateUser)
+	record, err := a.Repo.UpdateRecord(context.Background(), mod)
 	if err != nil {
-		return "", errs.ErrUpdateUser.Wrap(err)
+		return "", err
 	}
 
 	// Create new token
 	infoToken := NewExtraInfoToken(record.ID, record.Email, record.PhoneNumber)
 	token, err = a.JWTService.CreateJWT(infoToken)
 	if err != nil {
-		return "", errs.ErrCreateToken.Wrap(err)
+		return "", err
 	}
 
 	return token, nil
 }
 
-func (a *Auth) Authentication(ctx context.Context, req *rpc.AuthUserRequest) (token string, err error) {
+func (a *Auth) Authentication(ctx context.Context, mod *model.User) (token string, err error) {
 	// Check user in DB.
-	record, err := a.Repo.ReadRecord(context.Background(), &model.User{Email: req.Email})
+	record, err := a.Repo.ReadRecord(context.Background(), &model.User{Email: mod.Email})
 	if err != nil {
 		return "", err
 	}
 
 	// Check password
-	if !pkg.CompareHashAndPassword(record.Password, req.Password) {
+	if !pkg.CompareHashAndPassword(record.Password, mod.Password) {
 		return "", errs.ErrUserPassword
 	}
 
@@ -87,15 +68,9 @@ func (a *Auth) Authentication(ctx context.Context, req *rpc.AuthUserRequest) (to
 	return token, nil
 }
 
-func (a *Auth) Registration(ctx context.Context, req *rpc.RegistUserRequest) (token string, err error) {
-	// Create new user.
-	newUser, err := NewUser(req.Username, req.Email, req.Password, req.Phonenumber)
-	if err != nil {
-		return "", errs.ErrCreateUser.Wrap(err)
-	}
-
+func (a *Auth) Registration(ctx context.Context, mod *model.User) (token string, err error) {
 	// Create new record with user.
-	record, err := a.Repo.CreateRecord(context.Background(), newUser)
+	record, err := a.Repo.CreateRecord(context.Background(), mod)
 	if err != nil {
 		return "", errs.ErrCreateUser.Wrap(err)
 	}
@@ -139,18 +114,18 @@ func (a *Auth) Identification(ctx context.Context, req any) (*ExtraInfoToken, bo
 
 // CheckPathToReg check, if client go to Registration.
 func (a *Auth) CheckPathToReg(ctx context.Context, req any) bool {
-	_, ok := req.(*rpc.RegistUserRequest)
+	_, ok := req.(*rpc.RegistRequest)
 	return ok
 }
 
 // CheckPathToAuth check, if client go to Authentication.
 func (a *Auth) CheckPathToAuth(ctx context.Context, req any) bool {
-	_, ok := req.(*rpc.AuthUserRequest)
+	_, ok := req.(*rpc.AuthRequest)
 	return ok
 }
 
 // CheckPathToRec check, if client go to Recovery.
 func (a *Auth) CheckPathToRec(ctx context.Context, req any) bool {
-	_, ok := req.(*rpc.RecoverUserRequest)
+	_, ok := req.(*rpc.RecovRequest)
 	return ok
 }

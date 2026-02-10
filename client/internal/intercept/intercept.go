@@ -16,16 +16,16 @@ type ClientInterceptor interface {
 }
 
 type ClientIntercept struct {
-	Cfg  config.Config
-	Logg logg.Logger
-	User user.User
+	Cfg    config.Config
+	Logger logg.Logger
+	User   user.User
 }
 
 func NewClientIntercept(config config.Config, logger logg.Logger, user user.User) *ClientIntercept {
 	return &ClientIntercept{
-		Cfg:  config,
-		Logg: logger,
-		User: user,
+		Cfg:    config,
+		Logger: logger,
+		User:   user,
 	}
 }
 

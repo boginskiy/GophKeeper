@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	logg := logg.NewLogg("main.log", "INFO")
-	cfg := config.NewArgsCLI(logg)
-	app.NewApp(cfg, logg).Init()
+	mainLogger := logg.NewLogService("main.log", "INFO")
+	cfg := config.NewArgsCLI(mainLogger)
+	app.NewApp(cfg, mainLogger).Init()
 }

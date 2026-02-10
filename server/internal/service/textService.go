@@ -12,16 +12,16 @@ import (
 )
 
 type TextService struct {
-	Cfg  config.Config
-	Logg logg.Logger
-	Repo repo.Repository[*model.Text]
+	Cfg    config.Config
+	Logger logg.Logger
+	Repo   repo.Repository[*model.Text]
 }
 
 func NewTextService(config config.Config, logger logg.Logger, repo repo.Repository[*model.Text]) *TextService {
 	return &TextService{
-		Cfg:  config,
-		Logg: logger,
-		Repo: repo,
+		Cfg:    config,
+		Logger: logger,
+		Repo:   repo,
 	}
 }
 

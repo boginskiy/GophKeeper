@@ -16,7 +16,7 @@ import (
 
 type RepoBytes struct {
 	Cfg    config.Config
-	Logg   logg.Logger
+	Logger logg.Logger
 	Store  db.DataBase[*sql.DB]
 	SqlDB  *sql.DB
 	NameTb string
@@ -25,7 +25,7 @@ type RepoBytes struct {
 func NewRepoBytes(cfg config.Config, logger logg.Logger, db db.DataBase[*sql.DB]) *RepoBytes {
 	return &RepoBytes{
 		Cfg:    cfg,
-		Logg:   logger,
+		Logger: logger,
 		Store:  db,
 		SqlDB:  db.GetDB(),
 		NameTb: "bytes",
@@ -38,7 +38,7 @@ func (r *RepoBytes) CreateRecord(ctx context.Context, bytes *model.Bytes) (*mode
 		return nil, err
 	}
 
-	updatedAt := time.Now()
+	currentTime := time.Now()
 
 	_, err = r.SqlDB.ExecContext(ctx,
 		`INSERT INTO bytes (name, path, sent_size, received_size, type, updated_at, created_at, user_id)
@@ -48,15 +48,15 @@ func (r *RepoBytes) CreateRecord(ctx context.Context, bytes *model.Bytes) (*mode
 		bytes.SentSize,
 		bytes.ReceivedSize,
 		bytes.Type,
-		utils.ConvertDtStr(updatedAt),
-		utils.ConvertDtStr(updatedAt),
+		currentTime,
+		currentTime,
 		userID)
 
 	if err != nil {
 		return nil, err
 	}
-	bytes.CreatedAt = updatedAt
-	bytes.UpdatedAt = updatedAt
+	bytes.CreatedAt = utils.ConversDtToTableView(currentTime)
+	bytes.UpdatedAt = utils.ConversDtToTableView(currentTime)
 
 	return bytes, nil
 }
@@ -67,7 +67,7 @@ func (r *RepoBytes) ReadRecord(ctx context.Context, bytes *model.Bytes) (*model.
 		return nil, err
 	}
 	row := r.SqlDB.QueryRowContext(ctx,
-		`SELECT name, path, received_size, type, updated_at
+		`SELECT name, path, received_size, type, created_at
 		 FROM bytes 
 		 WHERE user_id = $1 AND name = $2`,
 		userID, bytes.Name)
@@ -77,7 +77,7 @@ func (r *RepoBytes) ReadRecord(ctx context.Context, bytes *model.Bytes) (*model.
 		&bytes.Path,
 		&bytes.ReceivedSize,
 		&bytes.Type,
-		&bytes.UpdatedAt,
+		&bytes.CreatedAt,
 	)
 
 	if err == sql.ErrNoRows { // Нет данных
@@ -132,7 +132,7 @@ func (r *RepoBytes) DeleteRecord(ctx context.Context, bytes *model.Bytes) (*mode
 		return nil, err
 	}
 
-	deletedAt := time.Now()
+	deleteTime := time.Now()
 
 	result, err := r.SqlDB.ExecContext(ctx,
 		`DELETE
@@ -146,7 +146,7 @@ func (r *RepoBytes) DeleteRecord(ctx context.Context, bytes *model.Bytes) (*mode
 		return nil, errs.ErrDataNotFound
 	}
 
-	bytes.UpdatedAt = deletedAt
+	bytes.UpdatedAt = utils.ConversDtToTableView(deleteTime)
 	return bytes, nil
 }
 

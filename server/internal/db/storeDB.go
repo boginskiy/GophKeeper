@@ -10,8 +10,8 @@ import (
 
 // StoreDB database.
 type StoreDB struct {
-	Logg logg.Logger
-	DB   *sql.DB
+	Logger logg.Logger
+	DB     *sql.DB
 }
 
 func NewStoreDB(config config.Config, logger logg.Logger) *StoreDB {
@@ -21,8 +21,8 @@ func NewStoreDB(config config.Config, logger logg.Logger) *StoreDB {
 	}
 
 	return &StoreDB{
-		Logg: logger,
-		DB:   db,
+		Logger: logger,
+		DB:     db,
 	}
 }
 

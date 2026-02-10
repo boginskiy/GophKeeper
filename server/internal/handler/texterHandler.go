@@ -17,8 +17,8 @@ type TexterHandler struct {
 	Service service.TextServicer[*model.Text]
 }
 
-func NewTexterHandler(srv service.TextServicer[*model.Text]) *TexterHandler {
-	return &TexterHandler{Service: srv}
+func NewTexterHandler(service service.TextServicer[*model.Text]) *TexterHandler {
+	return &TexterHandler{Service: service}
 }
 
 func (k *TexterHandler) Create(ctx context.Context, req *rpc.CreateRequest) (*rpc.CreateResponse, error) {

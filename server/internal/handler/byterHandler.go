@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/boginskiy/GophKeeper/server/internal/errs"
-	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/model"
 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
 	"github.com/boginskiy/GophKeeper/server/internal/service"
@@ -36,60 +35,60 @@ func NewByterHandler(
 		UploadService: uploadService}
 }
 
-func (b *ByterHandler) Upload(stream rpc.ByterService_UploadServer) error {
-	modBytes, err := b.UploadService.Prepar(stream)
-	if err != nil {
-		return status.Errorf(codes.Internal, "%s", err)
-	}
+// func (b *ByterHandler) Upload(stream rpc.ByterService_UploadServer) error {
+// 	modBytes, err := b.UploadService.Prepar(stream)
+// 	if err != nil {
+// 		return status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	modBytes, err = b.UploadService.Load(stream, modBytes)
-	if err != nil {
-		return status.Errorf(codes.Internal, "%s", err)
-	}
+// 	modBytes, err = b.UploadService.Load(stream, modBytes)
+// 	if err != nil {
+// 		return status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	// Response
-	err = stream.SendAndClose(&rpc.UploadBytesResponse{
-		Status:       "uploaded",
-		UpdatedAt:    utils.ConvertDtStr(modBytes.UpdatedAt),
-		SentSize:     modBytes.SentSize,
-		ReceivedSize: modBytes.ReceivedSize,
-	})
+// 	// Response
+// 	err = stream.SendAndClose(&rpc.UploadBytesResponse{
+// 		Status:       "uploaded",
+// 		UpdatedAt:    utils.ConvertDtStr(modBytes.UpdatedAt),
+// 		SentSize:     modBytes.SentSize,
+// 		ReceivedSize: modBytes.ReceivedSize,
+// 	})
 
-	if err != nil {
-		return err
-	}
-	return nil
-}
+// 	if err != nil {
+// 		return err
+// 	}
+// 	return nil
+// }
 
-func (b *ByterHandler) Unload(req *rpc.UnloadBytesRequest, stream rpc.ByterService_UnloadServer) error {
-	// Получаем данные по файлу из БД.
-	modBytes, err := b.UnloadService.Prepar(stream)
+// func (b *ByterHandler) Unload(req *rpc.UnloadBytesRequest, stream rpc.ByterService_UnloadServer) error {
+// 	// Получаем данные по файлу из БД.
+// 	modBytes, err := b.UnloadService.Prepar(stream)
 
-	// Запрашиваемые данные не найдены в БД
-	if err == errs.ErrDataNotFound {
-		return status.Errorf(codes.NotFound, "%s", err)
-	}
-	// Ошибки связанные с неполучением данных из context.
-	if err != nil {
-		return status.Errorf(codes.Internal, "%s", err)
-	}
+// 	// Запрашиваемые данные не найдены в БД
+// 	if err == errs.ErrDataNotFound {
+// 		return status.Errorf(codes.NotFound, "%s", err)
+// 	}
+// 	// Ошибки связанные с неполучением данных из context.
+// 	if err != nil {
+// 		return status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	// Кладем данные в заголовок для клиента
-	errUp := infra.PutDataToCtx(stream.Context(), "updated_at", utils.ConvertDtStr(modBytes.UpdatedAt))
-	errSz := infra.PutDataToCtx(stream.Context(), "sent_size", modBytes.ReceivedSize)
-	errFn := infra.PutDataToCtx(stream.Context(), "file_name", modBytes.Name)
+// 	// Кладем данные в заголовок для клиента
+// 	errUp := infra.PutDataToCtx(stream.Context(), "updated_at", utils.ConvertDtStr(modBytes.UpdatedAt))
+// 	errSz := infra.PutDataToCtx(stream.Context(), "sent_size", modBytes.ReceivedSize)
+// 	errFn := infra.PutDataToCtx(stream.Context(), "file_name", modBytes.Name)
 
-	if errUp != nil || errSz != nil || errFn != nil {
-		return status.Errorf(codes.Internal, "%s", utils.DefinErr(errUp, errSz, errFn))
-	}
+// 	if errUp != nil || errSz != nil || errFn != nil {
+// 		return status.Errorf(codes.Internal, "%s", utils.DefinErr(errUp, errSz, errFn))
+// 	}
 
-	_, err = b.UnloadService.Load(stream, modBytes)
-	if err != nil {
-		return status.Errorf(codes.Internal, "%s", err)
-	}
+// 	_, err = b.UnloadService.Load(stream, modBytes)
+// 	if err != nil {
+// 		return status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func (b *ByterHandler) Read(ctx context.Context, req *rpc.ReadBytesRequest) (*rpc.ReadBytesResponse, error) {
 	modBytes, err := b.BytesService.Read(ctx, req)

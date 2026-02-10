@@ -22,13 +22,13 @@ type App struct {
 	Description string
 	Version     string
 	Cfg         config.Config
-	Logg        logg.Logger
+	Logger      logg.Logger
 }
 
 func NewApp(conf config.Config, logg logg.Logger) *App {
 	tmpApp := &App{
 		Cfg:         conf,
-		Logg:        logg,
+		Logger:      logg,
 		Name:        config.APPNAME,
 		Description: config.DESC,
 		Version:     config.VERS,
@@ -38,7 +38,7 @@ func NewApp(conf config.Config, logg logg.Logger) *App {
 
 func (a *App) Init() {
 	// Logger.
-	remoteLogg := logg.NewLogg("remote.log", "INFO")
+	remoteLogger := logg.NewLogService("remote.log", "INFO")
 
 	// ctxT, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	ctxC, cancel := context.WithCancel(context.Background())
@@ -48,36 +48,36 @@ func (a *App) Init() {
 	// Utils.
 	pathHandler := utils.NewPathProc()
 	fileHandler := utils.NewFileProc(pathHandler)
-	fileManager := infra.NewFileManage(fileHandler, pathHandler)
+	fileService := infra.NewFileService(fileHandler, pathHandler)
 
 	// User.
-	userCLI := user.NewUserCLI(a.Logg)
+	userCLI := user.NewUserCLI(a.Logger)
 
 	// Interceptor.
-	interceptor := intercept.NewClientIntercept(a.Cfg, a.Logg, userCLI)
+	interceptor := intercept.NewClientIntercept(a.Cfg, a.Logger, userCLI)
 
 	// Clients & User.
-	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logg, interceptor)
-	clientCLI := client.NewClientCLI(a.Logg)
+	clientGRPC := client.NewClientGRPC(a.Cfg, a.Logger, interceptor)
+	clientCLI := client.NewClientCLI(a.Logger)
 
 	// Infra Services.
 	checker := infra.NewCheck(fileHandler)
-	dialoger := infra.NewDialog(a.Cfg, a.Logg, checker, clientCLI, userCLI)
+	dialoger := infra.NewDialog(a.Cfg, a.Logger, checker, clientCLI, userCLI)
 	cryptoService := pkg.NewCryptoService()
 
 	// Remote Services.
-	remoteAuther := api.NewRemoteAuthService(a.Cfg, remoteLogg, clientGRPC)
-	remoteTexter := api.NewRemoteTextService(a.Cfg, remoteLogg, clientGRPC)
-	remoteByter := api.NewRemoteBytesService(a.Cfg, remoteLogg, clientGRPC, cryptoService)
+	remoteAuther := api.NewRemoteAuthService(a.Cfg, remoteLogger, clientGRPC)
+	remoteTexter := api.NewRemoteTextService(a.Cfg, remoteLogger, clientGRPC)
+	remoteByter := api.NewRemoteBytesService(a.Cfg, remoteLogger, clientGRPC, cryptoService)
 
 	// Business Services.
-	bytesService := service.NewBytesService(a.Cfg, a.Logg, fileHandler, pathHandler, remoteByter, fileManager)
-	textService := service.NewTextService(a.Cfg, a.Logg, remoteTexter)
+	bytesService := service.NewBytesService(a.Cfg, a.Logger, fileHandler, pathHandler, remoteByter, fileService)
+	textService := service.NewTextService(a.Cfg, a.Logger, remoteTexter)
 
 	// Auth.
-	identity := auth.NewIdentity(a.Cfg, a.Logg, fileHandler, pathHandler)
-	authService := auth.NewAuthService(a.Cfg, a.Logg, identity, remoteAuther)
-	auth.NewRecoveryService(ctxC, a.Cfg, a.Logg, mailChan, codeChan)
+	identity := auth.NewIdentity(a.Cfg, a.Logger, fileHandler, pathHandler)
+	authService := auth.NewAuthService(a.Cfg, a.Logger, identity, remoteAuther)
+	auth.NewRecoveryService(ctxC, a.Cfg, a.Logger, mailChan, codeChan)
 
 	// Commonds.
 	commMedia := comm.NewCommMedia(checker, dialoger, bytesService) // Bytes, Sound, Video, Image
@@ -87,11 +87,11 @@ func (a *App) Init() {
 	root := comm.NewRoot(dialoger, commText, commMedia)
 
 	// Start.
-	NewRunner(a.Cfg, a.Logg, identity, dialoger, root, rootAuth).Run(clientCLI, userCLI)
+	NewRunner(a.Cfg, a.Logger, identity, dialoger, root, rootAuth).Run(clientCLI, userCLI)
 
 	defer clientGRPC.Close()
 	defer close(codeChan)
 	defer close(mailChan)
-	defer a.Logg.Close()
+	defer a.Logger.Close()
 	defer cancel()
 }

@@ -16,7 +16,7 @@ import (
 
 type RemoteAuthService struct {
 	Cfg        config.Config
-	Logg       logg.Logger
+	Logger     logg.Logger
 	ClientGRPC *client.ClientGRPC
 }
 
@@ -27,7 +27,7 @@ func NewRemoteAuthService(
 
 	return &RemoteAuthService{
 		Cfg:        config,
-		Logg:       logger,
+		Logger:     logger,
 		ClientGRPC: clientgrpc}
 }
 
@@ -36,7 +36,7 @@ func (a *RemoteAuthService) Registration(user model.User) (token string, err err
 	defer cancel()
 
 	// Request.
-	req := &rpc.RegistUserRequest{
+	req := &rpc.RegistRequest{
 		Username:    user.UserName,
 		Email:       user.Email,
 		Password:    user.Password,
@@ -45,7 +45,7 @@ func (a *RemoteAuthService) Registration(user model.User) (token string, err err
 	// Header.
 	var serverHeader metadata.MD
 
-	_, err = a.ClientGRPC.AuthService.RegistUser(ctx, req, grpc.Header(&serverHeader))
+	_, err = a.ClientGRPC.AuthService.Registration(ctx, req, grpc.Header(&serverHeader))
 	token = infra.TakeValueFromHeader(serverHeader, "authorization", 0)
 
 	return token, err
@@ -55,10 +55,10 @@ func (a *RemoteAuthService) Authentication(user model.User) (token string, err e
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(a.Cfg.GetResTimeout()))
 	defer cancel()
 
-	req := &rpc.AuthUserRequest{Email: user.Email, Password: user.Password}
+	req := &rpc.AuthRequest{Email: user.Email, Password: user.Password}
 	var serverHeader metadata.MD
 
-	_, err = a.ClientGRPC.AuthService.AuthUser(ctx, req, grpc.Header(&serverHeader))
+	_, err = a.ClientGRPC.AuthService.Authentication(ctx, req, grpc.Header(&serverHeader))
 	token = infra.TakeValueFromHeader(serverHeader, "authorization", 0)
 
 	return token, err
@@ -69,7 +69,7 @@ func (a *RemoteAuthService) Recovery(user model.User) (token string, err error) 
 	defer cancel()
 
 	// Request.
-	req := &rpc.RecoverUserRequest{
+	req := &rpc.RecovRequest{
 		Password: user.Password,
 		Email:    user.Email,
 	}
@@ -77,7 +77,7 @@ func (a *RemoteAuthService) Recovery(user model.User) (token string, err error) 
 	// Header.
 	var serverHeader metadata.MD
 
-	_, err = a.ClientGRPC.AuthService.RecoverUser(ctx, req, grpc.Header(&serverHeader))
+	_, err = a.ClientGRPC.AuthService.Recovery(ctx, req, grpc.Header(&serverHeader))
 	token = infra.TakeValueFromHeader(serverHeader, "authorization", 0)
 
 	return token, err

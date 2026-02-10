@@ -12,19 +12,19 @@ import (
 
 const MOD = 0755
 
-type FileManage struct {
+type FileService struct {
 	FileHandler utils.FileHandler
 	PathHandler utils.PathHandler
 }
 
-func NewFileManage(fileHandler utils.FileHandler, pathHandler utils.PathHandler) *FileManage {
-	return &FileManage{
+func NewFileService(fileHandler utils.FileHandler, pathHandler utils.PathHandler) *FileService {
+	return &FileService{
 		FileHandler: fileHandler,
 		PathHandler: pathHandler,
 	}
 }
 
-func (f *FileManage) GetModelBytesFromFile(pathToFile string, typ string) (*model.Bytes, error) {
+func (f *FileService) GetModelBytesFromFile(pathToFile string, typ string) (*model.Bytes, error) {
 	pathToFile, err := f.PathHandler.TransPathToAbs(pathToFile)
 
 	if err != nil || !f.FileHandler.CheckOfFile(pathToFile) {
@@ -50,7 +50,7 @@ func (f *FileManage) GetModelBytesFromFile(pathToFile string, typ string) (*mode
 	}, nil
 }
 
-func (f *FileManage) CreateFileInStore(modBytes *model.Bytes) (file *os.File, path string, err error) {
+func (f *FileService) CreateFileInStore(modBytes *model.Bytes) (file *os.File, path string, err error) {
 	// Create path
 	path, err = f.PathHandler.CreatePathToWd(config.STORE, modBytes.Type, modBytes.Name)
 	if err != nil {

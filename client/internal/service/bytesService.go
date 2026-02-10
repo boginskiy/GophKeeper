@@ -12,11 +12,11 @@ import (
 
 type BytesService struct {
 	Cfg         config.Config
-	Logg        logg.Logger
+	Logger      logg.Logger
 	FileHandler utils.FileHandler
 	PathHandler utils.PathHandler
 	RemoteByter api.RemoteByter[model.Bytes]
-	FileManager infra.FileManager
+	FileService infra.Filer
 }
 
 func NewBytesService(
@@ -25,21 +25,21 @@ func NewBytesService(
 	fileHandler utils.FileHandler,
 	pathHandler utils.PathHandler,
 	remoteByter api.RemoteByter[model.Bytes],
-	fileManager infra.FileManager,
+	fileService infra.Filer,
 ) *BytesService {
 
 	return &BytesService{
 		Cfg:         cfg,
-		Logg:        logger,
+		Logger:      logger,
 		FileHandler: fileHandler,
 		PathHandler: pathHandler,
 		RemoteByter: remoteByter,
-		FileManager: fileManager,
+		FileService: fileService,
 	}
 }
 
 func (t *BytesService) Upload(user user.User, pathToFile string, tp string) (any, error) {
-	bytes, err := t.FileManager.GetModelBytesFromFile(pathToFile, tp)
+	bytes, err := t.FileService.GetModelBytesFromFile(pathToFile, tp)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (t *BytesService) Upload(user user.User, pathToFile string, tp string) (any
 func (t *BytesService) Unload(user user.User, fileName string) (any, error) {
 	modBytes := &model.Bytes{Name: fileName, Type: t.FileHandler.GetTypeFile(fileName)}
 
-	file, path, err := t.FileManager.CreateFileInStore(modBytes)
+	file, path, err := t.FileService.CreateFileInStore(modBytes)
 	if err != nil {
 		return nil, err
 	}

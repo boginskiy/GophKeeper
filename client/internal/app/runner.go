@@ -12,7 +12,7 @@ import (
 
 type Runner struct {
 	Cfg        config.Config
-	Logg       logg.Logger
+	Logger     logg.Logger
 	Identifier auth.Identifier
 	Dialoger   infra.Dialoger
 	Root       comm.Rooter
@@ -30,7 +30,7 @@ func NewRunner(
 
 	return &Runner{
 		Cfg:        cfg,
-		Logg:       logger,
+		Logger:     logger,
 		Identifier: identity,
 		Dialoger:   dialoger,
 		Root:       root,

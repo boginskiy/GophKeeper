@@ -21,7 +21,7 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type RegistUserRequest struct {
+type RegistRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
 	Email         string                 `protobuf:"bytes,2,opt,name=email,proto3" json:"email,omitempty"`
@@ -31,20 +31,20 @@ type RegistUserRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RegistUserRequest) Reset() {
-	*x = RegistUserRequest{}
+func (x *RegistRequest) Reset() {
+	*x = RegistRequest{}
 	mi := &file_server_proto_auth_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RegistUserRequest) String() string {
+func (x *RegistRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RegistUserRequest) ProtoMessage() {}
+func (*RegistRequest) ProtoMessage() {}
 
-func (x *RegistUserRequest) ProtoReflect() protoreflect.Message {
+func (x *RegistRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_server_proto_auth_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -56,60 +56,60 @@ func (x *RegistUserRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RegistUserRequest.ProtoReflect.Descriptor instead.
-func (*RegistUserRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RegistRequest.ProtoReflect.Descriptor instead.
+func (*RegistRequest) Descriptor() ([]byte, []int) {
 	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *RegistUserRequest) GetUsername() string {
+func (x *RegistRequest) GetUsername() string {
 	if x != nil {
 		return x.Username
 	}
 	return ""
 }
 
-func (x *RegistUserRequest) GetEmail() string {
+func (x *RegistRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
 	}
 	return ""
 }
 
-func (x *RegistUserRequest) GetPassword() string {
+func (x *RegistRequest) GetPassword() string {
 	if x != nil {
 		return x.Password
 	}
 	return ""
 }
 
-func (x *RegistUserRequest) GetPhonenumber() string {
+func (x *RegistRequest) GetPhonenumber() string {
 	if x != nil {
 		return x.Phonenumber
 	}
 	return ""
 }
 
-type RegistUserResponse struct {
+type RegistResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RegistUserResponse) Reset() {
-	*x = RegistUserResponse{}
+func (x *RegistResponse) Reset() {
+	*x = RegistResponse{}
 	mi := &file_server_proto_auth_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RegistUserResponse) String() string {
+func (x *RegistResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RegistUserResponse) ProtoMessage() {}
+func (*RegistResponse) ProtoMessage() {}
 
-func (x *RegistUserResponse) ProtoReflect() protoreflect.Message {
+func (x *RegistResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_server_proto_auth_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -121,19 +121,19 @@ func (x *RegistUserResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RegistUserResponse.ProtoReflect.Descriptor instead.
-func (*RegistUserResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use RegistResponse.ProtoReflect.Descriptor instead.
+func (*RegistResponse) Descriptor() ([]byte, []int) {
 	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *RegistUserResponse) GetStatus() string {
+func (x *RegistResponse) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
 	return ""
 }
 
-type RecoverUserRequest struct {
+type RecovRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
@@ -141,20 +141,20 @@ type RecoverUserRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RecoverUserRequest) Reset() {
-	*x = RecoverUserRequest{}
+func (x *RecovRequest) Reset() {
+	*x = RecovRequest{}
 	mi := &file_server_proto_auth_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RecoverUserRequest) String() string {
+func (x *RecovRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RecoverUserRequest) ProtoMessage() {}
+func (*RecovRequest) ProtoMessage() {}
 
-func (x *RecoverUserRequest) ProtoReflect() protoreflect.Message {
+func (x *RecovRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_server_proto_auth_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -166,46 +166,46 @@ func (x *RecoverUserRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RecoverUserRequest.ProtoReflect.Descriptor instead.
-func (*RecoverUserRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use RecovRequest.ProtoReflect.Descriptor instead.
+func (*RecovRequest) Descriptor() ([]byte, []int) {
 	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *RecoverUserRequest) GetEmail() string {
+func (x *RecovRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
 	}
 	return ""
 }
 
-func (x *RecoverUserRequest) GetPassword() string {
+func (x *RecovRequest) GetPassword() string {
 	if x != nil {
 		return x.Password
 	}
 	return ""
 }
 
-type RecoverUserResponse struct {
+type RecovResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RecoverUserResponse) Reset() {
-	*x = RecoverUserResponse{}
+func (x *RecovResponse) Reset() {
+	*x = RecovResponse{}
 	mi := &file_server_proto_auth_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RecoverUserResponse) String() string {
+func (x *RecovResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RecoverUserResponse) ProtoMessage() {}
+func (*RecovResponse) ProtoMessage() {}
 
-func (x *RecoverUserResponse) ProtoReflect() protoreflect.Message {
+func (x *RecovResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_server_proto_auth_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -217,19 +217,19 @@ func (x *RecoverUserResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RecoverUserResponse.ProtoReflect.Descriptor instead.
-func (*RecoverUserResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use RecovResponse.ProtoReflect.Descriptor instead.
+func (*RecovResponse) Descriptor() ([]byte, []int) {
 	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *RecoverUserResponse) GetStatus() string {
+func (x *RecovResponse) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
 	return ""
 }
 
-type AuthUserRequest struct {
+type AuthRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
@@ -237,20 +237,20 @@ type AuthUserRequest struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AuthUserRequest) Reset() {
-	*x = AuthUserRequest{}
+func (x *AuthRequest) Reset() {
+	*x = AuthRequest{}
 	mi := &file_server_proto_auth_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AuthUserRequest) String() string {
+func (x *AuthRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AuthUserRequest) ProtoMessage() {}
+func (*AuthRequest) ProtoMessage() {}
 
-func (x *AuthUserRequest) ProtoReflect() protoreflect.Message {
+func (x *AuthRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_server_proto_auth_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -262,46 +262,46 @@ func (x *AuthUserRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AuthUserRequest.ProtoReflect.Descriptor instead.
-func (*AuthUserRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use AuthRequest.ProtoReflect.Descriptor instead.
+func (*AuthRequest) Descriptor() ([]byte, []int) {
 	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *AuthUserRequest) GetEmail() string {
+func (x *AuthRequest) GetEmail() string {
 	if x != nil {
 		return x.Email
 	}
 	return ""
 }
 
-func (x *AuthUserRequest) GetPassword() string {
+func (x *AuthRequest) GetPassword() string {
 	if x != nil {
 		return x.Password
 	}
 	return ""
 }
 
-type AuthUserResponse struct {
+type AuthResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AuthUserResponse) Reset() {
-	*x = AuthUserResponse{}
+func (x *AuthResponse) Reset() {
+	*x = AuthResponse{}
 	mi := &file_server_proto_auth_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AuthUserResponse) String() string {
+func (x *AuthResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AuthUserResponse) ProtoMessage() {}
+func (*AuthResponse) ProtoMessage() {}
 
-func (x *AuthUserResponse) ProtoReflect() protoreflect.Message {
+func (x *AuthResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_server_proto_auth_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -313,12 +313,12 @@ func (x *AuthUserResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AuthUserResponse.ProtoReflect.Descriptor instead.
-func (*AuthUserResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use AuthResponse.ProtoReflect.Descriptor instead.
+func (*AuthResponse) Descriptor() ([]byte, []int) {
 	return file_server_proto_auth_service_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *AuthUserResponse) GetStatus() string {
+func (x *AuthResponse) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
@@ -329,29 +329,28 @@ var File_server_proto_auth_service_proto protoreflect.FileDescriptor
 
 const file_server_proto_auth_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1fserver/proto/auth_service.proto\x12\x17GophKeeper.server.proto\"\x83\x01\n" +
-	"\x11RegistUserRequest\x12\x1a\n" +
+	"\x1fserver/proto/auth_service.proto\x12\x17GophKeeper.server.proto\"\x7f\n" +
+	"\rRegistRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x02 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12 \n" +
-	"\vphonenumber\x18\x04 \x01(\tR\vphonenumber\",\n" +
-	"\x12RegistUserResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\"F\n" +
-	"\x12RecoverUserRequest\x12\x14\n" +
+	"\vphonenumber\x18\x04 \x01(\tR\vphonenumber\"(\n" +
+	"\x0eRegistResponse\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\"@\n" +
+	"\fRecovRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"-\n" +
-	"\x13RecoverUserResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\"C\n" +
-	"\x0fAuthUserRequest\x12\x14\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"'\n" +
+	"\rRecovResponse\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\"?\n" +
+	"\vAuthRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"*\n" +
-	"\x10AuthUserResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status2\xbf\x02\n" +
-	"\vAuthService\x12e\n" +
-	"\n" +
-	"RegistUser\x12*.GophKeeper.server.proto.RegistUserRequest\x1a+.GophKeeper.server.proto.RegistUserResponse\x12_\n" +
-	"\bAuthUser\x12(.GophKeeper.server.proto.AuthUserRequest\x1a).GophKeeper.server.proto.AuthUserResponse\x12h\n" +
-	"\vRecoverUser\x12+.GophKeeper.server.proto.RecoverUserRequest\x1a,.GophKeeper.server.proto.RecoverUserResponseB5Z3github.com/boginskiy/GophKeeper/server/internal/rpcb\x06proto3"
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"&\n" +
+	"\fAuthResponse\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status2\xa8\x02\n" +
+	"\vAuthService\x12_\n" +
+	"\fRegistration\x12&.GophKeeper.server.proto.RegistRequest\x1a'.GophKeeper.server.proto.RegistResponse\x12]\n" +
+	"\x0eAuthentication\x12$.GophKeeper.server.proto.AuthRequest\x1a%.GophKeeper.server.proto.AuthResponse\x12Y\n" +
+	"\bRecovery\x12%.GophKeeper.server.proto.RecovRequest\x1a&.GophKeeper.server.proto.RecovResponseB5Z3github.com/boginskiy/GophKeeper/server/internal/rpcb\x06proto3"
 
 var (
 	file_server_proto_auth_service_proto_rawDescOnce sync.Once
@@ -367,20 +366,20 @@ func file_server_proto_auth_service_proto_rawDescGZIP() []byte {
 
 var file_server_proto_auth_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_server_proto_auth_service_proto_goTypes = []any{
-	(*RegistUserRequest)(nil),   // 0: GophKeeper.server.proto.RegistUserRequest
-	(*RegistUserResponse)(nil),  // 1: GophKeeper.server.proto.RegistUserResponse
-	(*RecoverUserRequest)(nil),  // 2: GophKeeper.server.proto.RecoverUserRequest
-	(*RecoverUserResponse)(nil), // 3: GophKeeper.server.proto.RecoverUserResponse
-	(*AuthUserRequest)(nil),     // 4: GophKeeper.server.proto.AuthUserRequest
-	(*AuthUserResponse)(nil),    // 5: GophKeeper.server.proto.AuthUserResponse
+	(*RegistRequest)(nil),  // 0: GophKeeper.server.proto.RegistRequest
+	(*RegistResponse)(nil), // 1: GophKeeper.server.proto.RegistResponse
+	(*RecovRequest)(nil),   // 2: GophKeeper.server.proto.RecovRequest
+	(*RecovResponse)(nil),  // 3: GophKeeper.server.proto.RecovResponse
+	(*AuthRequest)(nil),    // 4: GophKeeper.server.proto.AuthRequest
+	(*AuthResponse)(nil),   // 5: GophKeeper.server.proto.AuthResponse
 }
 var file_server_proto_auth_service_proto_depIdxs = []int32{
-	0, // 0: GophKeeper.server.proto.AuthService.RegistUser:input_type -> GophKeeper.server.proto.RegistUserRequest
-	4, // 1: GophKeeper.server.proto.AuthService.AuthUser:input_type -> GophKeeper.server.proto.AuthUserRequest
-	2, // 2: GophKeeper.server.proto.AuthService.RecoverUser:input_type -> GophKeeper.server.proto.RecoverUserRequest
-	1, // 3: GophKeeper.server.proto.AuthService.RegistUser:output_type -> GophKeeper.server.proto.RegistUserResponse
-	5, // 4: GophKeeper.server.proto.AuthService.AuthUser:output_type -> GophKeeper.server.proto.AuthUserResponse
-	3, // 5: GophKeeper.server.proto.AuthService.RecoverUser:output_type -> GophKeeper.server.proto.RecoverUserResponse
+	0, // 0: GophKeeper.server.proto.AuthService.Registration:input_type -> GophKeeper.server.proto.RegistRequest
+	4, // 1: GophKeeper.server.proto.AuthService.Authentication:input_type -> GophKeeper.server.proto.AuthRequest
+	2, // 2: GophKeeper.server.proto.AuthService.Recovery:input_type -> GophKeeper.server.proto.RecovRequest
+	1, // 3: GophKeeper.server.proto.AuthService.Registration:output_type -> GophKeeper.server.proto.RegistResponse
+	5, // 4: GophKeeper.server.proto.AuthService.Authentication:output_type -> GophKeeper.server.proto.AuthResponse
+	3, // 5: GophKeeper.server.proto.AuthService.Recovery:output_type -> GophKeeper.server.proto.RecovResponse
 	3, // [3:6] is the sub-list for method output_type
 	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

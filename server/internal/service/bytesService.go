@@ -13,10 +13,10 @@ import (
 
 type BytesService struct {
 	Cfg         config.Config
-	Logg        logg.Logger
+	Logger      logg.Logger
 	Repo        repo.Repository[*model.Bytes]
 	FileHandler utils.FileHandler
-	FileManager infra.FileManager
+	FileService infra.Filer
 }
 
 func NewBytesService(
@@ -24,20 +24,20 @@ func NewBytesService(
 	logger logg.Logger,
 	repo repo.Repository[*model.Bytes],
 	fileHandler utils.FileHandler,
-	fileManager infra.FileManager) *BytesService {
+	fileService infra.Filer) *BytesService {
 
 	tmp := &BytesService{
 		Cfg:         config,
-		Logg:        logger,
+		Logger:      logger,
 		Repo:        repo,
 		FileHandler: fileHandler,
-		FileManager: fileManager,
+		FileService: fileService,
 	}
 
 	return tmp
 }
 
-func (b *BytesService) Read(ctx context.Context, req any) (*model.Bytes, error) {
+func (b *BytesService) Read(ctx context.Context, _ any) (*model.Bytes, error) {
 	// Info from context.
 	fileName, err := infra.TakeClientValueFromCtx(ctx, "file_name", 0)
 	if err != nil {

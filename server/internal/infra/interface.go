@@ -7,6 +7,6 @@ type PathCreater interface {
 	GetFileName() string
 }
 
-type FileManager interface {
+type Filer interface {
 	CreateFileInStore(obj PathCreater) (file *os.File, path string, err error)
 }

@@ -1,99 +1,97 @@
 package handler
 
-import (
-	"context"
+// import (
+// 	"context"
 
-	"github.com/boginskiy/GophKeeper/server/internal/auth"
-	"github.com/boginskiy/GophKeeper/server/internal/errs"
-	"github.com/boginskiy/GophKeeper/server/internal/infra"
-	"github.com/boginskiy/GophKeeper/server/internal/rpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-)
+// 	"github.com/boginskiy/GophKeeper/server/internal/auth"
+// 	"github.com/boginskiy/GophKeeper/server/internal/errs"
+// 	"github.com/boginskiy/GophKeeper/server/internal/infra"
+// 	"github.com/boginskiy/GophKeeper/server/internal/rpc"
+// 	"google.golang.org/grpc/codes"
+// 	"google.golang.org/grpc/status"
+// )
 
-type AuthHandler struct {
-	rpc.UnimplementedAuthServiceServer
-	Auth auth.Auther
-}
+// type AuthHandler struct {
+// 	rpc.UnimplementedAuthServiceServer
+// 	Auth auth.Auther
+// }
 
-func NewAuthHandler(auther auth.Auther) *AuthHandler {
-	return &AuthHandler{Auth: auther}
-}
+// func NewAuthHandler(auther auth.Auther) *AuthHandler {
+// 	return &AuthHandler{Auth: auther}
+// }
 
-func (k *AuthHandler) RegistUser(ctx context.Context, req *rpc.RegistUserRequest) (*rpc.RegistUserResponse, error) {
-	token, err := k.Auth.Registration(ctx, req)
+// func (k *AuthHandler) Registration(ctx context.Context, req *rpc.RegistRequest) (*rpc.RegistResponse, error) {
+// 	token, err := k.Auth.Registration(ctx, req)
 
-	// Ошибка создания пользователя.
-	if err == errs.ErrCreateUser {
-		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
-	}
+// 	// Ошибка создания пользователя.
+// 	if err == errs.ErrCreateUser {
+// 		return nil, status.Errorf(codes.InvalidArgument, "%s", err)
+// 	}
 
-	// Ошибка уникального email.
-	if err == errs.ErrEmailNotUnique {
-		return nil, status.Errorf(codes.AlreadyExists, "%s", err)
-	}
+// 	// Ошибка уникального email.
+// 	if err == errs.ErrEmailNotUnique {
+// 		return nil, status.Errorf(codes.AlreadyExists, "%s", err)
+// 	}
 
-	// Ошибки сервера.
-	if err == errs.ErrCreateToken || err != nil {
-		return nil, status.Errorf(codes.Internal, "%s", err)
-	}
+// 	// Ошибки сервера.
+// 	if err == errs.ErrCreateToken || err != nil {
+// 		return nil, status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	// Кладем токен в заголовок
-	err = infra.PutDataToCtx(ctx, "authorization", token)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "%s", err)
-	}
+// 	// Кладем токен в заголовок
+// 	err = infra.PutDataToCtx(ctx, "authorization", token)
+// 	if err != nil {
+// 		return nil, status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	return &rpc.RegistUserResponse{Status: "ok"}, nil
-}
+// 	return &rpc.RegistResponse{Status: "ok"}, nil
+// }
 
-func (k *AuthHandler) AuthUser(ctx context.Context, req *rpc.AuthUserRequest) (*rpc.AuthUserResponse, error) {
-	token, err := k.Auth.Authentication(ctx, req)
+// func (k *AuthHandler) Authentication(ctx context.Context, req *rpc.AuthRequest) (*rpc.AuthResponse, error) {
+// 	token, err := k.Auth.Authentication(ctx, req)
 
-	// Ошибка. Пользователь с таким email не найден.
-	if err == errs.ErrUserNotFound {
-		return nil, status.Errorf(codes.NotFound, "%s", err)
-	}
+// 	// Ошибка. Пользователь с таким email не найден.
+// 	if err == errs.ErrUserNotFound {
+// 		return nil, status.Errorf(codes.NotFound, "%s", err)
+// 	}
 
-	// Ошибка. Неверный пароль.
-	if err == errs.ErrUserPassword {
-		return nil, status.Errorf(codes.Unauthenticated, "%s", err)
-	}
+// 	// Ошибка. Неверный пароль.
+// 	if err == errs.ErrUserPassword {
+// 		return nil, status.Errorf(codes.Unauthenticated, "%s", err)
+// 	}
 
-	// Ошибки сервера.
-	if err == errs.ErrCreateToken || err != nil {
-		return nil, status.Errorf(codes.Internal, "%s", err)
-	}
+// 	// Ошибки сервера.
+// 	if err == errs.ErrCreateToken || err != nil {
+// 		return nil, status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	// Кладем токен в заголовок
-	err = infra.PutDataToCtx(ctx, "authorization", token)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "%s", err)
-	}
+// 	// Кладем токен в заголовок
+// 	err = infra.PutDataToCtx(ctx, "authorization", token)
+// 	if err != nil {
+// 		return nil, status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	return &rpc.AuthUserResponse{Status: "ok"}, nil
-}
+// 	return &rpc.AuthResponse{Status: "ok"}, nil
+// }
 
-func (k *AuthHandler) RecoverUser(ctx context.Context, req *rpc.RecoverUserRequest) (*rpc.RecoverUserResponse, error) {
-	token, err := k.Auth.Recovery(ctx, req)
+// func (k *AuthHandler) Recovery(ctx context.Context, req *rpc.RecovRequest) (*rpc.RecovResponse, error) {
+// 	token, err := k.Auth.Recovery(ctx, req)
 
-	// Ошибка. Пользователь с таким email не найден.
-	if err == errs.ErrUpdateUser {
-		return nil, status.Errorf(codes.NotFound, "%s", err)
-	}
+// 	// Ошибка. Пользователь с таким email не найден.
+// 	if err == errs.ErrUpdateUser {
+// 		return nil, status.Errorf(codes.NotFound, "%s", err)
+// 	}
 
-	// Ошибки сервера.
-	if err == errs.ErrCreateToken || err != nil {
-		return nil, status.Errorf(codes.Internal, "%s", err)
-	}
+// 	// Ошибки сервера.
+// 	if err == errs.ErrCreateToken || err != nil {
+// 		return nil, status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	// Кладем токен в заголовок
-	err = infra.PutDataToCtx(ctx, "authorization", token)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "%s", err)
-	}
+// 	// Кладем токен в заголовок
+// 	err = infra.PutDataToCtx(ctx, "authorization", token)
+// 	if err != nil {
+// 		return nil, status.Errorf(codes.Internal, "%s", err)
+// 	}
 
-	return &rpc.RecoverUserResponse{Status: "ok"}, nil
-}
-
-// $2a$10$EomCxN0Lq.fG9ZeEoRRF4uUAVBEWp4BwkXOzRdOmCzS0yJyyGOvwS
+// 	return &rpc.RecovResponse{Status: "ok"}, nil
+// }

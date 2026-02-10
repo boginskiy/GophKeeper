@@ -20,12 +20,12 @@ type CommMedia struct {
 func NewCommMedia(
 	checker infra.Checker,
 	dialoger infra.Dialoger,
-	srv service.BytesServicer) *CommMedia {
+	service service.BytesServicer) *CommMedia {
 
 	return &CommMedia{
 		Checker:  checker,
 		Dialoger: dialoger,
-		Service:  srv}
+		Service:  service}
 }
 
 func (c *CommMedia) Registration(user user.User, dataType string) {

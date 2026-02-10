@@ -9,19 +9,19 @@ import (
 
 const MOD = 0755
 
-type FileManage struct {
+type FileService struct {
 	FileHandler utils.FileHandler
 	PathHandler utils.PathHandler
 }
 
-func NewFileManage(fileHandler utils.FileHandler, pathHandler utils.PathHandler) *FileManage {
-	return &FileManage{
+func NewFileService(fileHandler utils.FileHandler, pathHandler utils.PathHandler) *FileService {
+	return &FileService{
 		FileHandler: fileHandler,
 		PathHandler: pathHandler,
 	}
 }
 
-func (m *FileManage) CreateFileInStore(obj PathCreater) (file *os.File, path string, err error) {
+func (m *FileService) CreateFileInStore(obj PathCreater) (file *os.File, path string, err error) {
 	// Create path
 	path, err = m.PathHandler.CreatePathToWd(config.STORE, obj.GetOwner(), obj.GetFileName())
 	if err != nil {

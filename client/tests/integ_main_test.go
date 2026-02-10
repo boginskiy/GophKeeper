@@ -35,14 +35,14 @@ func TestClient(t *testing.T) {
 	defer Identy.SaveCurrentUser(UserCLI)
 }
 
-func Authentication(t *testing.T, srv auth.Auth, user user.User) {
-	ok := srv.Identification(user)
+func Authentication(t *testing.T, service auth.Auth, user user.User) {
+	ok := service.Identification(user)
 	if ok {
-		_, err := srv.Authentication(user, dataAuth)
+		_, err := service.Authentication(user, dataAuth)
 		if err == nil {
 			return
 		}
 	}
-	_, err := srv.Registration(user, dataRegis)
+	_, err := service.Registration(user, dataRegis)
 	assert.NoError(t, err)
 }

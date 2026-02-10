@@ -16,7 +16,7 @@ import (
 
 type RepoText struct {
 	Cfg    config.Config
-	Logg   logg.Logger
+	Logger logg.Logger
 	Store  db.DataBase[*sql.DB]
 	SqlDB  *sql.DB
 	NameTb string
@@ -25,7 +25,7 @@ type RepoText struct {
 func NewRepoText(cfg config.Config, logger logg.Logger, db db.DataBase[*sql.DB]) *RepoText {
 	return &RepoText{
 		Cfg:    cfg,
-		Logg:   logger,
+		Logger: logger,
 		Store:  db,
 		SqlDB:  db.GetDB(),
 		NameTb: "texts",
@@ -38,19 +38,20 @@ func (r *RepoText) CreateRecord(ctx context.Context, text *model.Text) (*model.T
 		return nil, err
 	}
 
-	updatedAt := time.Now()
+	currentTime := time.Now()
 
 	_, err = r.SqlDB.ExecContext(ctx,
 		`INSERT INTO texts (name, type, content, created_at, updated_at, user_id)
 		 VALUES ($1, $2, $3, $4, $5, $6);`,
-		text.Name, text.Type, text.Content, utils.ConvertDtStr(updatedAt), utils.ConvertDtStr(updatedAt), userID)
+		text.Name, text.Type, text.Content, currentTime, currentTime, userID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	text.CreatedAt = updatedAt
-	text.UpdatedAt = updatedAt
+	text.CreatedAt = utils.ConversDtToTableView(currentTime)
+	text.UpdatedAt = utils.ConversDtToTableView(currentTime)
+
 	return text, nil
 }
 
@@ -124,13 +125,13 @@ func (r *RepoText) UpdateRecord(ctx context.Context, text *model.Text) (*model.T
 		return nil, err
 	}
 
-	updatedAt := time.Now()
+	updateTime := time.Now()
 
 	result, err := r.SqlDB.ExecContext(ctx,
 		`UPDATE texts
 		 SET content = $1, updated_at = $2
 		 WHERE user_id = $3 AND name = $4;`,
-		text.Content, utils.ConvertDtStr(updatedAt), userID, text.Name)
+		text.Content, updateTime, userID, text.Name)
 
 	// Проверка количеств затронутых изменений.
 	cntChange, err := result.RowsAffected()
@@ -138,7 +139,7 @@ func (r *RepoText) UpdateRecord(ctx context.Context, text *model.Text) (*model.T
 		return nil, errs.ErrDataNotFound
 	}
 
-	text.UpdatedAt = updatedAt
+	text.UpdatedAt = utils.ConversDtToTableView(updateTime)
 	return text, nil
 }
 
@@ -148,7 +149,7 @@ func (r *RepoText) DeleteRecord(ctx context.Context, text *model.Text) (*model.T
 		return nil, err
 	}
 
-	deletedAt := time.Now()
+	deleteTime := time.Now()
 
 	result, err := r.SqlDB.ExecContext(ctx,
 		`DELETE
@@ -162,6 +163,6 @@ func (r *RepoText) DeleteRecord(ctx context.Context, text *model.Text) (*model.T
 		return nil, errs.ErrDataNotFound
 	}
 
-	text.UpdatedAt = deletedAt
+	text.UpdatedAt = utils.ConversDtToTableView(deleteTime)
 	return text, nil
 }

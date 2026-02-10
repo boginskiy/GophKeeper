@@ -3,6 +3,7 @@ package api
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"io"
 	"strconv"
 
@@ -20,7 +21,7 @@ import (
 
 type RemoteBytesService struct {
 	Cfg           config.Config
-	Logg          logg.Logger
+	Logger        logg.Logger
 	ClientGRPC    *client.ClientGRPC
 	CryptoService pkg.Crypter
 }
@@ -33,7 +34,7 @@ func NewRemoteBytesService(
 
 	tmp := &RemoteBytesService{
 		Cfg:           config,
-		Logg:          logger,
+		Logger:        logger,
 		ClientGRPC:    clientgrpc,
 		CryptoService: cryptoService}
 
@@ -55,6 +56,7 @@ func (a *RemoteBytesService) Upload(user user.User, modBytes model.Bytes) (any, 
 	// Stream.
 	stream, err := a.ClientGRPC.ByterService.Upload(ctx, grpc.Header(&serverHeader))
 	if err != nil {
+		fmt.Println(err)
 		return nil, errs.ErrStartStream.Wrap(err)
 	}
 

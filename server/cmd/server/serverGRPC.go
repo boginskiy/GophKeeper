@@ -14,7 +14,7 @@ import (
 
 type ServerGRPC struct {
 	Cfg    config.Config
-	Logg   logg.Logger
+	Logger logg.Logger
 	listen net.Listener
 	S      *grpc.Server
 }
@@ -33,7 +33,7 @@ func NewServerGRPC(config config.Config, logger logg.Logger, intrcep intercept.S
 
 	return &ServerGRPC{
 		Cfg:    config,
-		Logg:   logger,
+		Logger: logger,
 		listen: lst,
 		S:      server,
 	}
@@ -52,5 +52,5 @@ func (s *ServerGRPC) Registration(
 
 func (s *ServerGRPC) Run() {
 	fmt.Fprintf(os.Stdout, "Protocol:      %s\n", "gRPC")
-	s.Logg.CheckWithFatal(s.S.Serve(s.listen), "gRPC server has not started")
+	s.Logger.CheckWithFatal(s.S.Serve(s.listen), "gRPC server has not started")
 }

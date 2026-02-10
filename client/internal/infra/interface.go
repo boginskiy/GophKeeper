@@ -30,8 +30,8 @@ type Dialoger interface {
 	CallWindows(string) (string, error)
 }
 
-// FileManager
-type FileManager interface {
+// Filer
+type Filer interface {
 	CreateFileInStore(*model.Bytes) (file *os.File, path string, err error)
 	GetModelBytesFromFile(pathToFile string, typ string) (*model.Bytes, error)
 }

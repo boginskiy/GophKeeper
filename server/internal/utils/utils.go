@@ -26,6 +26,10 @@ func DefinErr(err ...error) error {
 	return nil
 }
 
+func ConversDtToTableView(t time.Time) time.Time {
+	return t.Add(3 * time.Hour).UTC()
+}
+
 func Deserialization(data []byte, obj any) error {
 	return json.Unmarshal(data, obj)
 }

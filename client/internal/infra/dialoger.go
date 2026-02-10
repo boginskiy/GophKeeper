@@ -13,7 +13,7 @@ import (
 
 type Dialog struct {
 	Cfg     config.Config
-	Logg    logg.Logger
+	Logger  logg.Logger
 	Checker Checker
 	Client  client.Client
 	User    user.User
@@ -29,7 +29,7 @@ func NewDialog(
 
 	return &Dialog{
 		Cfg:     cfg,
-		Logg:    logger,
+		Logger:  logger,
 		Checker: ch,
 		Client:  cl,
 		User:    us,
@@ -93,16 +93,16 @@ func (d *Dialog) GetDataRegister() (userName, email, phone, password string) {
 	d.ShowIt("You need to register...")
 
 	userName, err := d.GetEnterIt("user name")
-	d.Logg.CheckWithFatal(err, "bad user name")
+	d.Logger.CheckWithFatal(err, "bad user name")
 
 	email, err = d.GetEnterIt("email")
-	d.Logg.CheckWithFatal(err, "bad email")
+	d.Logger.CheckWithFatal(err, "bad email")
 
 	phone, err = d.GetEnterIt("phone")
-	d.Logg.CheckWithFatal(err, "bad phone")
+	d.Logger.CheckWithFatal(err, "bad phone")
 
 	password, err = d.GetEnterIt("password")
-	d.Logg.CheckWithFatal(err, "bad password")
+	d.Logger.CheckWithFatal(err, "bad password")
 
 	return userName, email, phone, password
 }

@@ -10,9 +10,9 @@ import (
 
 var TESTFILE = "/home/ali/dev/GophKeeper/client/tests/store/test.txt"
 
-func testByterService(t *testing.T, srv service.BytesServicer, user user.User) {
+func testByterService(t *testing.T, service service.BytesServicer, user user.User) {
 
-	any, err := srv.Upload(user, TESTFILE)
+	any, err := service.Upload(user, TESTFILE)
 
 	fmt.Printf("%+v, %v\n\r", any, err)
 

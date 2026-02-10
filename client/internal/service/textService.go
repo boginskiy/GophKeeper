@@ -10,7 +10,7 @@ import (
 
 type TextService struct {
 	Cfg          config.Config
-	Logg         logg.Logger
+	Logger       logg.Logger
 	Type         string
 	RemoteTexter api.RemoteTexter[model.Text]
 }
@@ -22,7 +22,7 @@ func NewTextService(
 
 	return &TextService{
 		Cfg:          cfg,
-		Logg:         logger,
+		Logger:       logger,
 		RemoteTexter: remoteTexter,
 		Type:         "text",
 	}

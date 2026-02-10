@@ -16,7 +16,7 @@ const (
 )
 
 type ArgsCLI struct {
-	Logg logg.Logger
+	Logger logg.Logger
 
 	ServerGrpc      string // Port for the gRPC server.
 	SMTPHost        string // Email host for recover account.
@@ -30,7 +30,7 @@ type ArgsCLI struct {
 }
 
 func NewArgsCLI(logger logg.Logger) *ArgsCLI {
-	args := &ArgsCLI{Logg: logger}
+	args := &ArgsCLI{Logger: logger}
 	args.ParseFlags()
 
 	return args

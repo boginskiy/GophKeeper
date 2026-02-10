@@ -18,9 +18,9 @@ import (
 
 type UploadService struct {
 	Cfg           config.Config
-	Logg          logg.Logger
+	Logger        logg.Logger
 	FileHandler   utils.FileHandler
-	FileManager   infra.FileManager
+	FileService   infra.Filer
 	CryptoService pkg.Crypter
 	Repo          repo.RepoCreateReader[*model.Bytes]
 }
@@ -29,15 +29,15 @@ func NewUploadService(
 	config config.Config,
 	logger logg.Logger,
 	fileHandler utils.FileHandler,
-	fileManager infra.FileManager,
+	fileService infra.Filer,
 	cryptoService pkg.Crypter,
 	repo repo.RepoCreateReader[*model.Bytes]) *UploadService {
 
 	tmp := &UploadService{
 		Cfg:           config,
-		Logg:          logger,
+		Logger:        logger,
 		FileHandler:   fileHandler,
-		FileManager:   fileManager,
+		FileService:   fileService,
 		CryptoService: cryptoService,
 		Repo:          repo,
 	}
@@ -47,29 +47,8 @@ func NewUploadService(
 	return tmp
 }
 
-func (s *UploadService) Prepar(stream rpc.ByterService_UploadServer) (*model.Bytes, error) {
-	modBytes := &model.Bytes{}
-
-	// insert FileSize, DataType, FileName, FileOwner in modBytes
-	err := modBytes.InsertValuesFromCtx(stream.Context())
-	if err != nil {
-
-		// Ошибка запроса request клиента
-		return nil, errs.ErrDataCtx
-	}
-
-	// File for data saving
-	file, path, err := s.FileManager.CreateFileInStore(modBytes)
-	if err != nil {
-		return nil, errs.ErrCreateFile.Wrap(err)
-	}
-
-	modBytes.Descr, modBytes.Path = file, path
-	return modBytes, nil
-}
-
 func (s *UploadService) Load(stream rpc.ByterService_UploadServer, modBytes *model.Bytes) (*model.Bytes, error) {
-	modBytes.Descr.Close()
+	defer modBytes.Descr.Close()
 
 	cnt, err := s.uploadStream(stream, modBytes)
 	if err != nil {

@@ -14,19 +14,19 @@ import (
 )
 
 var (
-	logger      = logg.NewLogg("test.log", "INFO")
+	logger      = logg.NewLogService("test.log", "INFO")
 	cfg         = config.NewArgsCLI(logger, port, attempts, waitTimeRes, retryReq, APPNAME, DESC, VERS, CONFIG)
 	fileHandler = utils.NewFileProc()
 )
 
-func InitServiceAPI(cfg *config.Conf, logg *logg.Logg) *api.RemoteService {
-	clientGRPC := client.NewClientGRPC(cfg, logg)
-	remoteService := api.NewRemoteService(context.TODO(), cfg, logg, clientGRPC)
+func InitServiceAPI(cfg *config.Conf, logger *logg.LogService) *api.RemoteService {
+	clientGRPC := client.NewClientGRPC(cfg, logger)
+	remoteService := api.NewRemoteService(context.TODO(), cfg, logger, clientGRPC)
 	return remoteService
 }
 
-func InitUserCLI(logg *logg.Logg) *user.UserCLI {
-	userCLI := user.NewUserCLI(logg)
+func InitUserCLI(logger *logg.LogService) *user.UserCLI {
+	userCLI := user.NewUserCLI(logger)
 	userCLI.Name = "USER"
 	userCLI.User = model.NewUser("Tester", "tester@mail.ru", "89109109910", "1234")
 	return userCLI

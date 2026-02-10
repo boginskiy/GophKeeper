@@ -18,7 +18,7 @@ const (
 
 type RecoveryService struct {
 	Cfg          config.Config
-	Logg         logg.Logger
+	Logger       logg.Logger
 	MailChan     <-chan string
 	CodeChan     chan<- string
 	EmailSender  pkg.EmailSender
@@ -41,7 +41,7 @@ func NewRecoveryService(
 
 	tmp := &RecoveryService{
 		Cfg:         cfg,
-		Logg:        logger,
+		Logger:      logger,
 		MailChan:    mailch,
 		EmailSender: emailSender,
 		CodeChan:    codeChan,
@@ -90,7 +90,7 @@ func (d *RecoveryService) RecoveryPassword(email string) bool {
 	// Отправка пользователю на email
 	err := d.EmailSender.SendEmail(email, TOPIC, d.RandomNumber)
 	if err != nil {
-		d.Logg.RaiseError(err, "error about sending email", nil)
+		d.Logger.RaiseError(err, "error about sending email", nil)
 		return false
 	}
 	return true
