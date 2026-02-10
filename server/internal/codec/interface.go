@@ -48,7 +48,7 @@ type TextGRPCDecoder[T any] interface {
 
 type TextGRPCEncoder[T any] interface {
 	EncodeReadAllResponse([]T) (*rpc.ReadAllResponse, error)
-	EncodeCreateResponse(T) (*rpc.CreateResponse, error)
+	EncodeCreateResponse(T, string) (*rpc.CreateResponse, error)
 	EncodeDeleteResponse(T) (*rpc.DeleteResponse, error)
 	EncodeReadResponse(T) (*rpc.ReadResponse, error)
 }

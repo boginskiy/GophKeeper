@@ -12,7 +12,7 @@ func NewTextDecoderEncoder() *TextDecoderEncoder {
 	return &TextDecoderEncoder{}
 }
 
-// >> Create
+// Create
 
 // DecoderCreateRequest
 func (a *TextDecoderEncoder) DecoderCreateRequest(req *rpc.CreateRequest) (*model.Text, error) {
@@ -26,14 +26,14 @@ func (a *TextDecoderEncoder) DecoderCreateRequest(req *rpc.CreateRequest) (*mode
 }
 
 // EncodeCreateResponse
-func (a *TextDecoderEncoder) EncodeCreateResponse(mod *model.Text) (*rpc.CreateResponse, error) {
+func (a *TextDecoderEncoder) EncodeCreateResponse(mod *model.Text, status string) (*rpc.CreateResponse, error) {
 	return &rpc.CreateResponse{
-		Status:    "created",
+		Status:    status,
 		UpdatedAt: utils.ConvertDtStr(mod.UpdatedAt),
 	}, nil
 }
 
-// >> Read
+// Read
 
 // DecoderReadRequest
 func (a *TextDecoderEncoder) DecoderReadRequest(req *rpc.ReadRequest) (*model.Text, error) {
@@ -53,7 +53,7 @@ func (a *TextDecoderEncoder) EncodeReadResponse(mod *model.Text) (*rpc.ReadRespo
 	}, nil
 }
 
-// >> ReadAll
+// ReadAll
 
 // DecoderReadAllRequest
 func (a *TextDecoderEncoder) DecoderReadAllRequest(req *rpc.ReadAllRequest) (*model.Text, error) {
@@ -79,7 +79,7 @@ func (a *TextDecoderEncoder) EncodeReadAllResponse(mods []*model.Text) (*rpc.Rea
 		TextResponses: textResponses}, nil
 }
 
-// >> Delete
+// Delete
 
 // DecoderDeleteRequest
 func (a *TextDecoderEncoder) DecoderDeleteRequest(req *rpc.DeleteRequest) (*model.Text, error) {

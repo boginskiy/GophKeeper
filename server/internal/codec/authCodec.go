@@ -12,7 +12,7 @@ func NewAuthDecoderEncoder() *AuthDecoderEncoder {
 	return &AuthDecoderEncoder{}
 }
 
-// Registration Codec
+// Registration
 
 // DecoderRegistRequest
 func (a *AuthDecoderEncoder) DecoderRegistRequest(req *rpc.RegistRequest) (*model.User, error) {
@@ -33,7 +33,7 @@ func (a *AuthDecoderEncoder) EncodeRegistResponse(req *model.User) (*rpc.RegistR
 	return nil, nil
 }
 
-// Authentication Codec
+// Authentication
 
 // DecoderAuthRequest
 func (a *AuthDecoderEncoder) DecoderAuthRequest(req *rpc.AuthRequest) (*model.User, error) {
@@ -48,7 +48,7 @@ func (a *AuthDecoderEncoder) EncodeAuthResponse(req *model.User) (*rpc.AuthRespo
 	return nil, nil
 }
 
-// Recovery Codec
+// Recovery
 
 // DecoderRegistRequest
 func (a *AuthDecoderEncoder) DecoderRecovRequest(req *rpc.RecovRequest) (*model.User, error) {

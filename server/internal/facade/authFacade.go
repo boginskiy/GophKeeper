@@ -53,6 +53,7 @@ func (k *AuthFacade) Authentication(ctx context.Context, req *rpc.AuthRequest) (
 		return nil, k.ErrMapper.Mapping(err)
 	}
 
+	// EncodeAuthResponse
 	return &rpc.AuthResponse{Status: status}, nil
 }
 
@@ -67,5 +68,6 @@ func (k *AuthFacade) Recovery(ctx context.Context, req *rpc.RecovRequest) (*rpc.
 		return nil, k.ErrMapper.Mapping(err)
 	}
 
+	// EncodeRecovResponse
 	return &rpc.RecovResponse{Status: status}, nil
 }

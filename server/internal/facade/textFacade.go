@@ -37,7 +37,7 @@ func (t *TextFacade) Create(ctx context.Context, req *rpc.CreateRequest) (*rpc.C
 		return nil, t.ErrMapper.Mapping(err)
 	}
 
-	return t.TextCoder.EncodeCreateResponse(resModText)
+	return t.TextCoder.EncodeCreateResponse(resModText, "created")
 }
 
 func (t *TextFacade) Read(ctx context.Context, req *rpc.ReadRequest) (*rpc.ReadResponse, error) {
@@ -69,7 +69,7 @@ func (t *TextFacade) Update(ctx context.Context, req *rpc.CreateRequest) (*rpc.C
 		return nil, t.ErrMapper.Mapping(err)
 	}
 
-	return t.TextCoder.EncodeCreateResponse(resModText)
+	return t.TextCoder.EncodeCreateResponse(resModText, "updated")
 }
 
 func (t *TextFacade) Delete(ctx context.Context, req *rpc.DeleteRequest) (*rpc.DeleteResponse, error) {
