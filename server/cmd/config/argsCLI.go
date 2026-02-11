@@ -45,7 +45,7 @@ func (a *ArgsCLI) ParseFlags() {
 	flag.StringVar(&a.ServerGrpc, "p", "localhost:8080", "Port for the gRPC server")
 	flag.StringVar(&a.TokenSecretKey, "s", "Ld5pS4Gw", "Token lifetime")
 	flag.IntVar(&a.TokenLifetime, "t", 36000, "Token lifetime")
-	flag.StringVar(&a.CryptoSignature, "s", "CryptoKey", "")
+	flag.StringVar(&a.CryptoSignature, "c", "CryptoKey", "")
 
 	flag.Parse()
 }
