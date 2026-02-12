@@ -9,7 +9,7 @@ import (
 type Text struct {
 	Name         string
 	Type         string
-	Tx           string
+	Content      string
 	Owner        string
 	ListActivate []int64
 	CreatedAt    time.Time
@@ -20,7 +20,7 @@ func NewText(req *rpc.CreateRequest) *Text {
 	return &Text{
 		Name:         req.Name,
 		Type:         req.Type,
-		Tx:           req.Text,
+		Content:      req.Text,
 		Owner:        req.Owner,
 		ListActivate: req.ListActivate,
 	}

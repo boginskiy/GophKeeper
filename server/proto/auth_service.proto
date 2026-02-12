@@ -5,26 +5,36 @@ package GophKeeper.server.proto;
 option go_package = "github.com/boginskiy/GophKeeper/server/internal/rpc";
 
 service AuthService {
-  rpc RegistUser (RegistUserRequest) returns (RegistUserResponse);
-  rpc AuthUser (AuthUserRequest) returns (AuthUserResponse);
+  rpc Registration (RegistRequest) returns (RegistResponse);
+  rpc Authentication (AuthRequest) returns (AuthResponse);
+  rpc Recovery (RecovRequest) returns (RecovResponse);
 }
 
-message RegistUserRequest {
+message RegistRequest {
   string username = 1;
   string email = 2;
   string password = 3;
   string phonenumber = 4;
 }
 
-message RegistUserResponse {
+message RegistResponse {
     string status = 1;
 }
 
-message AuthUserRequest {
+message RecovRequest {
   string email = 1;
   string password = 2;
 }
 
-message AuthUserResponse {
+message RecovResponse {
+    string status = 1;
+}
+
+message AuthRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message AuthResponse {
     string status = 1;
 }

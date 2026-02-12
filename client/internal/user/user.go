@@ -18,14 +18,14 @@ const NAMECLI = "USER"
 type UserCLI struct {
 	Name    string
 	Scanner *bufio.Scanner
-	Logg    logg.Logger
+	Logger  logg.Logger
 	User    *model.User
 }
 
 func NewUserCLI(logger logg.Logger) *UserCLI {
 	return &UserCLI{
 		Name:    NAMECLI,
-		Logg:    logger,
+		Logger:  logger,
 		Scanner: bufio.NewScanner(os.Stdin),
 	}
 }
@@ -37,7 +37,7 @@ func (u *UserCLI) GetModelUser() *model.User {
 func (u *UserCLI) GetSystemInfo() (username, uid string) {
 	user, err := user.Current()
 	if err != nil {
-		u.Logg.RaiseError(err, "error taking extra user info", nil)
+		u.Logger.RaiseError(err, "error taking extra user info", nil)
 		return
 	}
 	return user.Username, user.Uid
@@ -57,7 +57,7 @@ func (u *UserCLI) SaveLocalUser(localUser *model.User) {
 	systemName, systemId := u.GetSystemInfo()         // Save system info about new user
 	hash, err := pkg.GenerateHash(localUser.Password) // Hash password
 
-	u.Logg.CheckWithFatal(err, "error in hashing password")
+	u.Logger.CheckWithFatal(err, "error in hashing password")
 
 	localUser.SystemUserName = systemName
 	localUser.SystemUserId = systemId

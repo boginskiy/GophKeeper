@@ -4,47 +4,52 @@ import (
 	"github.com/boginskiy/GophKeeper/client/cmd/client"
 	"github.com/boginskiy/GophKeeper/client/cmd/config"
 	"github.com/boginskiy/GophKeeper/client/internal/auth"
-	"github.com/boginskiy/GophKeeper/client/internal/cli"
 	"github.com/boginskiy/GophKeeper/client/internal/comm"
+	"github.com/boginskiy/GophKeeper/client/internal/infra"
 	"github.com/boginskiy/GophKeeper/client/internal/logg"
 	"github.com/boginskiy/GophKeeper/client/internal/user"
 )
 
 type Runner struct {
 	Cfg        config.Config
-	Logg       logg.Logger
+	Logger     logg.Logger
 	Identifier auth.Identifier
-	DialogSrv  cli.ShowGetter
-	AuthSrv    auth.Auth
+	Dialoger   infra.Dialoger
 	Root       comm.Rooter
+	RootAuth   comm.Rooter
+	done       chan struct{}
 }
 
 func NewRunner(
 	cfg config.Config,
 	logger logg.Logger,
 	identity auth.Identifier,
-	dialog cli.ShowGetter,
-	authSrv auth.Auth,
-	root comm.Rooter) *Runner {
+	dialoger infra.Dialoger,
+	root comm.Rooter,
+	rootAuth comm.Rooter) *Runner {
 
 	return &Runner{
 		Cfg:        cfg,
-		Logg:       logger,
+		Logger:     logger,
 		Identifier: identity,
-		DialogSrv:  dialog,
-		AuthSrv:    authSrv,
+		Dialoger:   dialoger,
 		Root:       root,
+		RootAuth:   rootAuth,
+		done:       make(chan struct{}),
 	}
 }
 
-func (d *Runner) Run(client *client.ClientCLI, user *user.UserCLI) {
-	d.DialogSrv.ShowIt("Hello, Man!")
+func (d *Runner) Run(client *client.ClientCLI, user user.User) {
+	d.Identifier.Shutdown(d.done, user)
 
-	ok := d.Root.ExecuteAuth(d.AuthSrv, user)
-	d.Root.ExecuteComm(ok, client, user)
+	d.Dialoger.ShowIt("Hello, Man!")
 
-	d.DialogSrv.ShowIt("Session is over. Goodbye")
+	ok := d.RootAuth.ExecuteComm(true, user)
+	d.Root.ExecuteComm(ok, user)
+
+	d.Dialoger.ShowIt("Session is over. Goodbye")
 
 	// Save data current user in config.file for feature.
 	defer d.Identifier.SaveCurrentUser(user)
+	defer close(d.done)
 }

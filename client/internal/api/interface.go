@@ -24,6 +24,7 @@ type Loader[T any] interface {
 type RemoteAuther interface {
 	Registration(model.User) (token string, err error)
 	Authentication(model.User) (token string, err error)
+	Recovery(model.User) (token string, err error)
 }
 
 type RemoteTexter[T any] interface {

@@ -14,31 +14,31 @@ import (
 )
 
 var (
-	logger   = logg.NewLogg("test.log", "INFO")
-	cfg      = config.NewConf(logger, port, attempts, waitTimeRes, retryReq, APPNAME, DESC, VERS, CONFIG)
-	fileHdlr = utils.NewFileHdlr()
+	logger      = logg.NewLogService("test.log", "INFO")
+	cfg         = config.NewArgsCLI(logger, port, attempts, waitTimeRes, retryReq, APPNAME, DESC, VERS, CONFIG)
+	fileHandler = utils.NewFileProc()
 )
 
-func InitServiceAPI(cfg *config.Conf, logg *logg.Logg) *api.RemoteService {
-	clientGRPC := client.NewClientGRPC(cfg, logg)
-	remoteSrv := api.NewRemoteService(context.TODO(), cfg, logg, clientGRPC)
-	return remoteSrv
+func InitServiceAPI(cfg *config.Conf, logger *logg.LogService) *api.RemoteService {
+	clientGRPC := client.NewClientGRPC(cfg, logger)
+	remoteService := api.NewRemoteService(context.TODO(), cfg, logger, clientGRPC)
+	return remoteService
 }
 
-func InitUserCLI(logg *logg.Logg) *user.UserCLI {
-	userCLI := user.NewUserCLI(logg)
+func InitUserCLI(logger *logg.LogService) *user.UserCLI {
+	userCLI := user.NewUserCLI(logger)
 	userCLI.Name = "USER"
 	userCLI.User = model.NewUser("Tester", "tester@mail.ru", "89109109910", "1234")
 	return userCLI
 }
 
-func InitAuthSrv(
+func InitAuthService(
 	cfg config.Config,
 	logger logg.Logger,
-	fileHdlr utils.FileHandler,
-	api api.ServiceAPI,
+	fileHandler utils.FileHandler,
+	api api.RemoteAuther,
 	identy auth.Identifier,
 
 ) *auth.AuthService {
-	return auth.NewAuthService(cfg, logger, fileHdlr, identy, api)
+	return auth.NewAuthService(cfg, logger, fileHandler, identy, api)
 }

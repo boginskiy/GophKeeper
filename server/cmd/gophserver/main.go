@@ -10,7 +10,7 @@ import (
 func main() {
 	pkg.PrintInfo(config.BuildVersion, config.BuildDate, config.BuildCommit)
 
-	logger := logg.NewLogg("main.log", "INFO")
-	cfg := config.NewArgsCLI(logger)
-	app.NewApp(cfg, logger).Run()
+	mainLogger := logg.NewLogService("main.log", "INFO")
+	cfg := config.NewArgsCLI(mainLogger)
+	app.NewApp(cfg, mainLogger).Run()
 }

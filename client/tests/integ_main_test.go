@@ -20,29 +20,29 @@ var (
 func TestClient(t *testing.T) {
 	UserCLI := InitUserCLI(logger)
 	ServiceAPI := InitServiceAPI(cfg, logger)
-	Identy := auth.NewIdentity(cfg, logger, fileHdlr)
+	Identy := auth.NewIdentity(cfg, logger, fileHandler)
 
-	ServiceAuth := InitAuthSrv(cfg, logger, fileHdlr, ServiceAPI, Identy)
-	ServiceByter := service.NewByterService(cfg, logger, fileHdlr, ServiceAPI)
+	ServiceAuth := InitAuthService(cfg, logger, fileHandler, ServiceAPI, Identy)
+	ServiceByter := service.NewBytesService(cfg, logger, fileHandler, ServiceAPI)
 
 	Authentication(t, ServiceAuth, UserCLI)
 
 	// Testing
-	// testAuthSrv(t, ServiceAuth, UserCLI)
-	testByterSrv(t, ServiceByter, UserCLI)
+	// testAuthService(t, ServiceAuth, UserCLI)
+	testByterService(t, ServiceByter, UserCLI)
 
 	//
 	defer Identy.SaveCurrentUser(UserCLI)
 }
 
-func Authentication(t *testing.T, srv auth.Auth, user user.User) {
-	ok := srv.Identification(user)
+func Authentication(t *testing.T, service auth.Auth, user user.User) {
+	ok := service.Identification(user)
 	if ok {
-		_, err := srv.Authentication(user, dataAuth)
+		_, err := service.Authentication(user, dataAuth)
 		if err == nil {
 			return
 		}
 	}
-	_, err := srv.Registration(user, dataRegis)
+	_, err := service.Registration(user, dataRegis)
 	assert.NoError(t, err)
 }

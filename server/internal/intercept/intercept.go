@@ -5,24 +5,25 @@ import (
 
 	"github.com/boginskiy/GophKeeper/server/cmd/config"
 	"github.com/boginskiy/GophKeeper/server/internal/auth"
+	"github.com/boginskiy/GophKeeper/server/internal/infra"
 	"github.com/boginskiy/GophKeeper/server/internal/logg"
-	"github.com/boginskiy/GophKeeper/server/internal/manager"
+	"github.com/boginskiy/GophKeeper/server/internal/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type ServIntercept struct {
-	Cfg  config.Config
-	Logg logg.Logger
-	Auth auth.Auther
+	Cfg    config.Config
+	Logger logg.Logger
+	Auth   auth.Auther[*model.User]
 }
 
-func NewServIntercept(config config.Config, logger logg.Logger, auther auth.Auther) *ServIntercept {
+func NewServIntercept(config config.Config, logger logg.Logger, auther auth.Auther[*model.User]) *ServIntercept {
 	return &ServIntercept{
-		Cfg:  config,
-		Logg: logger,
-		Auth: auther,
+		Cfg:    config,
+		Logger: logger,
+		Auth:   auther,
 	}
 }
 
@@ -39,13 +40,14 @@ func (i *ServIntercept) ServAuth(ctx context.Context, req interface{}, info *grp
 		return handler(ctx, req)
 	}
 	// Good identification.
-	ctx = context.WithValue(ctx, manager.PhoneCtx, infoToken.PhoneNumber)
-	ctx = context.WithValue(ctx, manager.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.PhoneCtx, infoToken.PhoneNumber)
+	ctx = context.WithValue(ctx, infra.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.IDCtx, infoToken.ID)
 
 	return handler(ctx, req)
 }
 
-func (i *ServIntercept) StreamServAuth(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func (i *ServIntercept) StreamServAuth(service interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	// На этом этапе мы через одиночный запрос в ServAuth зарегистрировались/аутентифицировались.
 	// В данном перехватчике мы делаем сверку токен и кладем в контекст доп инфу.
 
@@ -57,14 +59,15 @@ func (i *ServIntercept) StreamServAuth(srv interface{}, ss grpc.ServerStream, in
 	}
 
 	// New context.
-	newCtx := context.WithValue(ctx, manager.PhoneCtx, infoToken.PhoneNumber)
-	newCtx = context.WithValue(newCtx, manager.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.PhoneCtx, infoToken.PhoneNumber)
+	ctx = context.WithValue(ctx, infra.EmailCtx, infoToken.Email)
+	ctx = context.WithValue(ctx, infra.IDCtx, infoToken.ID)
 
 	// Оболочка ServerStream с новым контекстом
 	wrapSS := &WrapServerStream{
 		ServerStream: ss,
-		Ctx:          newCtx,
+		Ctx:          ctx,
 	}
 
-	return handler(srv, wrapSS)
+	return handler(service, wrapSS)
 }
